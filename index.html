@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GD 80 악력 훈련 매니저</title>
+    <title>GD 80 악력 훈련 매니저 PRO</title>
     <style>
         :root { 
             --bg-color: #f4f6f9; 
@@ -13,6 +13,7 @@
             --success-color: #10b981; 
             --warning-color: #f59e0b; 
             --danger-color: #ef4444;
+            --accent-color: #ec4899;
         }
         body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         
@@ -49,7 +50,7 @@
         /* 루틴 섹션 공통 스타일 */
         .routine-section { margin-bottom: 25px; border-left: 4px solid var(--primary-color); padding-left: 12px; }
         .routine-section.negative { border-left-color: var(--warning-color); }
-        .routine-section.holding { border-left-color: #ec4899; }
+        .routine-section.holding { border-left-color: var(--accent-color); }
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .section-title { font-size: 15px; font-weight: bold; margin: 0; }
         .section-desc { font-size: 12px; color: #6b7280; margin: 0 0 12px 0; }
@@ -62,24 +63,34 @@
         .last-log-badge-line { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #475569; background: #e2e8f0; padding: 4px 10px; border-radius: 6px; font-weight: bold; }
         .copy-link-btn { color: var(--primary-color); background: none; border: none; font-size: 11px; font-weight: bold; cursor: pointer; padding: 0; text-decoration: underline; -webkit-tap-highlight-color: transparent; }
 
-        .set-main-controls { display: flex; align-items: center; gap: 10px; width: 100%; }
+        .set-main-controls { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+        .controls-upper { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+        .controls-lower { display: flex; gap: 8px; width: 100%; }
+        
         .set-label { font-size: 13px; font-weight: bold; color: #475569; min-width: 45px; }
         
         /* ➕, ➖ 무게 조절 컨트롤 컴포넌트 */
         .weight-stepper { display: flex; align-items: center; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden; }
-        .step-btn { width: 28px; height: 32px; background: #f1f5f9; border: none; font-size: 16px; font-weight: bold; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s; -webkit-tap-highlight-color: transparent; }
+        .step-btn { width: 26px; height: 30px; background: #f1f5f9; border: none; font-size: 14px; font-weight: bold; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
         .step-btn:active { background: #e2e8f0; }
-        .num-input-weight { width: 38px; height: 32px; border: none; text-align: center; font-size: 14px; font-weight: bold; color: #1e293b; padding: 0; }
-        .num-input-weight:focus { outline: none; background: #fafafa; }
+        .num-input-weight { width: 36px; height: 30px; border: none; text-align: center; font-size: 13px; font-weight: bold; color: #1e293b; padding: 0; }
+        .num-input-weight:focus { outline: none; }
         
-        .input-group { display: flex; align-items: center; gap: 4px; }
-        .input-group label { font-size: 11px; color: #64748b; font-weight: bold; }
-        .num-input-reps { width: 45px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; text-align: center; font-size: 14px; font-weight: bold; color: #1e293b; box-sizing: border-box; }
-        .num-input-reps:focus { border-color: var(--primary-color); outline: none; }
+        /* 양손 개별 입력 수치 블록 */
+        .lr-input-box { display: flex; align-items: center; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 6px; flex: 1; justify-content: space-between; }
+        .lr-input-box span { font-size: 11px; font-weight: bold; color: #64748b; margin-right: 2px; }
+        .num-input-lr { width: 32px; border: none; text-align: center; font-size: 13px; font-weight: bold; color: #1e293b; padding: 4px 0; }
+        .num-input-lr:focus { outline: none; }
         
-        /* 세트 완료 체크 버튼 */
-        .set-check-btn { margin-left: auto; padding: 6px 12px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+        /* 하이브리드 스마트 훈련 컨트롤 버튼 */
+        .smart-train-btn { flex: 1; padding: 7px 0; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 11px; font-weight: bold; color: #334155; cursor: pointer; text-align: center; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+        .smart-train-btn.counting-down { background: var(--danger-color) !important; color: white !important; animation: blink 1s infinite; }
+        .smart-train-btn.active-run { background: var(--warning-color) !important; color: white !important; }
+        
+        .set-check-btn { padding: 6px 12px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; -webkit-tap-highlight-color: transparent; }
         .set-check-btn.done { background: var(--success-color); color: white; border-color: var(--success-color); }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
         /* 원터치 캘린더 */
         .calendar-container { margin-top: 25px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 12px; }
@@ -122,8 +133,8 @@
 </div>
 
 <div class="container">
-    <h1>GD 80 악력 훈련 매니저</h1>
-    <div class="subtitle">6단계 스텝 버튼(±) 또는 수기 입력으로 중량을 설정하세요.</div>
+    <h1>GD 80 악력 훈련 매니저 PRO</h1>
+    <div class="subtitle">네거티브(5초 완수제), 홀딩(실패지점 한계 측정) 자동 정밀 타이머</div>
 
     <div class="pr-dashboard">
         <div class="pr-title">🏆 ALL-TIME BEST WEIGHT (PR)</div>
@@ -137,19 +148,22 @@
 
     <div class="routine-section">
         <div class="section-header"><div class="section-title">1. 워밍업 (가벼운 장력)</div></div>
-        <div class="section-desc">10회 가볍게 쥐며 전완근에 열 올리기</div>
+        <div class="section-desc">가볍게 쥐며 전완근에 열 올리기</div>
         <div class="set-input-grid">
             <div class="set-row">
-                <div class="last-log-badge-line"><span>🕒 직전 훈련: <span id="last-w-w1">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-w1')">📋 그대로 복사</button></div>
+                <div class="last-log-badge-line"><span>🕒 직전: <span id="last-w-w1">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-w1')">📋 복사</button></div>
                 <div class="set-main-controls">
-                    <span class="set-label">웜업 1</span>
-                    <div class="weight-stepper">
-                        <button class="step-btn" onclick="stepWeight('w-w1', -1)">-</button>
-                        <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-w1" class="num-input-weight" placeholder="kg">
-                        <button class="step-btn" onclick="stepWeight('w-w1', 1)">+</button>
+                    <div class="controls-upper">
+                        <span class="set-label">웜업 1</span>
+                        <div class="weight-stepper">
+                            <button class="step-btn" onclick="stepWeight('w-w1', -1)">-</button>
+                            <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-w1" class="num-input-weight" placeholder="kg">
+                            <button class="step-btn" onclick="stepWeight('w-w1', 1)">+</button>
+                        </div>
+                        <div class="lr-input-box"><span>L</span><input type="number" inputmode="numeric" id="l-w1" class="num-input-lr" value="10"><span>회</span></div>
+                        <div class="lr-input-box"><span>R</span><input type="number" inputmode="numeric" id="r-w1" class="num-input-lr" value="10"><span>회</span></div>
+                        <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
                     </div>
-                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-w1" class="num-input-reps" placeholder="회" value="10"> <label>회</label></div>
-                    <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
                 </div>
             </div>
         </div>
@@ -157,111 +171,114 @@
 
     <div class="routine-section">
         <div class="section-header"><div class="section-title">2. 메인 세트 (5~8회 강도)</div></div>
-        <div class="section-desc">최대 5~8회 겨우 가능한 장력으로 완전히 클로징</div>
+        <div class="section-desc">최대 5~8회 가능한 장력으로 완전 클로징</div>
         <div class="set-input-grid">
             <div class="set-row">
-                <div class="last-log-badge-line"><span>🕒 직전 훈련: <span id="last-w-m1">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-m1')">📋 그대로 복사</button></div>
-                <div class="set-main-controls">
-                    <span class="set-label">1 세트</span>
-                    <div class="weight-stepper">
-                        <button class="step-btn" onclick="stepWeight('w-m1', -1)">-</button>
-                        <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-m1" class="num-input-weight" placeholder="kg">
-                        <button class="step-btn" onclick="stepWeight('w-m1', 1)">+</button>
-                    </div>
-                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-m1" class="num-input-reps" placeholder="회"> <label>회</label></div>
+                <div class="last-log-badge-line"><span>🕒 직전: <span id="last-w-m1">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-m1')">📋 복사</button></div>
+                <div class="set-main-controls"><div class="controls-upper">
+                    <span class="set-label">메인 1</span>
+                    <div class="weight-stepper"><button class="step-btn" onclick="stepWeight('w-m1', -1)">-</button><input type="number" id="w-m1" class="num-input-weight" placeholder="kg"><button class="step-btn" onclick="stepWeight('w-m1', 1)">+</button></div>
+                    <div class="lr-input-box"><span>L</span><input type="number" id="l-m1" class="num-input-lr" placeholder="회"><span>회</span></div>
+                    <div class="lr-input-box"><span>R</span><input type="number" id="r-m1" class="num-input-lr" placeholder="회"><span>회</span></div>
                     <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
-                </div>
+                </div></div>
             </div>
             <div class="set-row">
-                <div class="last-log-badge-line"><span>🕒 직전 훈련: <span id="last-w-m2">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-m2')">📋 그대로 복사</button></div>
-                <div class="set-main-controls">
-                    <span class="set-label">2 세트</span>
-                    <div class="weight-stepper">
-                        <button class="step-btn" onclick="stepWeight('w-m2', -1)">-</button>
-                        <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-m2" class="num-input-weight" placeholder="kg">
-                        <button class="step-btn" onclick="stepWeight('w-m2', 1)">+</button>
-                    </div>
-                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-m2" class="num-input-reps" placeholder="회"> <label>회</label></div>
+                <div class="last-log-badge-line"><span>🕒 직전: <span id="last-w-m2">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-m2')">📋 복사</button></div>
+                <div class="set-main-controls"><div class="controls-upper">
+                    <span class="set-label">메인 2</span>
+                    <div class="weight-stepper"><button class="step-btn" onclick="stepWeight('w-m2', -1)">-</button><input type="number" id="w-m2" class="num-input-weight" placeholder="kg"><button class="step-btn" onclick="stepWeight('w-m2', 1)">+</button></div>
+                    <div class="lr-input-box"><span>L</span><input type="number" id="l-m2" class="num-input-lr" placeholder="회"><span>회</span></div>
+                    <div class="lr-input-box"><span>R</span><input type="number" id="r-m2" class="num-input-lr" placeholder="회"><span>회</span></div>
                     <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
-                </div>
+                </div></div>
             </div>
             <div class="set-row">
-                <div class="last-log-badge-line"><span>🕒 직전 훈련: <span id="last-w-m3">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-m3')">📋 그대로 복사</button></div>
-                <div class="set-main-controls">
-                    <span class="set-label">3 세트</span>
-                    <div class="weight-stepper">
-                        <button class="step-btn" onclick="stepWeight('w-m3', -1)">-</button>
-                        <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-m3" class="num-input-weight" placeholder="kg">
-                        <button class="step-btn" onclick="stepWeight('w-m3', 1)">+</button>
-                    </div>
-                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-m3" class="num-input-reps" placeholder="회"> <label>회</label></div>
+                <div class="last-log-badge-line"><span>🕒 직전: <span id="last-w-m3">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-m3')">📋 복사</button></div>
+                <div class="set-main-controls"><div class="controls-upper">
+                    <span class="set-label">메인 3</span>
+                    <div class="weight-stepper"><button class="step-btn" onclick="stepWeight('w-m3', -1)">-</button><input type="number" id="w-m3" class="num-input-weight" placeholder="kg"><button class="step-btn" onclick="stepWeight('w-m3', 1)">+</button></div>
+                    <div class="lr-input-box"><span>L</span><input type="number" id="l-m3" class="num-input-lr" placeholder="회"><span>회</span></div>
+                    <div class="lr-input-box"><span>R</span><input type="number" id="r-m3" class="num-input-lr" placeholder="회"><span>회</span></div>
                     <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
-                </div>
+                </div></div>
             </div>
         </div>
     </div>
 
     <div class="routine-section negative">
-        <div class="section-header"><div class="section-title">3. 네거티브 (한 단계 위 장력)</div></div>
-        <div class="section-desc">양손으로 닫은 후, 한 손으로 5초간 버티며 버티기</div>
+        <div class="section-header"><div class="section-title">3. 네거티브 (5초 버티기 반복)</div></div>
+        <div class="section-desc">양손 폐쇄 후 5초 버틸 때마다 자동으로 횟수가 적립됩니다.</div>
         <div class="set-input-grid">
             <div class="set-row">
-                <div class="last-log-badge-line"><span>🕒 직전 훈련: <span id="last-w-n1">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-n1')">📋 그대로 복사</button></div>
+                <div class="last-log-badge-line"><span>🕒 직전: <span id="last-w-n1">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-n1')">📋 복사</button></div>
                 <div class="set-main-controls">
-                    <span class="set-label">1 세트</span>
-                    <div class="weight-stepper">
-                        <button class="step-btn" onclick="stepWeight('w-n1', -1)">-</button>
-                        <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-n1" class="num-input-weight" placeholder="kg">
-                        <button class="step-btn" onclick="stepWeight('w-n1', 1)">+</button>
+                    <div class="controls-upper">
+                        <span class="set-label">네거 1</span>
+                        <div class="weight-stepper"><button class="step-btn" onclick="stepWeight('w-n1', -1)">-</button><input type="number" id="w-n1" class="num-input-weight" placeholder="kg"><button class="step-btn" onclick="stepWeight('w-n1', 1)">+</button></div>
+                        <div class="lr-input-box"><span>L</span><input type="number" id="l-n1" class="num-input-lr" placeholder="0" value="0"><span>회</span></div>
+                        <div class="lr-input-box"><span>R</span><input type="number" id="r-n1" class="num-input-lr" placeholder="0" value="0"><span>회</span></div>
+                        <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
                     </div>
-                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-n1" class="num-input-reps" placeholder="회"> <label>회</label></div>
-                    <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
+                    <div class="controls-lower">
+                        <button class="smart-train-btn" id="btn-timer-l-n1" onclick="runNegativeTimer('l-n1')">◀️ 왼손 타이머</button>
+                        <button class="smart-train-btn" id="btn-timer-r-n1" onclick="runNegativeTimer('r-n1')">▶️ 오른손 타이머</button>
+                    </div>
                 </div>
             </div>
             <div class="set-row">
-                <div class="last-log-badge-line"><span>🕒 직전 훈련: <span id="last-w-n2">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-n2')">📋 그대로 복사</button></div>
+                <div class="last-log-badge-line"><span>🕒 직전: <span id="last-w-n2">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-n2')">📋 복사</button></div>
                 <div class="set-main-controls">
-                    <span class="set-label">2 세트</span>
-                    <div class="weight-stepper">
-                        <button class="step-btn" onclick="stepWeight('w-n2', -1)">-</button>
-                        <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-n2" class="num-input-weight" placeholder="kg">
-                        <button class="step-btn" onclick="stepWeight('w-n2', 1)">+</button>
+                    <div class="controls-upper">
+                        <span class="set-label">네거 2</span>
+                        <div class="weight-stepper"><button class="step-btn" onclick="stepWeight('w-n2', -1)">-</button><input type="number" id="w-n2" class="num-input-weight" placeholder="kg"><button class="step-btn" onclick="stepWeight('w-n2', 1)">+</button></div>
+                        <div class="lr-input-box"><span>L</span><input type="number" id="l-n2" class="num-input-lr" placeholder="0" value="0"><span>회</span></div>
+                        <div class="lr-input-box"><span>R</span><input type="number" id="r-n2" class="num-input-lr" placeholder="0" value="0"><span>회</span></div>
+                        <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
                     </div>
-                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-n2" class="num-input-reps" placeholder="회"> <label>회</label></div>
-                    <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
+                    <div class="controls-lower">
+                        <button class="smart-train-btn" id="btn-timer-l-n2" onclick="runNegativeTimer('l-n2')">◀️ 왼손 타이머</button>
+                        <button class="smart-train-btn" id="btn-timer-r-n2" onclick="runNegativeTimer('r-n2')">▶️ 오른손 타이머</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="routine-section holding">
-        <div class="section-header"><div class="section-title">4. 홀딩 (메인 장력)</div></div>
-        <div class="section-desc">완전히 꽉 쥔 상태로 7~10초간 최대 수축 유지</div>
+        <div class="section-header"><div class="section-title">4. 홀딩 (최대 수축 한계 유지)</div></div>
+        <div class="section-desc">5초 준비 후 시작, 실패 지점에서 정지 시 총 시간이 자동 기록됩니다.</div>
         <div class="set-input-grid">
             <div class="set-row">
-                <div class="last-log-badge-line"><span>🕒 직전 훈련: <span id="last-w-h1">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-h1')">📋 그대로 복사</button></div>
+                <div class="last-log-badge-line"><span>🕒 직전: <span id="last-w-h1">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-h1')">📋 복사</button></div>
                 <div class="set-main-controls">
-                    <span class="set-label">1 세트</span>
-                    <div class="weight-stepper">
-                        <button class="step-btn" onclick="stepWeight('w-h1', -1)">-</button>
-                        <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-h1" class="num-input-weight" placeholder="kg">
-                        <button class="step-btn" onclick="stepWeight('w-h1', 1)">+</button>
+                    <div class="controls-upper">
+                        <span class="set-label">홀딩 1</span>
+                        <div class="weight-stepper"><button class="step-btn" onclick="stepWeight('w-h1', -1)">-</button><input type="number" id="w-h1" class="num-input-weight" placeholder="kg"><button class="step-btn" onclick="stepWeight('w-h1', 1)">+</button></div>
+                        <div class="lr-input-box"><span>L</span><input type="number" id="l-h1" class="num-input-lr" placeholder="초"><span>초</span></div>
+                        <div class="lr-input-box"><span>R</span><input type="number" id="r-h1" class="num-input-lr" placeholder="초"><span>초</span></div>
+                        <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
                     </div>
-                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-h1" class="num-input-reps" placeholder="초"> <label>초</label></div>
-                    <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
+                    <div class="controls-lower">
+                        <button class="smart-train-btn" id="btn-timer-l-h1" onclick="runHoldingTimer('l-h1')">◀️ 왼손 측정 시작</button>
+                        <button class="smart-train-btn" id="btn-timer-r-h1" onclick="runHoldingTimer('r-h1')">▶️ 오른손 측정 시작</button>
+                    </div>
                 </div>
             </div>
             <div class="set-row">
-                <div class="last-log-badge-line"><span>🕒 직전 훈련: <span id="last-w-h2">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-h2')">📋 그대로 복사</button></div>
+                <div class="last-log-badge-line"><span>🕒 직전: <span id="last-w-h2">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-h2')">📋 복사</button></div>
                 <div class="set-main-controls">
-                    <span class="set-label">2 세트</span>
-                    <div class="weight-stepper">
-                        <button class="step-btn" onclick="stepWeight('w-h2', -1)">-</button>
-                        <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-h2" class="num-input-weight" placeholder="kg">
-                        <button class="step-btn" onclick="stepWeight('w-h2', 1)">+</button>
+                    <div class="controls-upper">
+                        <span class="set-label">홀딩 2</span>
+                        <div class="weight-stepper"><button class="step-btn" onclick="stepWeight('w-h2', -1)">-</button><input type="number" id="w-h2" class="num-input-weight" placeholder="kg"><button class="step-btn" onclick="stepWeight('w-h2', 1)">+</button></div>
+                        <div class="lr-input-box"><span>L</span><input type="number" id="l-h2" class="num-input-lr" placeholder="초"><span>초</span></div>
+                        <div class="lr-input-box"><span>R</span><input type="number" id="r-h2" class="num-input-lr" placeholder="초"><span>초</span></div>
+                        <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
                     </div>
-                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-h2" class="num-input-reps" placeholder="초"> <label>초</label></div>
-                    <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
+                    <div class="controls-lower">
+                        <button class="smart-train-btn" id="btn-timer-l-h2" onclick="runHoldingTimer('l-h2')">◀️ 왼손 측정 시작</button>
+                        <button class="smart-train-btn" id="btn-timer-r-h2" onclick="runHoldingTimer('r-h2')">▶️ 오른손 측정 시작</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -280,7 +297,7 @@
 
     <div class="memo-container">
         <div class="section-title" style="margin-bottom: 8px;">오늘의 훈련 기록 메모</div>
-        <textarea id="memo" placeholder="예: 오른쪽 전완 피로도 높음. 다음엔 메인 2세트 무게 유지할 것"></textarea>
+        <textarea id="memo" placeholder="예: 네거티브 왼손 버티기 안정성 증가. 홀딩 오른손 클로징 간당간당함."></textarea>
         <button class="save-btn" onclick="saveAllData()">훈련 완료 및 기록 저장</button>
         <button class="reset-btn" onclick="resetTodayChecks()">오늘 세트 체크 초기화</button>
     </div>
@@ -290,18 +307,25 @@
     let timer; let timeLeft = 120; let isTimerRunning = false;
     let completedDates = []; let dailyLogs = {};
     let prRecords = { warmup: 0, main: 0, negative: 0, holding: 0 };
+    
+    // 개별 서브 타이머 상태 변수들
+    let subTimerInterval = null;
+    let activeSubTimerId = null;
 
-    // GD 80 공식 6단계 무게 가이드 배열
     const GD80_LEVELS = [25, 36, 47, 58, 69, 80];
 
     const inputIds = [
-        'w-w1', 'r-w1', 'w-m1', 'r-m1', 'w-m2', 'r-m2', 'w-m3', 'r-m3',
-        'w-n1', 'r-n1', 'w-n2', 'r-n2', 'w-h1', 'r-h1', 'w-h2', 'r-h2'
+        'w-w1', 'l-w1', 'r-w1', 
+        'w-m1', 'l-m1', 'r-m1', 'w-m2', 'l-m2', 'r-m2', 'w-m3', 'l-m3', 'r-m3',
+        'w-n1', 'l-n1', 'r-n1', 'w-n2', 'l-n2', 'r-n2', 
+        'w-h1', 'l-h1', 'r-h1', 'w-h2', 'l-h2', 'r-h2'
     ];
 
-    const pairs = {
-        'w-w1': 'r-w1', 'w-m1': 'r-m1', 'w-m2': 'r-m2', 'w-m3': 'r-m3',
-        'w-n1': 'r-n1', 'w-n2': 'r-n2', 'w-h1': 'r-h1', 'w-h2': 'r-h2'
+    const weightToLrMap = {
+        'w-w1': ['l-w1', 'r-w1'],
+        'w-m1': ['l-m1', 'r-m1'], 'w-m2': ['l-m2', 'r-m2'], 'w-m3': ['l-m3', 'r-m3'],
+        'w-n1': ['l-n1', 'r-n1'], 'w-n2': ['l-n2', 'r-n2'],
+        'w-h1': ['l-h1', 'r-h1'], 'w-h2': ['l-h2', 'r-h2']
     };
 
     function playSound(freq, duration = 0.15) {
@@ -313,50 +337,135 @@
         } catch(e) {}
     }
     function triggerVibration(pattern) { if (navigator.vibrate) { navigator.vibrate(pattern); } }
-    
-    function triggerAlert() {
-        const mode = document.querySelector('input[name="alertMode"]:checked').value;
-        if (mode === 'sound') { playSound(880, 0.4); } 
-        else if (mode === 'vibrate') { triggerVibration([300, 100, 300]); }
-        else if (mode === 'silent') {
-            const box = document.getElementById('timer-box'); box.classList.add('timer-flash');
-            setTimeout(() => box.classList.remove('timer-flash'), 2000);
-        }
-    }
 
-    // ➕, ➖ 버튼 작동 및 정밀 매핑 컨트롤러 엔진
     function stepWeight(inputId, direction) {
         const inputEl = document.getElementById(inputId);
         if (!inputEl) return;
-
         let currentVal = parseFloat(inputEl.value);
-
-        // 비어있을 경우 방향에 따라 최소/최대 기본값 바인딩
         if (isNaN(currentVal)) {
             inputEl.value = direction > 0 ? GD80_LEVELS[0] : GD80_LEVELS[GD80_LEVELS.length - 1];
             saveCurrentInputsTemp();
             return;
         }
-
         if (direction > 0) {
-            // 현재 수치보다 '큰' 가장 가까운 고정 단계 찾기
             const nextLevel = GD80_LEVELS.find(lvl => lvl > currentVal);
-            if (nextLevel !== undefined) {
-                inputEl.value = nextLevel;
-            } else if (currentVal < 80) {
-                inputEl.value = 80;
-            }
+            if (nextLevel !== undefined) inputEl.value = nextLevel;
+            else if (currentVal < 80) inputEl.value = 80;
         } else {
-            // 현재 수치보다 '작은' 단계들 중 가장 큰 값 찾기 (역순 탐색)
             const prevLevel = [...GD80_LEVELS].reverse().find(lvl => lvl < currentVal);
-            if (prevLevel !== undefined) {
-                inputEl.value = prevLevel;
-            } else if (currentVal > 25) {
-                inputEl.value = 25;
+            if (prevLevel !== undefined) inputEl.value = prevLevel;
+            else if (currentVal > 25) inputEl.value = 25;
+        }
+        saveCurrentInputsTemp();
+    }
+
+    /* 🛑 3. 네거티브 전용 정밀 타이머 엔진 (5초 카운트다운 후 5초 완수제) */
+    function runNegativeTimer(lrId) {
+        if (subTimerInterval) { clearInterval(subTimerInterval); subTimerInterval = null; }
+        
+        const btn = document.getElementById(`btn-timer-${lrId}`);
+        const inputEl = document.getElementById(lrId);
+        if (!btn || !inputEl) return;
+
+        let readyTime = 5;
+        btn.classList.add('counting-down');
+        btn.innerText = `⏳ 준비... ${readyTime}초`;
+        playSound(587.33, 0.1); // 준비 시작 알림음
+
+        subTimerInterval = setInterval(() => {
+            readyTime--;
+            if (readyTime > 0) {
+                btn.innerText = `⏳ 준비... ${readyTime}초`;
+                playSound(587.33, 0.06);
+            } else if (readyTime === 0) {
+                // 본 훈련 5초 카운트다운 돌입
+                clearInterval(subTimerInterval);
+                btn.classList.remove('counting-down');
+                btn.classList.add('active-run');
+                
+                let holdTime = 5;
+                btn.innerText = `🔥 버티기! ${holdTime}초`;
+                playSound(880, 0.3); // 버티기 시작 고음 피치 알림
+                triggerVibration(200);
+
+                subTimerInterval = setInterval(() => {
+                    holdTime--;
+                    if (holdTime > 0) {
+                        btn.innerText = `🔥 버티기! ${holdTime}초`;
+                        playSound(440, 0.08);
+                    } else {
+                        // 5초 완수 성공 지점
+                        clearInterval(subTimerInterval);
+                        subTimerInterval = null;
+                        btn.classList.remove('active-run');
+                        btn.innerText = lrId.startsWith('l') ? "◀️ 왼손 타이머" : "▶️ 오른손 타이머";
+                        
+                        let currentCount = parseInt(inputEl.value) || 0;
+                        inputEl.value = currentCount + 1; // 자동으로 +1회 적립
+                        
+                        playSound(1174.66, 0.4); // 완수 축하 성공음
+                        triggerVibration([150, 100, 250]);
+                        saveCurrentInputsTemp();
+                        startRestTimer(); // 완수 후 휴식 자동 유도
+                    }
+                }, 1000);
             }
+        }, 1000);
+    }
+
+    /* ⏱️ 4. 홀딩 전용 무제한 카운트업 엔진 (5초 준 후 한계점 정지 및 자동 기록) */
+    function runHoldingTimer(lrId) {
+        const btn = document.getElementById(`btn-timer-${lrId}`);
+        const inputEl = document.getElementById(lrId);
+        if (!btn || !inputEl) return;
+
+        // 러닝 중일 때 누르면 한계 정지 세이브
+        if (subTimerInterval && activeSubTimerId === lrId) {
+            clearInterval(subTimerInterval);
+            subTimerInterval = null;
+            activeSubTimerId = null;
+            btn.classList.remove('active-run');
+            
+            // 버튼 명칭 원복 및 2분 휴식 전환
+            btn.innerText = lrId.startsWith('l') ? "◀️ 왼손 측정 시작" : "▶️ 오른손 측정 시작";
+            playSound(523.25, 0.2);
+            saveCurrentInputsTemp();
+            startRestTimer();
+            return;
         }
 
-        saveCurrentInputsTemp();
+        if (subTimerInterval) { clearInterval(subTimerInterval); subTimerInterval = null; }
+
+        let readyTime = 5;
+        activeSubTimerId = lrId;
+        btn.classList.add('counting-down');
+        btn.innerText = `⏳ 준비... ${readyTime}초`;
+        playSound(587.33, 0.1);
+
+        subTimerInterval = setInterval(() => {
+            readyTime--;
+            if (readyTime > 0) {
+                btn.innerText = `⏳ 준비... ${readyTime}초`;
+                playSound(587.33, 0.06);
+            } else {
+                clearInterval(subTimerInterval);
+                btn.classList.remove('counting-down');
+                btn.classList.add('active-run');
+                
+                let elapsedSeconds = 0;
+                btn.innerText = `⏱️ 버티는 중: 0초 [정지]`;
+                inputEl.value = 0;
+                playSound(880, 0.3);
+                triggerVibration(200);
+
+                subTimerInterval = setInterval(() => {
+                    elapsedSeconds++;
+                    btn.innerText = `⏱️ 버티는 중: ${elapsedSeconds}초 [정지]`;
+                    inputEl.value = elapsedSeconds; // 1초씩 실시간 동기화 입력
+                    playSound(440, 0.05);
+                }, 1000);
+            }
+        }, 1000);
     }
 
     function toggleSetRow(btn) {
@@ -379,7 +488,13 @@
             if (timeLeft <= 0) {
                 clearInterval(timer); isTimerRunning = false;
                 document.getElementById('timer-status').innerText = "💪 휴식 끝! 다음 세트 시작";
-                document.getElementById('timer-status').style.color = "#10b981"; triggerAlert();
+                document.getElementById('timer-status').style.color = "#10b981";
+                if (mode === 'sound') { playSound(880, 0.4); } 
+                else if (mode === 'vibrate') { triggerVibration([300, 100, 300]); }
+                else {
+                    const box = document.getElementById('timer-box'); box.classList.add('timer-flash');
+                    setTimeout(() => box.classList.remove('timer-flash'), 2000);
+                }
             }
         }, 1000);
     }
@@ -399,7 +514,7 @@
             const el = document.getElementById(id);
             currentValues[id] = el ? el.value : ''; 
         });
-        localStorage.setItem('grip_temp_inputs', JSON.stringify(currentValues));
+        localStorage.setItem('grip_temp_inputs_pro', JSON.stringify(currentValues));
         calculateAndDisplayPR(currentValues);
     }
 
@@ -412,7 +527,6 @@
             });
             return max;
         };
-
         const wMax = checkPR(['w-w1']);
         const mMax = checkPR(['w-m1', 'w-m2', 'w-m3']);
         const nMax = checkPR(['w-n1', 'w-n2']);
@@ -423,7 +537,7 @@
         if (nMax > prRecords.negative) prRecords.negative = nMax;
         if (hMax > prRecords.holding) prRecords.holding = hMax;
 
-        localStorage.setItem('grip_pr_v2', JSON.stringify(prRecords));
+        localStorage.setItem('grip_pr_pro', JSON.stringify(prRecords));
         displayPR();
     }
 
@@ -441,7 +555,7 @@
         
         if (!completedDates.includes(dateStr)) {
             completedDates.push(dateStr);
-            localStorage.setItem('grip_completed_dates_v2', JSON.stringify(completedDates));
+            localStorage.setItem('grip_completed_dates_pro', JSON.stringify(completedDates));
         }
 
         let todayData = {};
@@ -455,18 +569,17 @@
             memo: document.getElementById('memo') ? document.getElementById('memo').value : ''
         };
 
-        localStorage.setItem('grip_daily_logs_v2', JSON.stringify(dailyLogs));
-        if(document.getElementById('memo')) localStorage.setItem('grip_last_memo', document.getElementById('memo').value);
+        localStorage.setItem('grip_daily_logs_pro', JSON.stringify(dailyLogs));
+        if(document.getElementById('memo')) localStorage.setItem('grip_last_memo_pro', document.getElementById('memo').value);
         
         loadLastLogInline();
         renderCalendar();
-        alert('오늘의 기록이 저장되었습니다! 다음 운동 시 이 수치들이 가이드라인으로 바로 노출됩니다. 🔥');
+        alert('오늘의 양손 상세 훈련 기록이 성공적으로 저장되었습니다! 🔥');
     }
 
     function copyLastSet(weightId) {
-        const repId = pairs[weightId];
         if (!completedDates || completedDates.length === 0) return;
-        
+        const [lId, rId] = weightToLrMap[weightId];
         const lastDates = [...completedDates].sort().reverse();
         const today = new Date();
         const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
@@ -475,30 +588,29 @@
         if (targetDate && dailyLogs[targetDate] && dailyLogs[targetDate].sets) {
             const s = dailyLogs[targetDate].sets;
             if(s[weightId] && document.getElementById(weightId)) document.getElementById(weightId).value = s[weightId];
-            if(s[repId] && document.getElementById(repId)) document.getElementById(repId).value = s[repId];
+            if(s[lId] && document.getElementById(lId)) document.getElementById(lId).value = s[lId];
+            if(s[rId] && document.getElementById(rId)) document.getElementById(rId).value = s[rId];
             saveCurrentInputsTemp();
         }
     }
 
     function loadLastLogInline() {
         if (!completedDates || completedDates.length === 0) return;
-        
         const sortedDates = [...completedDates].sort().reverse();
         const today = new Date();
         const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-        
         const lastWorkoutDate = sortedDates.find(d => d !== todayStr) || sortedDates[0];
         
         if (lastWorkoutDate && dailyLogs[lastWorkoutDate] && dailyLogs[lastWorkoutDate].sets) {
             const s = dailyLogs[lastWorkoutDate].sets;
-            const suffix = (id) => id.startsWith('w-h') ? '초' : '회';
+            const unit = (id) => id.startsWith('w-h') ? '초' : '회';
             
-            Object.keys(pairs).forEach(wId => {
-                const rId = pairs[wId];
+            Object.keys(weightToLrMap).forEach(wId => {
+                const [lId, rId] = weightToLrMap[wId];
                 const badge = document.getElementById(`last-${wId}`);
                 if (badge) {
-                    if (s[wId] || s[rId]) {
-                        badge.innerText = `${s[wId] || '0'}kg × ${s[rId] || '0'}${suffix(wId)}`;
+                    if (s[wId] || s[lId] || s[rId]) {
+                        badge.innerText = `${s[wId] || '0'}kg (L:${s[lId] || '0'}${unit(wId)} / R:${s[rId] || '0'}${unit(wId)})`;
                     } else {
                         badge.innerText = "-";
                     }
@@ -512,47 +624,46 @@
         const panel = document.getElementById('history-panel');
         const content = document.getElementById('history-content');
         const memoDiv = document.getElementById('history-memo');
-        
         if(!panel || !content || !memoDiv) return;
         
-        document.getElementById('history-date-title').innerText = `📅 ${dateStr} 훈련 세부 내역`;
+        document.getElementById('history-date-title').innerText = `📅 ${dateStr} 양손 정밀 훈련 상세`;
         content.innerHTML = '';
 
         if (dailyLogs[dateStr] && dailyLogs[dateStr].sets) {
             const s = dailyLogs[dateStr].sets;
             let htmlBuild = "";
             
-            if(s['w-w1'] || s['r-w1']) {
+            if(s['w-w1']) {
                 htmlBuild += `<div class="history-section-title">1. 워밍업</div>`;
-                htmlBuild += `<div class="history-row-text">▪️ 웜업1세트 : ${s['w-w1'] || '0'}kg × ${s['r-w1'] || '0'}회</div>`;
+                htmlBuild += `<div class="history-row-text">▪️ 웜업1세트 : ${s['w-w1']}kg (L:${s['l-w1']}회 / R:${s['r-w1']}회)</div>`;
             }
             if(s['w-m1'] || s['w-m2'] || s['w-m3']) {
                 htmlBuild += `<div class="history-section-title">2. 메인 세트</div>`;
-                if(s['w-m1'] || s['r-m1']) htmlBuild += `<div class="history-row-text">▪️ 메인1세트 : ${s['w-m1'] || '0'}kg × ${s['r-m1'] || '0'}회</div>`;
-                if(s['w-m2'] || s['r-m2']) htmlBuild += `<div class="history-row-text">▪️ 메인2세트 : ${s['w-m2'] || '0'}kg × ${s['r-m2'] || '0'}회</div>`;
-                if(s['w-m3'] || s['r-m3']) htmlBuild += `<div class="history-row-text">▪️ 메인3세트 : ${s['w-m3'] || '0'}kg × ${s['r-m3'] || '0'}회</div>`;
+                if(s['w-m1']) htmlBuild += `<div class="history-row-text">▪️ 메인 1세트 : ${s['w-m1']}kg (L:${s['l-m1']}회 / R:${s['r-m1']}회)</div>`;
+                if(s['w-m2']) htmlBuild += `<div class="history-row-text">▪️ 메인 2세트 : ${s['w-m2']}kg (L:${s['l-m2']}회 / R:${s['r-m2']}회)</div>`;
+                if(s['w-m3']) htmlBuild += `<div class="history-row-text">▪️ 메인 3세트 : ${s['w-m3']}kg (L:${s['l-m3']}회 / R:${s['r-m3']}회)</div>`;
             }
             if(s['w-n1'] || s['w-n2']) {
-                htmlBuild += `<div class="history-section-title">3. 네거티브</div>`;
-                if(s['w-n1'] || s['r-n1']) htmlBuild += `<div class="history-row-text">▪️ 네거1세트 : ${s['w-n1'] || '0'}kg × ${s['r-n1'] || '0'}회</div>`;
-                if(s['w-n2'] || s['r-n2']) htmlBuild += `<div class="history-row-text">▪️ 네거2세트 : ${s['w-n2'] || '0'}kg × ${s['r-n2'] || '0'}회</div>`;
+                htmlBuild += `<div class="history-section-title">3. 네거티브 (5초 버틴 성공회수)</div>`;
+                if(s['w-n1']) htmlBuild += `<div class="history-row-text">▪️ 네거 1세트 : ${s['w-n1']}kg (L:${s['l-n1']}회 / R:${s['r-n1']}회)</div>`;
+                if(s['w-n2']) htmlBuild += `<div class="history-row-text">▪️ 네거 2세트 : ${s['w-n2']}kg (L:${s['l-n2']}회 / R:${s['r-n2']}회)</div>`;
             }
             if(s['w-h1'] || s['w-h2']) {
-                htmlBuild += `<div class="history-section-title">4. 홀딩</div>`;
-                if(s['w-h1'] || s['r-h1']) htmlBuild += `<div class="history-row-text">▪️ 홀딩1세트 : ${s['w-h1'] || '0'}kg × ${s['r-h1'] || '0'}초</div>`;
-                if(s['w-h2'] || s['r-h2']) htmlBuild += `<div class="history-row-text">▪️ 홀딩2세트 : ${s['w-h2'] || '0'}kg × ${s['r-h2'] || '0'}초</div>`;
+                htmlBuild += `<div class="history-section-title">4. 홀딩 (한계유지 총 시간)</div>`;
+                if(s['w-h1']) htmlBuild += `<div class="history-row-text">▪️ 홀딩 1세트 : ${s['w-h1']}kg (L:${s['l-h1']}초 / R:${s['r-h1']}초)</div>`;
+                if(s['w-h2']) htmlBuild += `<div class="history-row-text">▪️ 홀딩 2세트 : ${s['w-h2']}kg (L:${s['l-h2']}초 / R:${s['r-h2']}초)</div>`;
             }
-            content.innerHTML = htmlBuild || "<div class='history-row-text'>세부 세트 기록이 비어있습니다.</div>";
+            content.innerHTML = htmlBuild || "<div class='history-row-text'>저장된 세부 세트 데이터가 비어있습니다.</div>";
             memoDiv.innerText = dailyLogs[dateStr].memo ? `📝 일지 메모: ${dailyLogs[dateStr].memo}` : "📝 작성된 기록 메모가 없습니다.";
             panel.style.display = 'block';
         } else {
-            content.innerHTML = `<div class='history-row-text' style='color:var(--danger-color)'>🚫 이 날짜에는 기록된 데이터가 없습니다.</div>`;
+            content.innerHTML = `<div class='history-row-text' style='color:var(--danger-color)'>🚫 해당 날짜에는 기록된 데이터가 없습니다.</div>`;
             memoDiv.innerText = ""; panel.style.display = 'block';
         }
     }
 
     function resetTodayChecks() {
-        if(confirm("오늘 진행한 세트 완료 버튼들과 타이머만 초기화하겠습니까?")) {
+        if(confirm("오늘 완료 플래그들과 타이머만 초기화하겠습니까?")) {
             resetTimerOnly();
             document.querySelectorAll('.set-check-btn').forEach(btn => {
                 btn.classList.remove('done'); btn.innerText = "완료";
@@ -564,52 +675,35 @@
         const now = new Date(); const year = now.getFullYear(); const month = now.getMonth();
         const titleEl = document.getElementById('calendar-month-year');
         const grid = document.getElementById('calendar-grid');
-        
         if(titleEl) titleEl.innerText = `${year}년 ${String(month+1).padStart(2,'0')}월`;
         if(!grid) return;
-        
         grid.innerHTML = '';
-        
         const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
         daysOfWeek.forEach(d => { const label = document.createElement('div'); label.className = 'calendar-day-label'; label.innerText = d; grid.appendChild(label); });
-        
         const firstDay = new Date(year, month, 1).getDay(); const totalDays = new Date(year, month + 1, 0).getDate();
         for (let i = 0; i < firstDay; i++) { const emptyCell = document.createElement('div'); grid.appendChild(emptyCell); }
-        
         for (let day = 1; day <= totalDays; day++) {
             const cell = document.createElement('div'); cell.className = 'calendar-day'; cell.innerText = day;
             const currentDateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-            
             if (day === now.getDate()) cell.classList.add('today');
             if (completedDates && completedDates.includes(currentDateStr)) cell.classList.add('completed');
-            
-            cell.onclick = function() {
-                showHistory(currentDateStr); this.classList.add('selected');
-            };
+            cell.onclick = function() { showHistory(currentDateStr); this.classList.add('selected'); };
             grid.appendChild(cell);
         }
     }
 
     window.onload = function() {
-        const savedTemp = localStorage.getItem('grip_temp_inputs');
+        const savedTemp = localStorage.getItem('grip_temp_inputs_pro');
         if (savedTemp) {
             const vals = JSON.parse(savedTemp);
-            inputIds.forEach(id => { 
-                const el = document.getElementById(id);
-                if(el && vals[id]) el.value = vals[id]; 
-            });
+            inputIds.forEach(id => { const el = document.getElementById(id); if(el && vals[id] !== undefined) el.value = vals[id]; });
         }
-        
-        const savedMemo = localStorage.getItem('grip_last_memo'); if (savedMemo && document.getElementById('memo')) document.getElementById('memo').value = savedMemo;
-        const savedDates = localStorage.getItem('grip_completed_dates_v2'); if (savedDates) completedDates = JSON.parse(savedDates);
-        const savedLogs = localStorage.getItem('grip_daily_logs_v2'); if (savedLogs) dailyLogs = JSON.parse(savedLogs);
-        const savedPR = localStorage.getItem('grip_pr_v2'); if (savedPR) prRecords = JSON.parse(savedPR);
-        
+        const savedMemo = localStorage.getItem('grip_last_memo_pro'); if (savedMemo && document.getElementById('memo')) document.getElementById('memo').value = savedMemo;
+        const savedDates = localStorage.getItem('grip_completed_dates_pro'); if (savedDates) completedDates = JSON.parse(savedDates);
+        const savedLogs = localStorage.getItem('grip_daily_logs_pro'); if (savedLogs) dailyLogs = JSON.parse(savedLogs);
+        const savedPR = localStorage.getItem('grip_pr_pro'); if (savedPR) prRecords = JSON.parse(savedPR);
         displayPR(); 
-        try {
-            loadLastLogInline(); 
-        } catch(e) { console.log(e); }
-        
+        try { loadLastLogInline(); } catch(e) {}
         renderCalendar();
     }
 </script>
