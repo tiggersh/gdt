@@ -124,7 +124,7 @@
     <div class="routine-section">
         <div class="section-header">
             <div class="section-title">1. 워밍업 (가벼운 장력)</div>
-            <div class="weight-input-box"><label>장력:</label><input type="text" id="weight-warmup" class="weight-input" placeholder="kg" onchange="saveWeights()"></div>
+            <div class="weight-input-box"><label>장력:</label><input type="number" inputmode="decimal" pattern="[0-9]*" id="weight-warmup" class="weight-input" placeholder="kg" onchange="saveWeights()"></div>
         </div>
         <div class="section-desc">10회 가볍게 쥐며 전완근에 열 올리기</div>
         <div class="btn-group"><button class="set-btn" onclick="toggleSet(this)">웜업 1</button></div>
@@ -133,7 +133,7 @@
     <div class="routine-section">
         <div class="section-header">
             <div class="section-title">2. 메인 세트 (5~8회 강도)</div>
-            <div class="weight-input-box"><label>장력:</label><input type="text" id="weight-main" class="weight-input" placeholder="kg" onchange="saveWeights()"></div>
+            <div class="weight-input-box"><label>장력:</label><input type="number" inputmode="decimal" pattern="[0-9]*" id="weight-warmup" class="weight-input" placeholder="kg" onchange="saveWeights()"></div>
         </div>
         <div class="section-desc">최대 5~8회 겨우 가능한 장력으로 완전히 클로징</div>
         <div class="btn-group">
@@ -146,7 +146,7 @@
     <div class="routine-section negative">
         <div class="section-header">
             <div class="section-title">3. 네거티브 (한 단계 위 장력)</div>
-            <div class="weight-input-box"><label>장력:</label><input type="text" id="weight-negative" class="weight-input" placeholder="kg" onchange="saveWeights()"></div>
+            <div class="weight-input-box"><label>장력:</label><input type="number" inputmode="decimal" pattern="[0-9]*" id="weight-warmup" class="weight-input" placeholder="kg" onchange="saveWeights()"></div>
         </div>
         <div class="section-desc">양손으로 닫은 후, 한 손으로 5초간 버티며 펴기</div>
         <div class="btn-group">
@@ -158,7 +158,7 @@
     <div class="routine-section holding">
         <div class="section-header">
             <div class="section-title">4. 홀딩 (메인 장력)</div>
-            <div class="weight-input-box"><label>장력:</label><input type="text" id="weight-holding" class="weight-input" placeholder="kg" onchange="saveWeights()"></div>
+            <div class="weight-input-box"><label>장력:</label><input type="number" inputmode="decimal" pattern="[0-9]*" id="weight-warmup" class="weight-input" placeholder="kg" onchange="saveWeights()"></div>
         </div>
         <div class="section-desc">완전히 꽉 쥔 상태로 7~10초간 최대 수축 유지</div>
         <div class="btn-group">
