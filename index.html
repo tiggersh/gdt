@@ -27,29 +27,30 @@
             margin: 0; padding: 0; width: 100%; height: 100%; 
             background: var(--bg); color: var(--text);
             font-family: 'Urbanist', 'Noto Sans KR', sans-serif;
-            overflow: hidden; /* 슬라이드 네비게이션을 위해 스크롤 차단 */
+            overflow: hidden; /* 가로 슬라이드 전용 구조를 위해 스크롤 차단 */
         }
 
         /* [2. 슬라이드 터치 스크린 구성] */
         .app-shell {
-            display: flex; width: 600%; /* 총 6개 슬라이드 면적 */
+            display: flex; width: 600%; /* 총 6개 슬라이드 영역 */
             height: 100%; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .slide-page {
             width: 16.666%; height: 100%; 
             display: flex; flex-direction: column;
-            padding: 20px 20px 110px 20px; /* 하단 내비게이션 바 여백 */
+            padding: 25px 25px 120px 25px; /* 하단 네비게이션 탭 확보를 위한 패딩 */
             overflow-y: auto;
         }
 
         /* [3. 타이포그래피] */
         .header-area { margin: 10px 0 20px 0; }
-        .header-area h1 { font-size: 38px; font-weight: 900; margin: 0; color: var(--text); }
+        .header-area h1 { font-size: 38px; font-weight: 900; margin: 0; color: var(--text); letter-spacing: -1px; }
+        .header-area h1 span { color: var(--primary); }
         .header-area p { font-size: 14px; color: var(--text-dim); margin: 5px 0 0 0; }
         .slide-title { font-size: 28px; font-weight: 900; margin-bottom: 5px; color: var(--accent); }
 
-        /* [4. 거대 카드 및 버튼 디자인 (모바일 최적화)] */
+        /* [4. 거대 카드 및 버튼 디자인 (모바일 터치 최적화)] */
         .card {
             background: var(--card); border-radius: 28px; padding: 25px;
             margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05);
@@ -60,30 +61,32 @@
         .giant-stepper {
             display: flex; align-items: center; justify-content: space-between;
             background: rgba(255,255,255,0.03); padding: 15px; border-radius: 22px;
-            margin-bottom: 25px;
+            margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.02);
         }
 
         .btn-step {
-            width: 80px; height: 80px; border-radius: 22px; border: none;
-            background: var(--primary); color: white; font-size: 36px; font-weight: 900;
+            width: 85px; height: 85px; border-radius: 22px; border: none;
+            background: var(--primary); color: white; font-size: 40px; font-weight: 900;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
         }
         .btn-step:active { transform: scale(0.9); background: #4f46e5; }
 
-        .weight-val { font-size: 56px; font-weight: 900; color: #fff; font-family: 'Urbanist'; }
+        .weight-val { font-size: 64px; font-weight: 900; color: #fff; font-family: 'Urbanist'; }
+        .weight-unit { font-size: 20px; color: var(--text-dim); margin-left: 5px; font-weight: 700; }
 
         /* 입력창 좌우 배치 그리드 */
         .lr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .lr-input-box {
-            background: rgba(255,255,255,0.03); border-radius: 20px; padding: 15px;
+            background: rgba(255,255,255,0.03); border-radius: 20px; padding: 18px;
             text-align: center; border: 1px solid rgba(255,255,255,0.08);
         }
-        .lr-input-box label { display: block; font-size: 12px; font-weight: 900; color: var(--primary); margin-bottom: 8px; }
+        .lr-input-box label { display: block; font-size: 13px; font-weight: 900; color: var(--primary); margin-bottom: 10px; letter-spacing: 1px; }
         
-        /* 거대해진 입력 폰트 */
+        /* 거대해진 입력 폰트 및 모바일 오터치 방지 인터페이스 */
         .giant-input {
             width: 100%; background: transparent; border: none; color: white;
-            text-align: center; font-size: 42px; font-weight: 900; font-family: 'Urbanist';
+            text-align: center; font-size: 46px; font-weight: 900; font-family: 'Urbanist';
         }
 
         /* 스마트 타이머 기능용 특수 내부 버튼 */
@@ -91,19 +94,19 @@
             width: 100%; padding: 18px; border-radius: 18px; border: none;
             font-size: 15px; font-weight: 900; margin-top: 12px; cursor: pointer; transition: 0.2s;
         }
-        .btn-l { background: #334155; color: white; }
-        .btn-r { background: #475569; color: white; }
-        .timer-trigger.ready { background: var(--danger) !important; color: white; }
-        .timer-trigger.running { background: var(--warning) !important; color: white; animation: blink 1s infinite; }
+        .btn-l { background: #2d3748; color: white; border: 1px solid rgba(255,255,255,0.05); }
+        .btn-r { background: #3a4659; color: white; border: 1px solid rgba(255,255,255,0.05); }
+        .timer-trigger.ready { background: var(--danger) !important; color: white; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+        .timer-trigger.running { background: var(--warning) !important; color: white; animation: blink 1s infinite; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
 
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
-        /* 하단 고정 스케일의 세트 완료 버튼 */
+        /* 하단 고정 스케일의 초대형 세트 완료 버튼 */
         .btn-complete {
-            width: 100%; padding: 25px; border-radius: 24px; border: none;
+            width: 100%; padding: 26px; border-radius: 24px; border: none;
             background: var(--success); color: white; font-size: 22px;
-            font-weight: 900; margin-top: 25px; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
-            cursor: pointer;
+            font-weight: 900; margin-top: 25px; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+            cursor: pointer; letter-spacing: 1px;
         }
         .btn-complete:active { transform: scale(0.96); filter: brightness(1.2); }
 
@@ -111,57 +114,59 @@
         .timer-popup {
             position: fixed; inset: 0; background: rgba(0,0,0,0.98);
             z-index: 9999; display: none; flex-direction: column;
-            align-items: center; justify-content: center; backdrop-filter: blur(15px);
+            align-items: center; justify-content: center; backdrop-filter: blur(20px);
         }
         .timer-popup.active { display: flex; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         
         .clock-circle {
-            width: 320px; height: 320px; border-radius: 50%;
-            border: 10px solid var(--primary); display: flex; flex-direction: column;
+            width: 340px; height: 340px; border-radius: 50%;
+            border: 12px solid var(--primary); display: flex; flex-direction: column;
             align-items: center; justify-content: center; margin-bottom: 50px;
-            box-shadow: 0 0 60px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 0 70px rgba(99, 102, 241, 0.4);
         }
-        .clock-time { font-size: 100px; font-weight: 900; color: white; font-variant-numeric: tabular-nums; }
-        .clock-msg { font-size: 20px; color: var(--text-dim); font-weight: bold; margin-top: -10px; letter-spacing: 2px; }
+        .clock-time { font-size: 110px; font-weight: 900; color: white; font-variant-numeric: tabular-nums; font-family: 'Urbanist'; }
+        .clock-msg { font-size: 20px; color: var(--text-dim); font-weight: bold; margin-top: -10px; letter-spacing: 3px; }
         
         .btn-timer-close {
             background: var(--danger); color: white; border: none;
-            padding: 20px 60px; border-radius: 100px; font-size: 22px; font-weight: 900; cursor: pointer;
+            padding: 22px 70px; border-radius: 100px; font-size: 24px; font-weight: 900; cursor: pointer;
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4);
         }
 
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
         /* [6. 하단 고정 탭 바 내비게이션] */
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 90px;
-            background: rgba(17, 17, 17, 0.95); border-top: 1px solid #333;
+            position: fixed; bottom: 0; left: 0; right: 0; height: 95px;
+            background: rgba(10, 10, 10, 0.96); border-top: 1px solid rgba(255,255,255,0.08);
             display: flex; justify-content: space-around; align-items: center; z-index: 5000;
+            padding-bottom: env(safe-area-inset-bottom);
         }
         .nav-tab {
             flex: 1; display: flex; flex-direction: column; align-items: center;
-            color: #555; text-decoration: none; font-size: 11px; font-weight: 900;
+            color: #4a5568; text-decoration: none; font-size: 11px; font-weight: 900; transition: 0.2s;
         }
-        .nav-tab i { font-size: 26px; margin-bottom: 6px; }
+        .nav-tab i { font-size: 28px; margin-bottom: 6px; }
         .nav-tab.active { color: var(--primary); }
 
         /* [7. 홈 대시보드 및 로그 인터페이스] */
-        .pr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
+        .pr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 15px; }
         .pr-tile {
-            background: #222; border-radius: 20px; padding: 20px; border: 1px solid #333;
+            background: #161616; border-radius: 22px; padding: 22px; border: 1px solid rgba(255,255,255,0.05);
         }
-        .pr-tile .lab { font-size: 11px; color: var(--text-dim); font-weight: 900; text-transform: uppercase; }
-        .pr-tile .num { font-size: 24px; font-weight: 900; color: var(--accent); margin-top: 5px; }
+        .pr-tile .lab { font-size: 11px; color: var(--text-dim); font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+        .pr-tile .num { font-size: 28px; font-weight: 900; color: var(--accent); margin-top: 5px; font-family: 'Urbanist'; }
 
-        .cal-box { margin-top: 30px; }
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; }
-        .cal-d { font-size: 11px; padding: 10px 0; color: #555; border-radius: 8px; }
-        .cal-d.done { background: var(--success); color: white; font-weight: 900; }
-        .cal-d.today { border: 1px solid var(--primary); color: var(--primary); }
+        .cal-box { margin-top: 35px; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
+        .cal-d { font-size: 12px; padding: 12px 0; color: #4a5568; border-radius: 10px; background: #111; font-weight: 700; }
+        .cal-d.done { background: var(--success) !important; color: white; font-weight: 900; box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
+        .cal-d.today { border: 2px solid var(--primary); color: var(--primary); background: rgba(99, 102, 241, 0.1); }
 
         textarea {
-            width: 100%; background: #222; border: 1px solid #333;
-            border-radius: 20px; color: white; padding: 20px; font-family: inherit;
-            font-size: 16px; margin-top: 10px; resize: none;
+            width: 100%; background: #161616; border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 22px; color: white; padding: 22px; font-family: inherit;
+            font-size: 16px; margin-top: 12px; resize: none; line-height: 1.5;
         }
     </style>
 </head>
@@ -192,7 +197,7 @@
                 </div>
             </div>
             <div class="cal-box">
-                <div style="font-weight: 900; margin-bottom: 15px; font-size: 14px; color: var(--primary);">TRAINING LOG</div>
+                <div style="font-weight: 900; margin-bottom: 15px; font-size: 14px; color: var(--primary); letter-spacing: 1px;">TRAINING LOG</div>
                 <div class="cal-grid" id="cal-grid"></div>
             </div>
         </div>
@@ -200,12 +205,12 @@
         <div class="slide-page">
             <div class="header-area">
                 <div class="slide-title">1. WARM UP</div>
-                <p>가볍게 좌우 10회씩 가동범위 확보 및 부상 예방</p>
+                <p>가볍게 좌우 10회씩 가동범위 확보 및 전완근 부상 예방</p>
             </div>
             <div class="card">
                 <div class="giant-stepper">
                     <button class="btn-step" onclick="handleStep('w-w1', -1)">-</button>
-                    <div class="weight-val" id="w-w1-txt">25</div>
+                    <div><span class="weight-val" id="w-w1-txt">25</span><span class="weight-unit">kg</span></div>
                     <button class="btn-step" onclick="handleStep('w-w1', 1)">+</button>
                     <input type="hidden" id="w-w1" value="25">
                 </div>
@@ -220,12 +225,12 @@
         <div class="slide-page">
             <div class="header-area">
                 <div class="slide-title">2. MAIN SET</div>
-                <p>스트렝스 및 근비대용 본 세트 (최대 5~8회 기준 무겁게 타겟)</p>
+                <p>스트렝스 및 근비대 본 세트 (최대 5~8회 기준 무겁게 설정)</p>
             </div>
             <div class="card">
                 <div class="giant-stepper">
                     <button class="btn-step" onclick="handleStep('w-m1', -1)">-</button>
-                    <div class="weight-val" id="w-m1-txt">47</div>
+                    <div><span class="weight-val" id="w-m1-txt">47</span><span class="weight-unit">kg</span></div>
                     <button class="btn-step" onclick="handleStep('w-m1', 1)">+</button>
                     <input type="hidden" id="w-m1" value="47">
                 </div>
@@ -240,12 +245,12 @@
         <div class="slide-page">
             <div class="header-area">
                 <div class="slide-title">3. NEGATIVE</div>
-                <p>양손으로 강제 폐쇄 후 원심성 수축 버티기 (5초 버티면 카운트 +1)</p>
+                <p>양손 강제 폐쇄 후 버티기 타겟 (5초 완수 시 자동 카운트 업)</p>
             </div>
             <div class="card">
                 <div class="giant-stepper">
                     <button class="btn-step" onclick="handleStep('w-n1', -1)">-</button>
-                    <div class="weight-val" id="w-n1-txt">58</div>
+                    <div><span class="weight-val" id="w-n1-txt">58</span><span class="weight-unit">kg</span></div>
                     <button class="btn-step" onclick="handleStep('w-n1', 1)">+</button>
                     <input type="hidden" id="w-n1" value="58">
                 </div>
@@ -267,12 +272,12 @@
         <div class="slide-page">
             <div class="header-area">
                 <div class="slide-title">4. HOLDING</div>
-                <p>실패 지점까지 모든 악력을 쏟아붓는 엔딩 버티기 매치업</p>
+                <p>실패 지점까지 모든 악력을 쥐어짜내는 엔딩 한계 측정 매치</p>
             </div>
             <div class="card">
                 <div class="giant-stepper">
                     <button class="btn-step" onclick="handleStep('w-h1', -1)">-</button>
-                    <div class="weight-val" id="w-h1-txt">47</div>
+                    <div><span class="weight-val" id="w-h1-txt">47</span><span class="weight-unit">kg</span></div>
                     <button class="btn-step" onclick="handleStep('w-h1', 1)">+</button>
                     <input type="hidden" id="w-h1" value="47">
                 </div>
@@ -294,11 +299,11 @@
         <div class="slide-page">
             <div class="header-area">
                 <div class="slide-title">FINISH SESSION</div>
-                <p>오늘 소화해낸 훈련 로그를 로컬 저장소에 동기화합니다.</p>
+                <p>오늘 누적된 데이터셋과 전완근 컨디션을 로컬 데이터베이스에 백업합니다.</p>
             </div>
             <div class="card">
-                <textarea id="final-memo" rows="5" placeholder="오늘 전완근 컨디션 및 특이사항 메모 기록..."></textarea>
-                <button class="btn-complete" style="background: var(--primary);" onclick="finalizeAll()">SAVE SESSION 🔥</button>
+                <textarea id="final-memo" rows="5" placeholder="오늘 전완 피로도 및 세션 특이사항 코멘트..."></textarea>
+                <button class="btn-complete" style="background: var(--primary); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);" onclick="finalizeAll()">SAVE SESSION 🔥</button>
             </div>
         </div>
 
@@ -314,17 +319,17 @@
     </nav>
 
     <script>
-        /* [앱 엔진 데이터 및 상태 코어] */
+        /* [앱 엔진 데이터 및 상태 코어 자바스크립트] */
         let currentIdx = 0;
         const GD80_LEVELS = [25, 36, 47, 58, 69, 80];
         let restInt = null;
         let subInt = null;
         
-        // LocalStorage 브라우저 영구 데이터 로드
+        // 브라우저 내부 스토리지 동기화 처리
         let dates = JSON.parse(localStorage.getItem('grip_dates_final') || '[]');
         let pr = JSON.parse(localStorage.getItem('grip_pr_final') || '{"warmup":25,"main":47,"negative":58,"holding":47}');
 
-        /* [슬라이드 수평 이동 처리 인터페이스] */
+        /* [슬라이드 좌우 스크롤 제어 매핑 체계] */
         function moveSlide(idx) {
             currentIdx = idx;
             document.getElementById('app-shell').style.transform = `translateX(-${idx * 16.666}%)`;
@@ -335,7 +340,7 @@
             });
         }
 
-        /* [GD 80 기성 규격 레벨 기반 인덱스 단위 조절 루틴] */
+        /* [GD 80 고유 레벨 가변 스테퍼 핸들러] */
         function handleStep(id, dir) {
             const input = document.getElementById(id);
             const txt = document.getElementById(id + '-txt');
@@ -353,13 +358,13 @@
             txt.innerText = cur;
         }
 
-        /* [풀스크린 메인 휴식 카운트다운 타이머 컨트롤] */
+        /* [풀스크린 메인 전체화면 팝업 타이머 모듈] */
         function triggerRest() {
             const pop = document.getElementById('timer-popup');
             const timeVal = document.getElementById('clock-time');
             pop.classList.add('active');
             
-            let left = 120; // 2분 휴식 세팅
+            let left = 120; // 2분 인터벌 자동 인하 개시
             clearInterval(restInt);
             restInt = setInterval(() => {
                 left--;
@@ -369,7 +374,7 @@
                 
                 if(left <= 0) {
                     stopRestTimer();
-                    if(currentIdx < 5) moveSlide(currentIdx + 1); // 세트 완료 후 휴식 종료 시 다음 슬라이드로 지능형 패스
+                    if(currentIdx < 5) moveSlide(currentIdx + 1); // 타이머 카운트 만료 직후 다음 인덱스로 자동 진입
                 }
             }, 1000);
         }
@@ -380,7 +385,7 @@
             document.getElementById('clock-time').innerText = "02:00";
         }
 
-        /* [네거티브 고유 인공지능식 스마트 카운팅 타이머] */
+        /* [네거티브 전용 스마트 카운팅 타이머 로직] */
         function runNegaTimer(id) {
             const btn = document.getElementById('btn-t-' + id);
             const input = document.getElementById(id);
@@ -404,7 +409,7 @@
                         btn.innerText = `HOLD ${hold}`;
                         if(hold === 0) {
                             clearInterval(subInt);
-                            btn.className = "timer-trigger btn-l";
+                            btn.className = id.startsWith('l') ? "timer-trigger btn-l" : "timer-trigger btn-r";
                             btn.innerText = "SUCCESS! +1";
                             input.value = parseInt(input.value) + 1;
                             setTimeout(() => { btn.innerText = id.startsWith('l') ? "L TIMER" : "R TIMER"; }, 1500);
@@ -414,18 +419,19 @@
             }, 1000);
         }
 
-        /* [홀딩 스마트 실시간 카운트업 타이머 및 토글 정지 유도 체계] */
+        /* [홀딩 스마트 토글 누적 카운트업 타이머 및 휴식 연동] */
         function runHoldTimer(id) {
             const btn = document.getElementById('btn-t-' + id);
             const input = document.getElementById(id);
             
+            // 이미 실행중일 때 누르면 인터럽트 발생 및 정지 후 자동 입력 연동 완료 처리
             if(subInt && btn.classList.contains('running')) {
                 clearInterval(subInt);
                 subInt = null;
-                btn.className = "timer-trigger btn-l";
+                btn.className = id.startsWith('l') ? "timer-trigger btn-l" : "timer-trigger btn-r";
                 btn.innerText = "SAVED!";
                 setTimeout(() => { btn.innerText = id.startsWith('l') ? "L START" : "R START"; }, 1500);
-                triggerRest(); // 측정 중단 및 안전 확보 직후 휴식 단계 진입
+                triggerRest(); // 측정 중단 및 안전한 근육 이완 전환 유도를 위해 타이머 팝업 셋업
                 return;
             }
 
@@ -450,7 +456,7 @@
             }, 1000);
         }
 
-        /* [종료 후 LocalStorage 영구 데이터 기록 루틴] */
+        /* [종료 후 로컬스토리지 영구 원격 백업 라인 엔드포인트] */
         function finalizeAll() {
             const today = new Date();
             const dateStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
@@ -470,11 +476,11 @@
             localStorage.setItem('grip_dates_final', JSON.stringify(dates));
             localStorage.setItem('grip_pr_final', JSON.stringify(pr));
             
-            alert("오늘의 모든 세션 로그가 데이터베이스에 연동되었습니다! 고생하셨습니다. 🔥");
+            alert("세션 로그 저장이 완벽하게 수행되었습니다. 전완근 성장을 축하합니다! 🔥");
             location.reload();
         }
 
-        /* [초기화 가동 및 스트렝스 캘린더 드로잉 엔진] */
+        /* [라이프사이클 진입부 및 로그 캘린더 드로잉 모듈] */
         window.onload = function() {
             const grid = document.getElementById('cal-grid');
             const now = new Date();
