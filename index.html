@@ -64,10 +64,18 @@
 
         .set-main-controls { display: flex; align-items: center; gap: 10px; width: 100%; }
         .set-label { font-size: 13px; font-weight: bold; color: #475569; min-width: 45px; }
+        
+        /* ➕, ➖ 무게 조절 컨트롤 컴포넌트 */
+        .weight-stepper { display: flex; align-items: center; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden; }
+        .step-btn { width: 28px; height: 32px; background: #f1f5f9; border: none; font-size: 16px; font-weight: bold; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s; -webkit-tap-highlight-color: transparent; }
+        .step-btn:active { background: #e2e8f0; }
+        .num-input-weight { width: 38px; height: 32px; border: none; text-align: center; font-size: 14px; font-weight: bold; color: #1e293b; padding: 0; }
+        .num-input-weight:focus { outline: none; background: #fafafa; }
+        
         .input-group { display: flex; align-items: center; gap: 4px; }
         .input-group label { font-size: 11px; color: #64748b; font-weight: bold; }
-        .num-input { width: 50px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; text-align: center; font-size: 14px; font-weight: bold; color: #1e293b; }
-        .num-input:focus { border-color: var(--primary-color); outline: none; }
+        .num-input-reps { width: 45px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; text-align: center; font-size: 14px; font-weight: bold; color: #1e293b; box-sizing: border-box; }
+        .num-input-reps:focus { border-color: var(--primary-color); outline: none; }
         
         /* 세트 완료 체크 버튼 */
         .set-check-btn { margin-left: auto; padding: 6px 12px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
@@ -115,7 +123,7 @@
 
 <div class="container">
     <h1>GD 80 악력 훈련 매니저</h1>
-    <div class="subtitle">세트별 직전 기록 가이드라인이 상단에 상시 노출됩니다.</div>
+    <div class="subtitle">6단계 스텝 버튼(±) 또는 수기 입력으로 중량을 설정하세요.</div>
 
     <div class="pr-dashboard">
         <div class="pr-title">🏆 ALL-TIME BEST WEIGHT (PR)</div>
@@ -135,8 +143,12 @@
                 <div class="last-log-badge-line"><span>🕒 직전 훈련: <span id="last-w-w1">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-w1')">📋 그대로 복사</button></div>
                 <div class="set-main-controls">
                     <span class="set-label">웜업 1</span>
-                    <div class="input-group"><input type="number" inputmode="decimal" pattern="[0-9]*" id="w-w1" class="num-input" placeholder="kg"> <label>kg</label></div>
-                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-w1" class="num-input" placeholder="회" value="10"> <label>회</label></div>
+                    <div class="weight-stepper">
+                        <button class="step-btn" onclick="stepWeight('w-w1', -1)">-</button>
+                        <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-w1" class="num-input-weight" placeholder="kg">
+                        <button class="step-btn" onclick="stepWeight('w-w1', 1)">+</button>
+                    </div>
+                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-w1" class="num-input-reps" placeholder="회" value="10"> <label>회</label></div>
                     <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
                 </div>
             </div>
@@ -151,8 +163,12 @@
                 <div class="last-log-badge-line"><span>🕒 직전 훈련: <span id="last-w-m1">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-m1')">📋 그대로 복사</button></div>
                 <div class="set-main-controls">
                     <span class="set-label">1 세트</span>
-                    <div class="input-group"><input type="number" inputmode="decimal" pattern="[0-9]*" id="w-m1" class="num-input" placeholder="kg"> <label>kg</label></div>
-                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-m1" class="num-input" placeholder="회"> <label>회</label></div>
+                    <div class="weight-stepper">
+                        <button class="step-btn" onclick="stepWeight('w-m1', -1)">-</button>
+                        <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-m1" class="num-input-weight" placeholder="kg">
+                        <button class="step-btn" onclick="stepWeight('w-m1', 1)">+</button>
+                    </div>
+                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-m1" class="num-input-reps" placeholder="회"> <label>회</label></div>
                     <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
                 </div>
             </div>
@@ -160,8 +176,12 @@
                 <div class="last-log-badge-line"><span>🕒 직전 훈련: <span id="last-w-m2">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-m2')">📋 그대로 복사</button></div>
                 <div class="set-main-controls">
                     <span class="set-label">2 세트</span>
-                    <div class="input-group"><input type="number" inputmode="decimal" pattern="[0-9]*" id="w-m2" class="num-input" placeholder="kg"> <label>kg</label></div>
-                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-m2" class="num-input" placeholder="회"> <label>회</label></div>
+                    <div class="weight-stepper">
+                        <button class="step-btn" onclick="stepWeight('w-m2', -1)">-</button>
+                        <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-m2" class="num-input-weight" placeholder="kg">
+                        <button class="step-btn" onclick="stepWeight('w-m2', 1)">+</button>
+                    </div>
+                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-m2" class="num-input-reps" placeholder="회"> <label>회</label></div>
                     <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
                 </div>
             </div>
@@ -169,8 +189,12 @@
                 <div class="last-log-badge-line"><span>🕒 직전 훈련: <span id="last-w-m3">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-m3')">📋 그대로 복사</button></div>
                 <div class="set-main-controls">
                     <span class="set-label">3 세트</span>
-                    <div class="input-group"><input type="number" inputmode="decimal" pattern="[0-9]*" id="w-m3" class="num-input" placeholder="kg"> <label>kg</label></div>
-                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-m3" class="num-input" placeholder="회"> <label>회</label></div>
+                    <div class="weight-stepper">
+                        <button class="step-btn" onclick="stepWeight('w-m3', -1)">-</button>
+                        <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-m3" class="num-input-weight" placeholder="kg">
+                        <button class="step-btn" onclick="stepWeight('w-m3', 1)">+</button>
+                    </div>
+                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-m3" class="num-input-reps" placeholder="회"> <label>회</label></div>
                     <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
                 </div>
             </div>
@@ -185,8 +209,12 @@
                 <div class="last-log-badge-line"><span>🕒 직전 훈련: <span id="last-w-n1">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-n1')">📋 그대로 복사</button></div>
                 <div class="set-main-controls">
                     <span class="set-label">1 세트</span>
-                    <div class="input-group"><input type="number" inputmode="decimal" pattern="[0-9]*" id="w-n1" class="num-input" placeholder="kg"> <label>kg</label></div>
-                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-n1" class="num-input" placeholder="회"> <label>회</label></div>
+                    <div class="weight-stepper">
+                        <button class="step-btn" onclick="stepWeight('w-n1', -1)">-</button>
+                        <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-n1" class="num-input-weight" placeholder="kg">
+                        <button class="step-btn" onclick="stepWeight('w-n1', 1)">+</button>
+                    </div>
+                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-n1" class="num-input-reps" placeholder="회"> <label>회</label></div>
                     <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
                 </div>
             </div>
@@ -194,8 +222,12 @@
                 <div class="last-log-badge-line"><span>🕒 직전 훈련: <span id="last-w-n2">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-n2')">📋 그대로 복사</button></div>
                 <div class="set-main-controls">
                     <span class="set-label">2 세트</span>
-                    <div class="input-group"><input type="number" inputmode="decimal" pattern="[0-9]*" id="w-n2" class="num-input" placeholder="kg"> <label>kg</label></div>
-                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-n2" class="num-input" placeholder="회"> <label>회</label></div>
+                    <div class="weight-stepper">
+                        <button class="step-btn" onclick="stepWeight('w-n2', -1)">-</button>
+                        <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-n2" class="num-input-weight" placeholder="kg">
+                        <button class="step-btn" onclick="stepWeight('w-n2', 1)">+</button>
+                    </div>
+                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-n2" class="num-input-reps" placeholder="회"> <label>회</label></div>
                     <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
                 </div>
             </div>
@@ -210,8 +242,12 @@
                 <div class="last-log-badge-line"><span>🕒 직전 훈련: <span id="last-w-h1">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-h1')">📋 그대로 복사</button></div>
                 <div class="set-main-controls">
                     <span class="set-label">1 세트</span>
-                    <div class="input-group"><input type="number" inputmode="decimal" pattern="[0-9]*" id="w-h1" class="num-input" placeholder="kg"> <label>kg</label></div>
-                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-h1" class="num-input" placeholder="초"> <label>초</label></div>
+                    <div class="weight-stepper">
+                        <button class="step-btn" onclick="stepWeight('w-h1', -1)">-</button>
+                        <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-h1" class="num-input-weight" placeholder="kg">
+                        <button class="step-btn" onclick="stepWeight('w-h1', 1)">+</button>
+                    </div>
+                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-h1" class="num-input-reps" placeholder="초"> <label>초</label></div>
                     <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
                 </div>
             </div>
@@ -219,8 +255,12 @@
                 <div class="last-log-badge-line"><span>🕒 직전 훈련: <span id="last-w-h2">-</span></span><button class="copy-link-btn" onclick="copyLastSet('w-h2')">📋 그대로 복사</button></div>
                 <div class="set-main-controls">
                     <span class="set-label">2 세트</span>
-                    <div class="input-group"><input type="number" inputmode="decimal" pattern="[0-9]*" id="w-h2" class="num-input" placeholder="kg"> <label>kg</label></div>
-                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-h2" class="num-input" placeholder="초"> <label>초</label></div>
+                    <div class="weight-stepper">
+                        <button class="step-btn" onclick="stepWeight('w-h2', -1)">-</button>
+                        <input type="number" inputmode="decimal" pattern="[0-9]*" id="w-h2" class="num-input-weight" placeholder="kg">
+                        <button class="step-btn" onclick="stepWeight('w-h2', 1)">+</button>
+                    </div>
+                    <div class="input-group"><input type="number" inputmode="numeric" pattern="[0-9]*" id="r-h2" class="num-input-reps" placeholder="초"> <label>초</label></div>
                     <button class="set-check-btn" onclick="toggleSetRow(this)">완료</button>
                 </div>
             </div>
@@ -251,6 +291,9 @@
     let completedDates = []; let dailyLogs = {};
     let prRecords = { warmup: 0, main: 0, negative: 0, holding: 0 };
 
+    // GD 80 공식 6단계 무게 가이드 배열
+    const GD80_LEVELS = [25, 36, 47, 58, 69, 80];
+
     const inputIds = [
         'w-w1', 'r-w1', 'w-m1', 'r-m1', 'w-m2', 'r-m2', 'w-m3', 'r-m3',
         'w-n1', 'r-n1', 'w-n2', 'r-n2', 'w-h1', 'r-h1', 'w-h2', 'r-h2'
@@ -279,6 +322,41 @@
             const box = document.getElementById('timer-box'); box.classList.add('timer-flash');
             setTimeout(() => box.classList.remove('timer-flash'), 2000);
         }
+    }
+
+    // ➕, ➖ 버튼 작동 및 정밀 매핑 컨트롤러 엔진
+    function stepWeight(inputId, direction) {
+        const inputEl = document.getElementById(inputId);
+        if (!inputEl) return;
+
+        let currentVal = parseFloat(inputEl.value);
+
+        // 비어있을 경우 방향에 따라 최소/최대 기본값 바인딩
+        if (isNaN(currentVal)) {
+            inputEl.value = direction > 0 ? GD80_LEVELS[0] : GD80_LEVELS[GD80_LEVELS.length - 1];
+            saveCurrentInputsTemp();
+            return;
+        }
+
+        if (direction > 0) {
+            // 현재 수치보다 '큰' 가장 가까운 고정 단계 찾기
+            const nextLevel = GD80_LEVELS.find(lvl => lvl > currentVal);
+            if (nextLevel !== undefined) {
+                inputEl.value = nextLevel;
+            } else if (currentVal < 80) {
+                inputEl.value = 80;
+            }
+        } else {
+            // 현재 수치보다 '작은' 단계들 중 가장 큰 값 찾기 (역순 탐색)
+            const prevLevel = [...GD80_LEVELS].reverse().find(lvl => lvl < currentVal);
+            if (prevLevel !== undefined) {
+                inputEl.value = prevLevel;
+            } else if (currentVal > 25) {
+                inputEl.value = 25;
+            }
+        }
+
+        saveCurrentInputsTemp();
     }
 
     function toggleSetRow(btn) {
