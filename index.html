@@ -264,6 +264,7 @@
     function updatePR(currentWeights) {
         Object.keys(currentWeights).forEach(key => {
             const num = parseFloat(currentWeights[key].replace(/[^0-9.]/g, ""));
+            const num = parseFloat(val);
             if (!isNaN(num) && num > prRecords[key]) {
                 prRecords[key] = num;
             }
