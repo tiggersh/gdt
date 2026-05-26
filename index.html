@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GD 80 악력 훈련 매니저</title>
+    <style>
+        :root { 
+            --bg-color: #f4f6f9; 
+            --card-bg: #ffffff; 
+            --text-color: #333333; 
+            --primary-color: #4f46e5; 
+            --success-color: #10b981; 
+            --warning-color: #f59e0b; 
+            --danger-color: #ef4444;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+        
+        /* 상단 고정 타이머 바 */
+        .sticky-timer-box {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: #1e293b; color: #ffffff; padding: 12px 16px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            display: flex; justify-content: space-between; align-items: center;
+            transition: background-color 0.3s;
+        }
+        .timer-flash { background-color: var(--success-color) !important; }
+        .timer-info { display: flex; flex-direction: column; align-items: flex-start; }
+        .timer-label { font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: bold; }
+        .timer-display { font-size: 28px; font-weight: bold; margin: 2px 0; font-variant-numeric: tabular-nums; }
+        .alert-modes { display: flex; gap: 6px; margin-top: 2px; }
+        .alert-modes label { font-size: 11px; color: #cbd5e1; cursor: pointer; display: flex; align-items: center; gap: 2px; }
+        .timer-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+        .timer-reset-btn { background: rgba(255, 255, 255, 0.15); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: bold; -webkit-tap-highlight-color: transparent; }
+        
+        /* 메인 컨테이너 */
+        .container { max-width: 500px; width: 100%; background: var(--card-bg); padding: 25px; border-radius: 16px; box-sizing: border-box; margin-top: 95px; margin-bottom: 40px; }
+        h1 { font-size: 22px; text-align: center; margin-bottom: 4px; color: #1e1b4b; }
+        .subtitle { text-align: center; font-size: 13px; color: #6b7280; margin-bottom: 20px; }
+        
+        /* 🏆 역대 최고 기록(PR) 대시보드 */
+        .pr-dashboard { background: linear-gradient(135deg, #eef2ff, #e0e7ff); border: 1px solid #c7d2fe; padding: 12px; border-radius: 12px; margin-bottom: 25px; text-align: center; }
+        .pr-title { font-size: 12px; font-weight: bold; color: var(--primary-color); text-transform: uppercase; margin-bottom: 6px; display: flex; justify-content: center; align-items: center; gap: 4px; }
+        .pr-grid { display: flex; justify-content: space-between; gap: 8px; }
+        .pr-item { flex: 1; background: #fff; padding: 6px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .pr-label { font-size: 10px; color: #64748b; margin-bottom: 2px; }
+        .pr-value { font-size: 13px; font-weight: bold; color: #1e1b4b; }
+
+        /* 루틴 섹션 */
+        .routine-section { margin-bottom: 25px; border-left: 4px solid var(--primary-color); padding-left: 12px; }
+        .routine-section.negative { border-left-color: var(--warning-color); }
+        .routine-section.holding { border-left-color: #ec4899; }
+        .section-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+        .section-title { font-size: 15px; font-weight: bold; margin: 0; }
+        
+        /* 무게 세팅 입력창 */
+        .weight-input-box { display: flex; align-items: center; gap: 4px; background: #f1f5f9; padding: 2px 6px; border-radius: 6px; }
+        .weight-input-box label { font-size: 11px; color: #64748b; font-weight: bold; }
+        .weight-input { width: 45px; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 4px; text-align: center; font-size: 12px; font-weight: bold; color: var(--primary-color); }
+        
+        .section-desc { font-size: 12px; color: #6b7280; margin: 0 0 12px 0; }
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .set-btn { flex: 1; min-width: 65px; padding: 14px 10px; border: 1px solid #e5e7eb; background: #fff; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+        .set-btn.done { background: var(--success-color); color: white; border-color: var(--success-color); }
+        
+        /* 원터치 캘린더 스타일 */
+        .calendar-container { margin-top: 25px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 12px; }
+        .calendar-title { font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #334155; display: flex; justify-content: space-between; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 10fr); gap: 6px; text-align: center; }
+        .calendar-day-label { font-size: 11px; font-weight: bold; color: #94a3b8; padding-bottom: 4px; }
+        .calendar-day { font-size: 12px; padding: 6px 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: bold; color: #64748b; position: relative; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .calendar-day.today { border-color: var(--primary-color); color: var(--primary-color); background: #eef2ff; }
+        .calendar-day.completed { background: #e2e8f0; border-color: #cbd5e1; }
+        .calendar-day.completed::after { content: "🔥"; position: absolute; font-size: 8px; bottom: -2px; right: 1px; }
+        .calendar-day.selected { border-color: var(--primary-color) !important; background: var(--primary-color) !important; color: white !important; }
+
+        /* 🔍 과거 기록 타임머신 패널 */
+        .history-panel { display: none; margin-top: 12px; background: #fff; border: 2px dashed #cbd5e1; padding: 12px; border-radius: 8px; }
+        .history-date-title { font-size: 13px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 4px; }
+        .history-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12px; margin-bottom: 8px; }
+        .history-item { background: #f8fafc; padding: 4px 8px; border-radius: 4px; }
+        .history-memo { font-size: 12px; background: #fff7ed; padding: 6px 8px; border-radius: 4px; color: #c2410c; border: 1px solid #ffedd5; word-break: break-all; }
+
+        /* 하단 메모 및 리셋 */
+        .memo-container { margin-top: 25px; border-top: 1px solid #e5e7eb; padding-top: 20px; }
+        textarea { width: 100%; height: 65px; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; resize: none; box-sizing: border-box; font-family: inherit; font-size: 14px; }
+        .save-btn { width: 100%; padding: 14px; background: var(--primary-color); color: white; border: none; border-radius: 8px; margin-top: 8px; font-weight: bold; font-size: 15px; cursor: pointer; }
+        .reset-btn { width: 100%; padding: 10px; background: var(--danger-color); color: white; border: none; border-radius: 8px; margin-top: 12px; font-size: 13px; cursor: pointer; opacity: 0.8; }
+    </style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4f46e5">
+</head>
+<body>
+
+<div class="sticky-timer-box" id="timer-box">
+    <div class="timer-info">
+        <div class="timer-label" id="timer-status">휴식 타이머 대기 중</div>
+        <div class="timer-display" id="timer-text">02:00</div>
+        <div class="alert-modes">
+            <label><input type="radio" name="alertMode" value="sound" checked> 🔊 소리</label>
+            <label><input type="radio" name="alertMode" value="vibrate"> 📳 진동</label>
+            <label><input type="radio" name="alertMode" value="silent"> 🔇 무음</label>
+        </div>
+    </div>
+    <div class="timer-right">
+        <button class="timer-reset-btn" onclick="resetTimerOnly()">타이머 리셋</button>
+    </div>
+</div>
+
+<div class="container">
+    <h1>GD 80 악력 훈련 매니저</h1>
+    <div class="subtitle">세트 완료 시 버튼을 누르면 타이머가 작동합니다.</div>
+
+    <div class="pr-dashboard">
+        <div class="pr-title">🏆 MY ALL-TIME BEST RECORD (PR)</div>
+        <div class="pr-grid">
+            <div class="pr-item"><div class="pr-label">웜업</div><div class="pr-value" id="pr-warmup">-</div></div>
+            <div class="pr-item"><div class="pr-label">메인</div><div class="pr-value" id="pr-main">-</div></div>
+            <div class="pr-item"><div class="pr-label">네거티브</div><div class="pr-value" id="pr-negative">-</div></div>
+            <div class="pr-item"><div class="pr-label">홀딩</div><div class="pr-value" id="pr-holding">-</div></div>
+        </div>
+    </div>
+
+    <div class="routine-section">
+        <div class="section-header">
+            <div class="section-title">1. 워밍업 (가벼운 장력)</div>
+            <div class="weight-input-box"><label>장력:</label><input type="text" id="weight-warmup" class="weight-input" placeholder="kg" onchange="saveWeights()"></div>
+        </div>
+        <div class="section-desc">10회 가볍게 쥐며 전완근에 열 올리기</div>
+        <div class="btn-group"><button class="set-btn" onclick="toggleSet(this)">웜업 1</button></div>
+    </div>
+
+    <div class="routine-section">
+        <div class="section-header">
+            <div class="section-title">2. 메인 세트 (5~8회 강도)</div>
+            <div class="weight-input-box"><label>장력:</label><input type="text" id="weight-main" class="weight-input" placeholder="kg" onchange="saveWeights()"></div>
+        </div>
+        <div class="section-desc">최대 5~8회 겨우 가능한 장력으로 완전히 클로징</div>
+        <div class="btn-group">
+            <button class="set-btn" onclick="toggleSet(this)">1 세트</button>
+            <button class="set-btn" onclick="toggleSet(this)">2 세트</button>
+            <button class="set-btn" onclick="toggleSet(this)">3 세트</button>
+        </div>
+    </div>
+
+    <div class="routine-section negative">
+        <div class="section-header">
+            <div class="section-title">3. 네거티브 (한 단계 위 장력)</div>
+            <div class="weight-input-box"><label>장력:</label><input type="text" id="weight-negative" class="weight-input" placeholder="kg" onchange="saveWeights()"></div>
+        </div>
+        <div class="section-desc">양손으로 닫은 후, 한 손으로 5초간 버티며 펴기</div>
+        <div class="btn-group">
+            <button class="set-btn" onclick="toggleSet(this)">1 세트</button>
+            <button class="set-btn" onclick="toggleSet(this)">2 세트</button>
+        </div>
+    </div>
+
+    <div class="routine-section holding">
+        <div class="section-header">
+            <div class="section-title">4. 홀딩 (메인 장력)</div>
+            <div class="weight-input-box"><label>장력:</label><input type="text" id="weight-holding" class="weight-input" placeholder="kg" onchange="saveWeights()"></div>
+        </div>
+        <div class="section-desc">완전히 꽉 쥔 상태로 7~10초간 최대 수축 유지</div>
+        <div class="btn-group">
+            <button class="set-btn" onclick="toggleSet(this)">1 세트</button>
+            <button class="set-btn" onclick="toggleSet(this)">2 세트</button>
+        </div>
+    </div>
+
+    <div class="calendar-container">
+        <div class="calendar-title">
+            <span id="calendar-month-year"></span>
+            <span style="font-size: 11px; color: var(--success-color);">📅 날짜 클릭 시 기록 조회</span>
+        </div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+        
+        <div class="history-panel" id="history-panel">
+            <div class="history-date-title" id="history-date-title">0000-00-00 훈련 기록</div>
+            <div class="history-grid">
+                <div class="history-item"><b>웜업:</b> <span id="hist-warmup">-</span></div>
+                <div class="history-item"><b>메인:</b> <span id="hist-main">-</span></div>
+                <div class="history-item"><b>네거티브:</b> <span id="hist-negative">-</span></div>
+                <div class="history-item"><b>홀딩:</b> <span id="hist-holding">-</span></div>
+            </div>
+            <div class="history-memo" id="history-memo">메모가 없습니다.</div>
+        </div>
+    </div>
+
+    <div class="memo-container">
+        <div class="section-title" style="margin-bottom: 8px;">오늘의 훈련 기록 메모</div>
+        <textarea id="memo" placeholder="예: 오늘 컨디션 좋음. 메인 한 칸 더 올려볼 것!"></textarea>
+        <button class="save-btn" onclick="saveAllData()">훈련 완료 및 기록 저장</button>
+        <button class="reset-btn" onclick="resetAll()">오늘 세트 체크 초기화</button>
+    </div>
+</div>
+
+<script>
+    let timer; let timeLeft = 120; let isTimerRunning = false;
+    let completedDates = []; // 불꽃 도장 날짜 배열
+    let dailyLogs = {};      // 날짜별 세부 기록 객체 { '2026-05-26': { weights: {...}, memo: '...' } }
+    let prRecords = { warmup: 0, main: 0, negative: 0, holding: 0 }; // 최고 기록
+
+    function playSound(freq, duration = 0.15) {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            oscillator.connect(audioCtx.destination); oscillator.start(); oscillator.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+
+    function triggerVibration(pattern) { if (navigator.vibrate) { navigator.vibrate(pattern); } }
+
+    function triggerAlert() {
+        const mode = document.querySelector('input[name="alertMode"]:checked').value;
+        if (mode === 'sound') { playSound(880, 0.4); } 
+        else if (mode === 'vibrate') { triggerVibration([300, 100, 300]); } 
+        else if (mode === 'silent') {
+            const box = document.getElementById('timer-box'); box.classList.add('timer-flash');
+            setTimeout(() => box.classList.remove('timer-flash'), 2000);
+        }
+    }
+
+    function toggleSet(btn) { btn.classList.toggle('done'); if (btn.classList.contains('done')) { startRestTimer(); } }
+
+    function startRestTimer() {
+        clearInterval(timer); timeLeft = 120; isTimerRunning = true;
+        document.getElementById('timer-status').innerText = "🔥 세트 간 휴식 중...";
+        document.getElementById('timer-status').style.color = "#f59e0b"; updateTimerDisplay();
+        timer = setInterval(() => {
+            timeLeft--; updateTimerDisplay();
+            const mode = document.querySelector('input[name="alertMode"]:checked').value;
+            if (timeLeft <= 3 && timeLeft > 0 && mode === 'sound') { playSound(440, 0.08); }
+            if (timeLeft <= 0) {
+                clearInterval(timer); isTimerRunning = false;
+                document.getElementById('timer-status').innerText = "💪 휴식 끝! 다음 세트 시작";
+                document.getElementById('timer-status').style.color = "#10b981"; triggerAlert();
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const m = Math.floor(timeLeft / 60); const s = timeLeft % 60;
+        document.getElementById('timer-text').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+
+    function resetTimerOnly() {
+        clearInterval(timer); timeLeft = 120; isTimerRunning = false; updateTimerDisplay();
+        document.getElementById('timer-status').innerText = "휴식 타이머 대기 중"; document.getElementById('timer-status').style.color = "#94a3b8";
+    }
+
+    function saveWeights() {
+        const weights = {
+            warmup: document.getElementById('weight-warmup').value,
+            main: document.getElementById('weight-main').value,
+            negative: document.getElementById('weight-negative').value,
+            holding: document.getElementById('weight-holding').value
+        };
+        localStorage.setItem('grip_workout_weights', JSON.stringify(weights));
+        updatePR(weights); // 실시간 최고 기록 점검
+    }
+
+    // 🏆 역대 PR 갱신 알고리즘 (숫자만 추출하여 판별)
+    function updatePR(currentWeights) {
+        Object.keys(currentWeights).forEach(key => {
+            const num = parseFloat(currentWeights[key].replace(/[^0-9.]/g, ""));
+            if (!isNaN(num) && num > prRecords[key]) {
+                prRecords[key] = num;
+            }
+        });
+        localStorage.setItem('grip_pr_records', JSON.stringify(prRecords));
+        displayPR();
+    }
+
+    function displayPR() {
+        document.getElementById('pr-warmup').innerText = prRecords.warmup ? prRecords.warmup + 'kg' : '-';
+        document.getElementById('pr-main').innerText = prRecords.main ? prRecords.main + 'kg' : '-';
+        document.getElementById('pr-negative').innerText = prRecords.negative ? prRecords.negative + 'kg' : '-';
+        document.getElementById('pr-holding').innerText = prRecords.holding ? prRecords.holding + 'kg' : '-';
+    }
+
+    // [핵심] 오늘 날짜 타임라인에 누적 맵핑 저장
+    function saveAllData() {
+        saveWeights();
+        
+        const today = new Date();
+        const dateStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        
+        // 1. 달력 도장 배열 추가
+        if (!completedDates.includes(dateStr)) {
+            completedDates.push(dateStr);
+            localStorage.setItem('grip_completed_dates', JSON.stringify(completedDates));
+        }
+
+        // 2. 일지 세부 내역 날짜별 히스토리에 누적 저장
+        dailyLogs[dateStr] = {
+            weights: {
+                warmup: document.getElementById('weight-warmup').value,
+                main: document.getElementById('weight-main').value,
+                negative: document.getElementById('weight-negative').value,
+                holding: document.getElementById('weight-holding').value
+            },
+            memo: document.getElementById('memo').value
+        };
+        localStorage.setItem('grip_daily_logs', JSON.stringify(dailyLogs));
+        localStorage.setItem('grip_workout_memo', document.getElementById('memo').value);
+
+        renderCalendar();
+        alert('오늘의 운동 일지와 세팅 무게가 히스토리에 영구 저장되었습니다! 🔥');
+    }
+
+    // 🔍 특정 날짜 클릭 시 작동하는 과거 아카이브 로드 함수
+    function showHistory(dateStr) {
+        // 기존 선택 클래스 제거 관리
+        document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('selected'));
+        
+        const panel = document.getElementById('history-panel');
+        document.getElementById('history-date-title').innerText = `📅 ${dateStr} 훈련 기록`;
+
+        if (dailyLogs[dateStr]) {
+            const log = dailyLogs[dateStr];
+            document.getElementById('hist-warmup').innerText = log.weights.warmup || '-';
+            document.getElementById('hist-main').innerText = log.weights.main || '-';
+            document.getElementById('hist-negative').innerText = log.weights.negative || '-';
+            document.getElementById('hist-holding').innerText = log.weights.holding || '-';
+            document.getElementById('history-memo').innerText = log.memo ? `📝 메모: ${log.memo}` : "📝 작성된 기록 메모가 없습니다.";
+        } else {
+            // 정보가 없는 날짜일 때 기본값 처리
+            document.getElementById('hist-warmup').innerText = '-';
+            document.getElementById('hist-main').innerText = '-';
+            document.getElementById('hist-negative').innerText = '-';
+            document.getElementById('hist-holding').innerText = '-';
+            document.getElementById('history-memo').innerText = "🚫 이 날짜에는 저장된 훈련 기록이 없습니다.";
+        }
+        panel.style.display = 'block';
+    }
+
+    function resetAll() {
+        if(confirm("오늘 세트 체크 상태만 리셋하시겠습니까? (과거 기록과 무게 정보는 안전하게 보존됩니다)")) {
+            resetTimerOnly();
+            document.querySelectorAll('.set-btn').forEach(btn => btn.classList.remove('done'));
+        }
+    }
+
+    function renderCalendar() {
+        const now = new Date(); const year = now.getFullYear(); const month = now.getMonth();
+        document.getElementById('calendar-month-year').innerText = `${year}년 ${String(month+1).padStart(2,'0')}월`;
+        
+        const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
+        const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
+        daysOfWeek.forEach(d => { const label = document.createElement('div'); label.className = 'calendar-day-label'; label.innerText = d; grid.appendChild(label); });
+        
+        const firstDay = new Date(year, month, 1).getDay(); const totalDays = new Date(year, month + 1, 0).getDate();
+        for (let i = 0; i < firstDay; i++) { const emptyCell = document.createElement('div'); grid.appendChild(emptyCell); }
+        
+        for (let day = 1; day <= totalDays; day++) {
+            const cell = document.createElement('div'); cell.className = 'calendar-day'; cell.innerText = day;
+            const currentDateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+            
+            if (day === now.getDate()) { cell.classList.add('today'); }
+            if (completedDates.includes(currentDateStr)) { cell.classList.add('completed'); }
+            
+            // 달력의 날짜 칸 클릭 이벤트 결합
+            cell.onclick = function() {
+                showHistory(currentDateStr);
+                this.classList.add('selected');
+            };
+            grid.appendChild(cell);
+        }
+    }
+
+    window.onload = function() {
+        // 1. 기초 가이드 무게 복원
+        const savedWeights = localStorage.getItem('grip_workout_weights');
+        if (savedWeights) {
+            const weights = JSON.parse(savedWeights);
+            if(weights.warmup) document.getElementById('weight-warmup').value = weights.warmup;
+            if(weights.main) document.getElementById('weight-main').value = weights.main;
+            if(weights.negative) document.getElementById('weight-negative').value = weights.negative;
+            if(weights.holding) document.getElementById('weight-holding').value = weights.holding;
+        }
+        // 2. 기본 텍스트 영역 복원
+        const savedMemo = localStorage.getItem('grip_workout_memo'); if (savedMemo) { document.getElementById('memo').value = savedMemo; }
+        
+        // 3. 달력 완료 도장 리스트 데이터 복원
+        const savedDates = localStorage.getItem('grip_completed_dates'); if (savedDates) { completedDates = JSON.parse(savedDates); }
+        
+        // 4. [신규] 날짜별 아카이브 상세 일지 통째로 복원
+        const savedLogs = localStorage.getItem('grip_daily_logs'); if (savedLogs) { dailyLogs = JSON.parse(savedLogs); }
+        
+        // 5. [신규] 역대 PR 기록 로드 및 대시보드 반영
+        const savedPR = localStorage.getItem('grip_pr_records'); 
+        if (savedPR) { prRecords = JSON.parse(savedPR); } 
+        else if (savedWeights) { updatePR(JSON.parse(savedWeights)); } // 예외 방지 자동 파싱 빌드
+        displayPR();
+        
+        renderCalendar();
+    }
+</script>
+</body>
+</html>
