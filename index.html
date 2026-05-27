@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GD 악력 PRO</title>
+    <title>GD 악력 PRO v3.0</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@800;900&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
@@ -22,6 +22,8 @@
             --text: #ffffff;
             --text-dim: #7e7e86;
             --border: rgba(255, 255, 255, 0.06);
+            --selected: rgba(99, 102, 241, 0.25);
+            --selected-border: #6366f1;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; margin: 0; padding: 0; }
@@ -53,13 +55,14 @@
             scroll-snap-stop: always;
             display: flex;
             flex-direction: column;
-            padding: 16px 16px calc(95px + env(safe-area-inset-bottom)) 16px; /* 하단 네비게이션 여백 완전 차단 */
-            overflow: hidden; /* 내부 스크롤 발생 원천 차단 */
+            padding: 16px 16px calc(195px + env(safe-area-inset-bottom)) 16px; /* 하단 통합 컨트롤러 컴포넌트 배치 영역 절대 확보 */
+            overflow-y: auto; /* 리스트 스크롤 허용 */
             justify-content: flex-start;
         }
+        .slide-page::-webkit-scrollbar { display: none; }
 
         /* [3. 헤더 영역 초압축 가이드라인] */
-        .header-area { margin-bottom: 10px; display: flex; flex-direction: column; justify-content: center; min-height: 44px; }
+        .header-area { margin-bottom: 10px; display: flex; flex-direction: column; justify-content: center; min-height: 44px; flex-shrink: 0; }
         .header-area h1 { font-size: 24px; font-weight: 900; color: var(--text); letter-spacing: -1px; line-height: 1.2; }
         .header-area h1 span { color: var(--primary); }
         .header-area p { font-size: 11px; color: var(--text-dim); margin-top: 1px; font-weight: 500; }
@@ -70,7 +73,7 @@
         .card {
             background: var(--card); border-radius: 20px; padding: 12px;
             margin-bottom: 8px; border: 1px solid var(--border);
-            display: flex; flex-direction: column; justify-content: center; flex: 1; min-height: 0;
+            display: flex; flex-direction: column; justify-content: center; min-height: 0;
         }
         
         .set-row {
@@ -81,53 +84,78 @@
 
         .set-title-bar {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.04);
+            margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.04);
         }
         .set-title-bar strong { font-size: 13px; color: #fff; font-weight: 900; }
         .prev-record-label { font-size: 11px; color: var(--text-dim); font-weight: 500; }
         .set-badge { background: rgba(99, 102, 241, 0.15); color: var(--primary); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 900; font-family: 'Urbanist'; }
 
-        /* 초밀착 슬림형 조절 스태퍼 */
-        .giant-stepper {
-            display: flex; align-items: center; justify-content: space-between;
-            background: rgba(0, 0, 0, 0.3); padding: 4px 10px; border-radius: 12px;
-            margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.01);
+        /* [혁신: 인터랙티브 터치 인풋 매트릭스 리스트] */
+        .input-matrix {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
         }
-        .btn-step {
-            width: 36px; height: 36px; border-radius: 10px; border: none;
-            background: var(--primary); color: white; font-size: 20px; font-weight: 900;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
+        .matrix-item {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            padding: 8px 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
-        .btn-step:active { transform: scale(0.9); opacity: 0.8; }
-        .weight-display { display: flex; align-items: baseline; justify-content: center; }
-        .weight-val { font-size: 28px; font-weight: 900; color: #fff; font-family: 'Urbanist'; line-height: 1; }
-        .weight-unit { font-size: 13px; color: var(--text-dim); margin-left: 2px; font-weight: 700; }
-
-        /* 좌우 대칭 타이트 피팅 구조 */
-        .lr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .lr-input-box {
-            background: rgba(0, 0, 0, 0.2); border-radius: 10px; padding: 6px;
-            text-align: center; border: 1px solid rgba(255,255,255,0.03);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        .matrix-item .label {
+            font-size: 10px;
+            color: var(--text-dim);
+            font-weight: 700;
+            margin-bottom: 2px;
         }
-        .lr-input-box label { display: block; font-size: 10px; font-weight: 700; color: var(--text-dim); margin-bottom: 2px; }
+        .matrix-item .value-display {
+            font-family: 'Urbanist', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            color: #fff;
+        }
+        .matrix-item .value-display span {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-left: 1px;
+            font-weight: 700;
+        }
         
-        .giant-input-wrapper { display: flex; align-items: center; justify-content: center; width: 100%; }
-        .giant-input {
-            width: 60px; background: transparent; border: none; color: white;
-            text-align: center; font-size: 24px; font-weight: 900; font-family: 'Urbanist'; line-height: 1;
+        /* 선택된 타겟 입력 인디케이터 스타일 */
+        .matrix-item.active {
+            background: var(--selected);
+            border-color: var(--selected-border);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
         }
-        .input-unit { font-size: 11px; color: var(--text-dim); font-weight: 700; margin-left: -2px; }
+        .matrix-item.active .label { color: var(--primary); }
+        .matrix-item.active .value-display { color: var(--accent); }
 
-        /* 버튼 통합형 타이머 트리거 패널 */
-        .timer-trigger {
-            width: 100%; padding: 6px 0; border-radius: 8px; border: none;
-            font-size: 11px; font-weight: 900; margin-top: 4px; cursor: pointer; transition: 0.15s;
+        /* 타이머 통합형 유닛 스타일 */
+        .matrix-item-timer-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .matrix-timer-trigger {
+            width: 100%;
+            padding: 4px 0;
+            font-size: 9px;
+            font-weight: 900;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
         }
         .btn-l { background: #1e2633; color: #93c5fd; }
         .btn-r { background: #2a2438; color: #c084fc; }
-        .timer-trigger.ready { background: var(--danger) !important; color: white; font-weight: 900; }
-        .timer-trigger.running { background: var(--warning) !important; color: #000 !important; font-weight: 900; animation: blink 1s infinite; }
+        .matrix-timer-trigger.ready { background: var(--danger) !important; color: white; }
+        .matrix-timer-trigger.running { background: var(--warning) !important; color: #000 !important; animation: blink 1s infinite; }
 
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
@@ -135,8 +163,9 @@
         .btn-complete {
             width: 100%; padding: 14px; border-radius: 16px; border: none;
             background: var(--success); color: white; font-size: 15px;
-            font-weight: 900; margin-top: 2px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+            font-weight: 900; margin-top: 4px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
             cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+            flex-shrink: 0;
         }
         .btn-complete:active { transform: scale(0.98); filter: brightness(1.1); }
 
@@ -160,27 +189,66 @@
             padding: 12px 40px; border-radius: 100px; font-size: 15px; font-weight: 900; cursor: pointer;
         }
 
-        /* [6. 하단 하이테크 고정 탭 바 내비게이션] */
+        /* [6. 하단 하이테크 고정 탭 바 내비게이션 및 자이언트 마스터 컨트롤러 브릿지] */
+        .dock-master-panel {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(10, 10, 10, 0.96);
+            border-top: 1px solid var(--border);
+            z-index: 5000;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
+            backdrop-filter: blur(25px);
+        }
+
+        /* 핵심: 화면 하단에 무조건 고정되는 거대 스태퍼 제어 장치 */
+        .fixed-giant-controller {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: linear-gradient(180deg, rgba(20,20,20,0.6) 0%, rgba(0,0,0,0.9) 100%);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .master-btn {
+            width: 70px; height: 56px;
+            border-radius: 16px; border: none;
+            color: #fff; font-size: 28px; font-weight: 900;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.08s ease;
+        }
+        .master-btn-minus { background: #334155; }
+        .master-btn-plus { background: var(--primary); }
+        .master-btn:active { transform: scale(0.92); filter: brightness(1.2); }
+        
+        .master-status-monitor {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .master-status-monitor .target-title { font-size: 11px; color: var(--text-dim); font-weight: 700; }
+        .master-status-monitor .target-value { font-size: 24px; font-weight: 900; color: var(--accent); font-family: 'Urbanist'; }
+
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 75px;
-            background: rgba(10, 10, 10, 0.92); border-top: 1px solid var(--border);
-            display: flex; justify-content: space-around; align-items: center; z-index: 5000;
-            padding-bottom: env(safe-area-inset-bottom); backdrop-filter: blur(20px);
+            height: 65px;
+            display: flex; justify-content: space-around; align-items: center;
         }
         .nav-tab {
             flex: 1; display: flex; flex-direction: column; align-items: center;
             color: #4b5563; text-decoration: none; font-size: 10px; font-weight: 700; transition: 0.15s;
         }
-        .nav-tab i { font-size: 20px; margin-bottom: 3px; }
+        .nav-tab i { font-size: 18px; margin-bottom: 2px; }
         .nav-tab.active { color: var(--primary); font-weight: 900; }
 
         /* [7. 대시보드 홈 UI 구조 고도화] */
         .page-home-scroll {
-            display: flex; flex-direction: column; gap: 10px; width: 100%; height: 100%; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 10px; width: 100%;
         }
-        .page-home-scroll::-webkit-scrollbar { display: none; }
         
-        .pr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .pr-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
         .pr-tile { background: var(--card-sub); border-radius: 14px; padding: 12px; border: 1px solid var(--border); }
         .pr-tile .lab { font-size: 11px; color: var(--text-dim); font-weight: 700; }
         .pr-tile .num { font-size: 22px; font-weight: 900; color: var(--accent); margin-top: 2px; font-family: 'Urbanist'; }
@@ -220,6 +288,7 @@
 </head>
 <body>
 
+    <!-- 풀스크린 휴식 타이머 오버레이 -->
     <div class="timer-popup" id="timer-popup">
         <div class="clock-circle">
             <div class="clock-time" id="clock-time">02:00</div>
@@ -228,8 +297,10 @@
         <button class="btn-timer-close" onclick="stopRestTimer()">휴식 매칭 건너뛰기</button>
     </div>
 
+    <!-- 메인 앱 컨테이너 -->
     <div class="app-container" id="app-container" onscroll="handleSlideScroll()">
         
+        <!-- 대시보드 홈 슬라이드 -->
         <div class="slide-page" id="page-home">
             <div class="header-area">
                 <h1>GD 악력 <span>PRO</span></h1>
@@ -259,6 +330,7 @@
             </div>
         </div>
 
+        <!-- 슬라이드 1: 워밍업 -->
         <div class="slide-page">
             <div class="header-area">
                 <div class="slide-title">1. 워밍업 (WARM UP)</div>
@@ -273,114 +345,151 @@
                         </div>
                         <span class="set-badge">SET 1</span>
                     </div>
-                    <div class="giant-stepper">
-                        <button class="btn-step" onclick="handleStep('w-w1', -1)">-</button>
-                        <div class="weight-display"><span class="weight-val" id="w-w1-txt">25</span><span class="weight-unit">kg</span></div>
-                        <button class="btn-step" onclick="handleStep('w-w1', 1)">+</button>
-                        <input type="hidden" id="w-w1" value="25">
-                    </div>
-                    <div class="lr-grid">
-                        <div class="lr-input-box"><label>왼손 반복</label><div class="giant-input-wrapper"><input type="number" id="l-w1" class="giant-input" value="10"><span class="input-unit">회</span></div></div>
-                        <div class="lr-input-box"><label>오른손 반복</label><div class="giant-input-wrapper"><input type="number" id="r-w1" class="giant-input" value="10"><span class="input-unit">회</span></div></div>
+                    <div class="input-matrix">
+                        <div class="matrix-item" id="target-w-w1" onclick="setGlobalTarget('w-w1', '무게', 'kg', true)">
+                            <div class="label">목표 무게</div>
+                            <div class="value-display"><span id="w-w1-txt">25</span><span>kg</span></div>
+                            <input type="hidden" id="w-w1" value="25">
+                        </div>
+                        <div class="matrix-item" id="target-l-w1" onclick="setGlobalTarget('l-w1', '왼손 반복', '회', false)">
+                            <div class="label">왼손 반복</div>
+                            <div class="value-display"><span id="l-w1-txt">10</span><span>회</span></div>
+                            <input type="hidden" id="l-w1" value="10">
+                        </div>
+                        <div class="matrix-item" id="target-r-w1" onclick="setGlobalTarget('r-w1', '오른손 반복', '회', false)">
+                            <div class="label">오른손 반복</div>
+                            <div class="value-display"><span id="r-w1-txt">10</span><span>회</span></div>
+                            <input type="hidden" id="r-w1" value="10">
+                        </div>
                     </div>
                 </div>
             </div>
             <button class="btn-complete" onclick="triggerRest()"><i class="fa-solid fa-hourglass-start"></i> 세트 완료 및 휴식 타이머 가동</button>
         </div>
 
+        <!-- 슬라이드 2: 메인 세트 -->
         <div class="slide-page">
             <div class="header-area">
                 <div class="slide-title">2. 메인 세트 (MAIN STR)</div>
                 <p>본격적인 근섬유 파괴 및 고강도 저반복 악력 매치</p>
             </div>
             <div class="card">
+                <!-- 메인 1세트 -->
                 <div class="set-row">
                     <div class="set-title-bar">
                         <div><strong>본 운동 1세트</strong><div class="prev-record-label" id="prev-m-1">이전 기록 없음</div></div>
                         <span class="set-badge">SET 1</span>
                     </div>
-                    <div class="giant-stepper">
-                        <button class="btn-step" onclick="handleStep('w-m1', -1)">-</button>
-                        <div class="weight-display"><span class="weight-val" id="w-m1-txt">47</span><span class="weight-unit">kg</span></div>
-                        <button class="btn-step" onclick="handleStep('w-m1', 1)">+</button>
-                        <input type="hidden" id="w-m1" value="47">
-                    </div>
-                    <div class="lr-grid">
-                        <div class="lr-input-box"><label>왼손 횟수</label><div class="giant-input-wrapper"><input type="number" id="l-m1" class="giant-input" placeholder="0"><span class="input-unit">회</span></div></div>
-                        <div class="lr-input-box"><label>오른손 횟수</label><div class="giant-input-wrapper"><input type="number" id="r-m1" class="giant-input" placeholder="0"><span class="input-unit">회</span></div></div>
+                    <div class="input-matrix">
+                        <div class="matrix-item" id="target-w-m1" onclick="setGlobalTarget('w-m1', '메인1 무게', 'kg', true)">
+                            <div class="label">목표 무게</div>
+                            <div class="value-display"><span id="w-m1-txt">47</span><span>kg</span></div>
+                            <input type="hidden" id="w-m1" value="47">
+                        </div>
+                        <div class="matrix-item" id="target-l-m1" onclick="setGlobalTarget('l-m1', '메인1 왼손', '회', false)">
+                            <div class="label">왼손 횟수</div>
+                            <div class="value-display"><span id="l-m1-txt">0</span><span>회</span></div>
+                            <input type="hidden" id="l-m1" value="0">
+                        </div>
+                        <div class="matrix-item" id="target-r-m1" onclick="setGlobalTarget('r-m1', '메인1 오른손', '회', false)">
+                            <div class="label">오른손 횟수</div>
+                            <div class="value-display"><span id="r-m1-txt">0</span><span>회</span></div>
+                            <input type="hidden" id="r-m1" value="0">
+                        </div>
                     </div>
                 </div>
-                <div class="set-row">
+                <!-- 메인 2세트 -->
+                <div class="set-row" style="margin-top: 10px;">
                     <div class="set-title-bar">
                         <div><strong>본 운동 2세트</strong><div class="prev-record-label" id="prev-m-2">이전 기록 없음</div></div>
                         <span class="set-badge">SET 2</span>
                     </div>
-                    <div class="giant-stepper">
-                        <button class="btn-step" onclick="handleStep('w-m2', -1)">-</button>
-                        <div class="weight-display"><span class="weight-val" id="w-m2-txt">47</span><span class="weight-unit">kg</span></div>
-                        <button class="btn-step" onclick="handleStep('w-m2', 1)">+</button>
-                        <input type="hidden" id="w-m2" value="47">
-                    </div>
-                    <div class="lr-grid">
-                        <div class="lr-input-box"><label>왼손 횟수</label><div class="giant-input-wrapper"><input type="number" id="l-m2" class="giant-input" placeholder="0"><span class="input-unit">회</span></div></div>
-                        <div class="lr-input-box"><label>오른손 횟수</label><div class="giant-input-wrapper"><input type="number" id="r-m2" class="giant-input" placeholder="0"><span class="input-unit">회</span></div></div>
+                    <div class="input-matrix">
+                        <div class="matrix-item" id="target-w-m2" onclick="setGlobalTarget('w-m2', '메인2 무게', 'kg', true)">
+                            <div class="label">목표 무게</div>
+                            <div class="value-display"><span id="w-m2-txt">47</span><span>kg</span></div>
+                            <input type="hidden" id="w-m2" value="47">
+                        </div>
+                        <div class="matrix-item" id="target-l-m2" onclick="setGlobalTarget('l-m2', '메인2 왼손', '회', false)">
+                            <div class="label">왼손 횟수</div>
+                            <div class="value-display"><span id="l-m2-txt">0</span><span>회</span></div>
+                            <input type="hidden" id="l-m2" value="0">
+                        </div>
+                        <div class="matrix-item" id="target-r-m2" onclick="setGlobalTarget('r-m2', '메인2 오른손', '회', false)">
+                            <div class="label">오른손 횟수</div>
+                            <div class="value-display"><span id="r-m2-txt">0</span><span>회</span></div>
+                            <input type="hidden" id="r-m2" value="0">
+                        </div>
                     </div>
                 </div>
             </div>
             <button class="btn-complete" onclick="triggerRest()"><i class="fa-solid fa-hourglass-start"></i> 메인 세션 완료 및 휴식</button>
         </div>
 
+        <!-- 슬라이드 3: 네거티브 -->
         <div class="slide-page">
             <div class="header-area">
                 <div class="slide-title">3. 네거티브 (NEGATIVE)</div>
                 <p>양손 폐쇄 후 단일 손으로 버티며 신경계 극대 수축 확장</p>
             </div>
             <div class="card">
+                <!-- 네거티브 1세트 -->
                 <div class="set-row">
                     <div class="set-title-bar">
                         <div><strong>네거티브 1세트</strong><div class="prev-record-label" id="prev-n-1">이전 기록 없음</div></div>
                         <span class="set-badge">SET 1</span>
                     </div>
-                    <div class="giant-stepper">
-                        <button class="btn-step" onclick="handleStep('w-n1', -1)">-</button>
-                        <div class="weight-display"><span class="weight-val" id="w-n1-txt">58</span><span class="weight-unit">kg</span></div>
-                        <button class="btn-step" onclick="handleStep('w-n1', 1)">+</button>
-                        <input type="hidden" id="w-n1" value="58">
-                    </div>
-                    <div class="lr-grid">
-                        <div class="lr-input-box">
-                            <label>왼손 카운트</label>
-                            <div class="giant-input-wrapper"><input type="number" id="l-n1" class="giant-input" value="0"><span class="input-unit">회</span></div>
-                            <button class="timer-trigger btn-l" id="btn-t-l-n1" onclick="runNegaTimer('l-n1')">L 타이머</button>
+                    <div class="input-matrix">
+                        <div class="matrix-item" id="target-w-n1" onclick="setGlobalTarget('w-n1', '네거1 무게', 'kg', true)">
+                            <div class="label">목표 무게</div>
+                            <div class="value-display"><span id="w-n1-txt">58</span><span>kg</span></div>
+                            <input type="hidden" id="w-n1" value="58">
                         </div>
-                        <div class="lr-input-box">
-                            <label>오른손 카운트</label>
-                            <div class="giant-input-wrapper"><input type="number" id="r-n1" class="giant-input" value="0"><span class="input-unit">회</span></div>
-                            <button class="timer-trigger btn-r" id="btn-t-r-n1" onclick="runNegaTimer('r-n1')">R 타이머</button>
+                        <div class="matrix-item-timer-wrapper">
+                            <div class="matrix-item" id="target-l-n1" onclick="setGlobalTarget('l-n1', '네거1 왼손', '회', false)" style="width:100%;">
+                                <div class="label">왼손 카운트</div>
+                                <div class="value-display"><span id="l-n1-txt">0</span><span>회</span></div>
+                                <input type="hidden" id="l-n1" value="0">
+                            </div>
+                            <button class="matrix-timer-trigger btn-l" id="btn-t-l-n1" onclick="runNegaTimer('l-n1')">L 타이머</button>
+                        </div>
+                        <div class="matrix-item-timer-wrapper">
+                            <div class="matrix-item" id="target-r-n1" onclick="setGlobalTarget('r-n1', '네거1 오른손', '회', false)" style="width:100%;">
+                                <div class="label">오른손 카운트</div>
+                                <div class="value-display"><span id="r-n1-txt">0</span><span>회</span></div>
+                                <input type="hidden" id="r-n1" value="0">
+                            </div>
+                            <button class="matrix-timer-trigger btn-r" id="btn-t-r-n1" onclick="runNegaTimer('r-n1')">R 타이머</button>
                         </div>
                     </div>
                 </div>
-                <div class="set-row">
+                <!-- 네거티브 2세트 -->
+                <div class="set-row" style="margin-top: 10px;">
                     <div class="set-title-bar">
                         <div><strong>네거티브 2세트</strong><div class="prev-record-label" id="prev-n-2">이전 기록 없음</div></div>
                         <span class="set-badge">SET 2</span>
                     </div>
-                    <div class="giant-stepper">
-                        <button class="btn-step" onclick="handleStep('w-n2', -1)">-</button>
-                        <div class="weight-display"><span class="weight-val" id="w-n2-txt">58</span><span class="weight-unit">kg</span></div>
-                        <button class="btn-step" onclick="handleStep('w-n2', 1)">+</button>
-                        <input type="hidden" id="w-n2" value="58">
-                    </div>
-                    <div class="lr-grid">
-                        <div class="lr-input-box">
-                            <label>왼손 카운트</label>
-                            <div class="giant-input-wrapper"><input type="number" id="l-n2" class="giant-input" value="0"><span class="input-unit">회</span></div>
-                            <button class="timer-trigger btn-l" id="btn-t-l-n2" onclick="runNegaTimer('l-n2')">L 타이머</button>
+                    <div class="input-matrix">
+                        <div class="matrix-item" id="target-w-n2" onclick="setGlobalTarget('w-n2', '네거2 무게', 'kg', true)">
+                            <div class="label">목표 무게</div>
+                            <div class="value-display"><span id="w-n2-txt">58</span><span>kg</span></div>
+                            <input type="hidden" id="w-n2" value="58">
                         </div>
-                        <div class="lr-input-box">
-                            <label>오른손 카운트</label>
-                            <div class="giant-input-wrapper"><input type="number" id="r-n2" class="giant-input" value="0"><span class="input-unit">회</span></div>
-                            <button class="timer-trigger btn-r" id="btn-t-r-n2" onclick="runNegaTimer('r-n2')">R 타이머</button>
+                        <div class="matrix-item-timer-wrapper">
+                            <div class="matrix-item" id="target-l-n2" onclick="setGlobalTarget('l-n2', '네거2 왼손', '회', false)" style="width:100%;">
+                                <div class="label">왼손 카운트</div>
+                                <div class="value-display"><span id="l-n2-txt">0</span><span>회</span></div>
+                                <input type="hidden" id="l-n2" value="0">
+                            </div>
+                            <button class="matrix-timer-trigger btn-l" id="btn-t-l-n2" onclick="runNegaTimer('l-n2')">L 타이머</button>
+                        </div>
+                        <div class="matrix-item-timer-wrapper">
+                            <div class="matrix-item" id="target-r-n2" onclick="setGlobalTarget('r-n2', '네거2 오른손', '회', false)" style="width:100%;">
+                                <div class="label">오른손 카운트</div>
+                                <div class="value-display"><span id="r-n2-txt">0</span><span>회</span></div>
+                                <input type="hidden" id="r-n2" value="0">
+                            </div>
+                            <button class="matrix-timer-trigger btn-r" id="btn-t-r-n2" onclick="runNegaTimer('r-n2')">R 타이머</button>
                         </div>
                     </div>
                 </div>
@@ -388,57 +497,70 @@
             <button class="btn-complete" onclick="triggerRest()"><i class="fa-solid fa-hourglass-start"></i> 네거티브 세션 완료 및 휴식</button>
         </div>
 
+        <!-- 슬라이드 4: 맥스 홀딩 -->
         <div class="slide-page">
             <div class="header-area">
                 <div class="slide-title">4. 맥스 홀딩 (HOLDING)</div>
                 <p>완전 밀봉 상태에서 악력이 풀려 파지될 때까지의 버팀 시간 카운트</p>
             </div>
             <div class="card">
+                <!-- 홀딩 1세트 -->
                 <div class="set-row">
                     <div class="set-title-bar">
                         <div><strong>홀딩 매치 1세트</strong><div class="prev-record-label" id="prev-h-1">이전 기록 없음</div></div>
                         <span class="set-badge">SET 1</span>
                     </div>
-                    <div class="giant-stepper">
-                        <button class="btn-step" onclick="handleStep('w-h1', -1)">-</button>
-                        <div class="weight-display"><span class="weight-val" id="w-h1-txt">47</span><span class="weight-unit">kg</span></div>
-                        <button class="btn-step" onclick="handleStep('w-h1', 1)">+</button>
-                        <input type="hidden" id="w-h1" value="47">
-                    </div>
-                    <div class="lr-grid">
-                        <div class="lr-input-box">
-                            <label>왼손 버틴 시간</label>
-                            <div class="giant-input-wrapper"><input type="number" id="l-h1" class="giant-input" placeholder="0"><span class="input-unit">초</span></div>
-                            <button class="timer-trigger btn-l" id="btn-t-l-h1" onclick="runHoldTimer('l-h1')">L 스톱워치</button>
+                    <div class="input-matrix">
+                        <div class="matrix-item" id="target-w-h1" onclick="setGlobalTarget('w-h1', '홀딩1 무게', 'kg', true)">
+                            <div class="label">목표 무게</div>
+                            <div class="value-display"><span id="w-h1-txt">47</span><span>kg</span></div>
+                            <input type="hidden" id="w-h1" value="47">
                         </div>
-                        <div class="lr-input-box">
-                            <label>오른손 버틴 시간</label>
-                            <div class="giant-input-wrapper"><input type="number" id="r-h1" class="giant-input" placeholder="0"><span class="input-unit">초</span></div>
-                            <button class="timer-trigger btn-r" id="btn-t-r-h1" onclick="runHoldTimer('r-h1')">R 스톱워치</button>
+                        <div class="matrix-item-timer-wrapper">
+                            <div class="matrix-item" id="target-l-h1" onclick="setGlobalTarget('l-h1', '홀딩1 왼손', '초', false)" style="width:100%;">
+                                <div class="label">왼손 시간</div>
+                                <div class="value-display"><span id="l-h1-txt">0</span><span>초</span></div>
+                                <input type="hidden" id="l-h1" value="0">
+                            </div>
+                            <button class="matrix-timer-trigger btn-l" id="btn-t-l-h1" onclick="runHoldTimer('l-h1')">L 스톱워치</button>
+                        </div>
+                        <div class="matrix-item-timer-wrapper">
+                            <div class="matrix-item" id="target-r-h1" onclick="setGlobalTarget('r-h1', '홀딩1 오른손', '초', false)" style="width:100%;">
+                                <div class="label">오른손 시간</div>
+                                <div class="value-display"><span id="r-h1-txt">0</span><span>초</span></div>
+                                <input type="hidden" id="r-h1" value="0">
+                            </div>
+                            <button class="matrix-timer-trigger btn-r" id="btn-t-r-h1" onclick="runHoldTimer('r-h1')">R 스톱워치</button>
                         </div>
                     </div>
                 </div>
-                <div class="set-row">
+                <!-- 홀딩 2세트 -->
+                <div class="set-row" style="margin-top: 10px;">
                     <div class="set-title-bar">
                         <div><strong>홀딩 매치 2세트</strong><div class="prev-record-label" id="prev-h-2">이전 기록 없음</div></div>
                         <span class="set-badge">SET 2</span>
                     </div>
-                    <div class="giant-stepper">
-                        <button class="btn-step" onclick="handleStep('w-h2', -1)">-</button>
-                        <div class="weight-display"><span class="weight-val" id="w-h2-txt">47</span><span class="weight-unit">kg</span></div>
-                        <button class="btn-step" onclick="handleStep('w-h2', 1)">+</button>
-                        <input type="hidden" id="w-h2" value="47">
-                    </div>
-                    <div class="lr-grid">
-                        <div class="lr-input-box">
-                            <label>왼손 버틴 시간</label>
-                            <div class="giant-input-wrapper"><input type="number" id="l-h2" class="giant-input" placeholder="0"><span class="input-unit">초</span></div>
-                            <button class="timer-trigger btn-l" id="btn-t-l-h2" onclick="runHoldTimer('l-h2')">L 스톱워치</button>
+                    <div class="input-matrix">
+                        <div class="matrix-item" id="target-w-h2" onclick="setGlobalTarget('w-h2', '홀딩2 무게', 'kg', true)">
+                            <div class="label">목표 무게</div>
+                            <div class="value-display"><span id="w-h2-txt">47</span><span>kg</span></div>
+                            <input type="hidden" id="w-h2" value="47">
                         </div>
-                        <div class="lr-input-box">
-                            <label>오른손 버틴 시간</label>
-                            <div class="giant-input-wrapper"><input type="number" id="r-h2" class="giant-input" placeholder="0"><span class="input-unit">초</span></div>
-                            <button class="timer-trigger btn-r" id="btn-t-r-h2" onclick="runHoldTimer('r-h2')">R 스톱워치</button>
+                        <div class="matrix-item-timer-wrapper">
+                            <div class="matrix-item" id="target-l-h2" onclick="setGlobalTarget('l-h2', '홀딩2 왼손', '초', false)" style="width:100%;">
+                                <div class="label">왼손 시간</div>
+                                <div class="value-display"><span id="l-h2-txt">0</span><span>초</span></div>
+                                <input type="hidden" id="l-h2" value="0">
+                            </div>
+                            <button class="matrix-timer-trigger btn-l" id="btn-t-l-h2" onclick="runHoldTimer('l-h2')">L 스톱워치</button>
+                        </div>
+                        <div class="matrix-item-timer-wrapper">
+                            <div class="matrix-item" id="target-r-h2" onclick="setGlobalTarget('r-h2', '홀딩2 오른손', '초', false)" style="width:100%;">
+                                <div class="label">오른손 시간</div>
+                                <div class="value-display"><span id="r-h2-txt">0</span><span>초</span></div>
+                                <input type="hidden" id="r-h2" value="0">
+                            </div>
+                            <button class="matrix-timer-trigger btn-r" id="btn-t-r-h2" onclick="runHoldTimer('r-h2')">R 스톱워치</button>
                         </div>
                     </div>
                 </div>
@@ -446,6 +568,7 @@
             <button class="btn-complete" onclick="triggerRest()"><i class="fa-solid fa-hourglass-start"></i> 전체 세션 종료 및 가이드 연동</button>
         </div>
 
+        <!-- 최종 완료 슬라이드 -->
         <div class="slide-page">
             <div class="header-area">
                 <div class="slide-title">세션 로그 종합 업로드</div>
@@ -453,7 +576,7 @@
             </div>
             <div class="card" style="justify-content: flex-start; padding-top: 20px;">
                 <label style="font-size: 13px; font-weight: 900; color: var(--primary); margin-bottom: 8px; display: block;">트레이닝 총평 및 컨디션 기술 일지</label>
-                <textarea id="final-memo" rows="8" placeholder="오늘 손가락 관절 피로 상태, 전완근 타는 듯한 자극도, 그 외 하드웨어 인덱스 특이사항 자유 작성..."></textarea>
+                <textarea id="final-memo" rows="6" placeholder="오늘 손가락 관절 피로 상태, 전완근 타는 듯한 자극도, 그 외 하드웨어 인덱스 특이사항 자유 작성..."></textarea>
                 <div style="flex: 1;"></div>
                 <button class="btn-complete" style="background: var(--primary); padding: 18px;" onclick="finalizeAll()"><i class="fa-solid fa-cloud-arrow-up"></i> 오늘의 전완근 루틴 최종 연동 및 저장 🔥</button>
             </div>
@@ -461,14 +584,29 @@
 
     </div>
 
-    <nav class="bottom-nav">
-        <a href="javascript:void(0)" class="nav-tab active" onclick="scrollSlideTo(0)"><i class="fa-solid fa-chart-line"></i><span>홈</span></a>
-        <a href="javascript:void(0)" class="nav-tab" onclick="scrollSlideTo(1)"><i class="fa-solid fa-fire"></i><span>웜업(1)</span></a>
-        <a href="javascript:void(0)" class="nav-tab" onclick="scrollSlideTo(2)"><i class="fa-solid fa-dumbbell"></i><span>메인(2)</span></a>
-        <a href="javascript:void(0)" class="nav-tab" onclick="scrollSlideTo(3)"><i class="fa-solid fa-bolt"></i><span>네거(2)</span></a>
-        <a href="javascript:void(0)" class="nav-tab" onclick="scrollSlideTo(4)"><i class="fa-solid fa-stopwatch"></i><span>홀딩(2)</span></a>
-        <a href="javascript:void(0)" class="nav-tab" onclick="scrollSlideTo(5)"><i class="fa-solid fa-check-double"></i><span>완료</span></a>
-    </nav>
+    <!-- [핵심 UI 기어] 하단 고정 스태퍼 패널 및 내비게이션 탭 바 통합 독(Dock) -->
+    <div class="dock-master-panel">
+        
+        <!-- 고정식 거대 마스터 스마트 컨트롤러 -->
+        <div class="fixed-giant-controller" id="master-control-panel" style="display: none;">
+            <button class="master-btn master-btn-minus" onclick="handleMasterStep(-1)">-</button>
+            <div class="master-status-monitor">
+                <span class="target-title" id="master-target-title">선택된 항목 없음</span>
+                <span class="target-value" id="master-target-value">-</span>
+            </div>
+            <button class="master-btn master-btn-plus" onclick="handleMasterStep(1)">+</button>
+        </div>
+
+        <!-- 원래 하단 내비게이션 탭 -->
+        <nav class="bottom-nav">
+            <a href="javascript:void(0)" class="nav-tab active" onclick="scrollSlideTo(0)"><i class="fa-solid fa-chart-line"></i><span>홈</span></a>
+            <a href="javascript:void(0)" class="nav-tab" onclick="scrollSlideTo(1)"><i class="fa-solid fa-fire"></i><span>웜업(1)</span></a>
+            <a href="javascript:void(0)" class="nav-tab" onclick="scrollSlideTo(2)"><i class="fa-solid fa-dumbbell"></i><span>메인(2)</span></a>
+            <a href="javascript:void(0)" class="nav-tab" onclick="scrollSlideTo(3)"><i class="fa-solid fa-bolt"></i><span>네거(2)</span></a>
+            <a href="javascript:void(0)" class="nav-tab" onclick="scrollSlideTo(4)"><i class="fa-solid fa-stopwatch"></i><span>홀딩(2)</span></a>
+            <a href="javascript:void(0)" class="nav-tab" onclick="scrollSlideTo(5)"><i class="fa-solid fa-check-double"></i><span>완료</span></a>
+        </nav>
+    </div>
 
     <script>
         /* [앱 스토리지 및 전역 인덱스 변수 제어 체계] */
@@ -480,8 +618,70 @@
         let pr = JSON.parse(localStorage.getItem('grip_pr_final') || '{"warmup":25,"main":47,"negative":58,"holding":47}');
         let lastSession = JSON.parse(localStorage.getItem('grip_last_session_final') || '{}');
         
-        // 역동적 월 스위칭 달력 출력을 위한 현재 날짜 트래킹 좌표
         let currentCalendarDate = new Date();
+
+        /* [자이언트 마스터 컨트롤러 작동 코어 상태 기계] */
+        let activeInputId = null;     // 현재 조절 중인 hidden input id
+        let activeUnit = '';          // 'kg', '회', '초'
+        let isWeightType = false;     // GD80 레벨 배열 스냅 가동 여부
+
+        /**
+         * 세트 리스트 항목 터치 시 호출되는 전역 타겟 바인딩 함수
+         */
+        function setGlobalTarget(id, title, unit, isWeight) {
+            // 기존 선택 하이라이트 클래스 전체 초기화
+            document.querySelectorAll('.matrix-item').forEach(el => el.classList.remove('active'));
+            
+            // 전역 타겟 세팅
+            activeInputId = id;
+            activeUnit = unit;
+            isWeightType = isWeight;
+
+            // 터치한 엘리먼트 시각 활성화
+            const targetEl = document.getElementById('target-' + id);
+            if(targetEl) targetEl.classList.add('active');
+
+            // 마스터 패널 텍스트 및 모니터 동기화 업데이트
+            document.getElementById('master-target-title').innerText = title;
+            const curVal = document.getElementById(id).value;
+            document.getElementById('master-target-value').innerText = curVal + unit;
+
+            // 컨트롤 패널 가시화 처리
+            document.getElementById('master-control-panel').style.display = 'flex';
+        }
+
+        /**
+         * 하단 고정 거대 마스터 컨트롤러의 증감 연산 엔진
+         */
+        function handleMasterStep(dir) {
+            if(!activeInputId) return;
+
+            const inputEl = document.getElementById(activeInputId);
+            const txtEl = document.getElementById(activeInputId + '-txt');
+            let cur = parseInt(inputEl.value) || 0;
+
+            if(isWeightType) {
+                // GD 악력기 전용 단계 매핑 가동
+                if(dir > 0) {
+                    const next = GD80_LEVELS.find(l => l > cur);
+                    if(next) cur = next;
+                } else {
+                    const prev = [...GD80_LEVELS].reverse().find(l => l < cur);
+                    if(prev) cur = prev;
+                }
+            } else {
+                // 일반 회수 및 시간은 단일 카운트업/다운 제어
+                cur += dir;
+                if(cur < 0) cur = 0; // 음수 방어선 구축
+            }
+
+            // 실시간 백엔드 인풋 데이터 인덱싱 및 프론트 시각화 데이터 동기화
+            inputEl.value = cur;
+            if(txtEl) txtEl.innerText = cur;
+
+            // 하단 고정 마스터 상태창 모니터 업데이트
+            document.getElementById('master-target-value').innerText = cur + activeUnit;
+        }
 
         /* [슬라이드 동기화 시스템 인덱서] */
         function scrollSlideTo(idx) {
@@ -502,24 +702,35 @@
                 if(i === idx) tab.classList.add('active');
                 else tab.classList.remove('active');
             });
+
+            // 홈 화면(0)이거나 전체 완료 화면(5)으로 가면 스마트 패널을 숨겨 가시 영역 최대 확장
+            if(idx === 0 || idx === 5) {
+                document.getElementById('master-control-panel').style.display = 'none';
+                document.querySelectorAll('.matrix-item').forEach(el => el.classList.remove('active'));
+                activeInputId = null;
+            } else {
+                // 운동 세션 진입 시 최초 1회 해당 페이지의 첫 번째 인풋 항목 자동 타겟팅 유도 구조 트리거
+                autoSelectFirstItemInPage(idx);
+            }
         }
 
-        /* [단위 가변 무게 조절 스태퍼 인터페이스] */
-        function handleStep(id, dir) {
-            const input = document.getElementById(id);
-            const txt = document.getElementById(id + '-txt');
-            let cur = parseInt(input.value);
-            
-            if(dir > 0) {
-                const next = GD80_LEVELS.find(l => l > cur);
-                if(next) cur = next;
-            } else {
-                const prev = [...GD80_LEVELS].reverse().find(l => l < cur);
-                if(prev) cur = prev;
+        /**
+         * 슬라이드가 전환될 때 자동으로 첫 번째 인풋 항목을 타겟 선택해주는 편의용 스크립트
+         */
+        function autoSelectFirstItemInPage(pageIdx) {
+            let targetId = "";
+            let label = "";
+            let unit = "";
+            let isW = false;
+
+            if(pageIdx === 1) { targetId = "w-w1"; label = "웜업 무게"; unit = "kg"; isW = true; }
+            else if(pageIdx === 2) { targetId = "w-m1"; label = "메인1 무게"; unit = "kg"; isW = true; }
+            else if(pageIdx === 3) { targetId = "w-n1"; label = "네거1 무게"; unit = "kg"; isW = true; }
+            else if(pageIdx === 4) { targetId = "w-h1"; label = "홀딩1 무게"; unit = "kg"; isW = true; }
+
+            if(targetId) {
+                setGlobalTarget(targetId, label, unit, isW);
             }
-            
-            input.value = cur;
-            txt.innerText = cur;
         }
 
         /* [자동 이동 엔진 탑재 휴식 타이머 팝업 회로] */
@@ -528,7 +739,7 @@
             const timeVal = document.getElementById('clock-time');
             pop.classList.add('active');
             
-            let left = 120; // 표준 근원섬유 회복 2분 세팅
+            let left = 120; 
             clearInterval(restInt);
             restInt = setInterval(() => {
                 left--;
@@ -547,7 +758,6 @@
             document.getElementById('timer-popup').classList.remove('active');
             document.getElementById('clock-time').innerText = "02:00";
             
-            // 휴식 종료와 함께 논스톱으로 다음 슬라이드 스마트 서핑 타겟팅
             const container = document.getElementById('app-container');
             const curIdx = Math.round(container.scrollLeft / container.clientWidth);
             if(curIdx < 5) scrollSlideTo(curIdx + 1);
@@ -557,9 +767,10 @@
         function runNegaTimer(id) {
             const btn = document.getElementById('btn-t-' + id);
             const input = document.getElementById(id);
+            const txt = document.getElementById(id + '-txt');
             let ready = 5;
             
-            btn.className = "timer-trigger ready";
+            btn.className = "matrix-timer-trigger ready";
             btn.innerText = `대기 ${ready}초`;
             
             clearInterval(subInt);
@@ -568,7 +779,7 @@
                 btn.innerText = `대기 ${ready}초`;
                 if(ready === 0) {
                     clearInterval(subInt);
-                    btn.className = "timer-trigger running";
+                    btn.className = "matrix-timer-trigger running";
                     let hold = 5;
                     btn.innerText = `유지 ${hold}초`;
                     
@@ -577,9 +788,17 @@
                         btn.innerText = `유지 ${hold}초`;
                         if(hold === 0) {
                             clearInterval(subInt);
-                            btn.className = id.startsWith('l') ? "timer-trigger btn-l" : "timer-trigger btn-r";
+                            btn.className = id.startsWith('l') ? "matrix-timer-trigger btn-l" : "matrix-timer-trigger btn-r";
                             btn.innerText = "성공! +1";
-                            input.value = parseInt(input.value) + 1;
+                            
+                            let newVal = (parseInt(input.value) || 0) + 1;
+                            input.value = newVal;
+                            if(txt) txt.innerText = newVal;
+                            
+                            if(activeInputId === id) {
+                                document.getElementById('master-target-value').innerText = newVal + activeUnit;
+                            }
+
                             setTimeout(() => { btn.innerText = id.startsWith('l') ? "L 타이머" : "R 타이머"; }, 1500);
                         }
                     }, 1000);
@@ -587,25 +806,25 @@
             }, 1000);
         }
 
-        /* [맥스 홀딩 실시간 연동 카운트업 타이머 및 다음 슬라이드 자동 트리거 시스템] */
+        /* [맥스 홀딩 실시간 연동 카운트업 타이머 및 자동 트리거] */
         function runHoldTimer(id) {
             const btn = document.getElementById('btn-t-' + id);
             const input = document.getElementById(id);
+            const txt = document.getElementById(id + '-txt');
             
             if(subInt && btn.classList.contains('running')) {
                 clearInterval(subInt);
                 subInt = null;
-                btn.className = id.startsWith('l') ? "timer-trigger btn-l" : "timer-trigger btn-r";
+                btn.className = id.startsWith('l') ? "matrix-timer-trigger btn-l" : "matrix-timer-trigger btn-r";
                 btn.innerText = "계측 완료";
                 setTimeout(() => { btn.innerText = id.startsWith('l') ? "L 스톱워치" : "R 스톱워치"; }, 1500);
                 
-                // 홀딩 측정 정지 버튼을 누르는 순간 자동으로 휴식 타이머 가동 엔진에 진입
                 triggerRest();
                 return;
             }
 
             let ready = 5;
-            btn.className = "timer-trigger ready";
+            btn.className = "matrix-timer-trigger ready";
             btn.innerText = `대기 ${ready}초`;
             
             clearInterval(subInt);
@@ -614,18 +833,23 @@
                 btn.innerText = `대기 ${ready}초`;
                 if(ready === 0) {
                     clearInterval(subInt);
-                    btn.className = "timer-trigger running";
+                    btn.className = "matrix-timer-trigger running";
                     let sec = 0;
                     subInt = setInterval(() => {
                         sec++;
                         btn.innerText = `버티는 중 (${sec}초)`;
                         input.value = sec;
+                        if(txt) txt.innerText = sec;
+
+                        if(activeInputId === id) {
+                            document.getElementById('master-target-value').innerText = sec + activeUnit;
+                        }
                     }, 1000);
                 }
             }, 1000);
         }
 
-        /* [무제한 이전 월 스케일 캘린더 생성 엔진 레이어] */
+        /* [무제한 이전 월 스케일 캘린더 생성 엔진] */
         function renderCalendar(targetDate) {
             const grid = document.getElementById('cal-grid');
             grid.innerHTML = "";
@@ -633,21 +857,18 @@
             const year = targetDate.getFullYear();
             const month = targetDate.getMonth();
             
-            // 상단 인디케이터 라벨 컴포지션 매핑
             document.getElementById('cal-month-title').innerText = `${year}.${String(month + 1).padStart(2, '0')}`;
             
             const firstDayIdx = new Date(year, month, 1).getDay();
             const lastDateVal = new Date(year, month + 1, 0).getDate();
             const today = new Date();
             
-            // 전월 가상의 공백 패딩 생성
             for(let i = 0; i < firstDayIdx; i++) {
                 let emptyCell = document.createElement('div');
                 emptyCell.className = 'cal-d empty';
                 grid.appendChild(emptyCell);
             }
             
-            // 본월 리얼 잔디 바인딩
             for(let i = 1; i <= lastDateVal; i++) {
                 let dayCell = document.createElement('div');
                 dayCell.className = 'cal-d';
@@ -655,12 +876,10 @@
                 
                 let dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                 
-                // 오늘 날짜 좌표 대조 하이라이트
                 if(year === today.getFullYear() && month === today.getMonth() && i === today.getDate()) {
                     dayCell.classList.add('today');
                 }
                 
-                // 영구 데이터베이스 매칭 잔디 렌더링
                 if(dates.includes(dateKey)) {
                     dayCell.classList.add('done');
                 }
@@ -674,7 +893,7 @@
             renderCalendar(currentCalendarDate);
         }
 
-        /* [토탈 스토리지 파괴 초기화 인터페이스 버튼 루틴] */
+        /* [토탈 스토리지 파괴 초기화 인터페이스] */
         function resetAllData() {
             if (confirm("정말로 모든 악력 훈련 기록과 PR 데이터를 초기화하시겠습니까?\n삭제된 영구 데이터셋은 절대로 복구할 수 없습니다.")) {
                 localStorage.removeItem('grip_dates_final');
@@ -702,7 +921,6 @@
                 h2_w: parseInt(document.getElementById('w-h2').value), h2_l: parseInt(document.getElementById('l-h2').value || 0), h2_r: parseInt(document.getElementById('r-h2').value || 0)
             };
 
-            // 개인 최고 스펙 필터 가동
             if(sessionData.w1_w > pr.warmup) pr.warmup = sessionData.w1_w;
             
             const maxM = Math.max(sessionData.m1_w, sessionData.m2_w);
@@ -724,16 +942,14 @@
 
         /* [생성 주기 앱 코어 엔진 가동 아키텍처] */
         window.onload = function() {
-            // 다단 뷰포트 월단위 인터랙티브 캘린더 빌드
             renderCalendar(currentCalendarDate);
 
-            // 대시보드 스탯 오버레이 매핑
             document.getElementById('pr-w').innerText = pr.warmup + 'kg';
             document.getElementById('pr-m').innerText = pr.main + 'kg';
             document.getElementById('pr-n').innerText = pr.negative + 'kg';
             document.getElementById('pr-h').innerText = pr.holding + 'kg';
 
-            // 세드릭 회색 이전 연동 레코드 맵 구조 바인딩
+            // 이전 기록 바인딩 및 디스플레이 텍스트 동기화
             if(lastSession.w1_w) {
                 document.getElementById('prev-w-1').innerText = `이전: ${lastSession.w1_w}kg / L ${lastSession.w1_l}회, R ${lastSession.w1_r}회`;
                 document.getElementById('prev-m-1').innerText = `이전: ${lastSession.m1_w}kg / L ${lastSession.m1_l}회, R ${lastSession.m1_r}회`;
