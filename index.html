@@ -1,1064 +1,1947 @@
+<!--
+SH_Grip_Pro_v5.1
+FULL STABLE BUILD
+
+BASE:
+v5.0
+
+FIX:
+1. HOME AUTO UPDATE
+2. RESULT WEIGHT DISPLAY
+3. HISTORY WEIGHT DISPLAY
+4. PREV RECORD RESTORE
+
+KEEP:
+ALL v5.0 FEATURES
+-->
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GD 악력 PRO v4.0</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@800;900&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        /* [1. 하이엔드 다크 테마 및 절대 뷰포트 통제] */
-        :root {
-            --bg: #000000;
-            --card: #0d0d0c;
-            --card-sub: #151516;
-            --primary: #6366f1;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --accent: #deff9a;
-            --text: #ffffff;
-            --text-dim: #9ca3af;
-            --border: rgba(255, 255, 255, 0.08);
-            --selected: rgba(99, 102, 241, 0.35);
-            --selected-border: #818cf8;
-        }
+<meta charset="UTF-8">
+<meta
+name="viewport"
+content="
+width=device-width,
+initial-scale=1,
+viewport-fit=cover
+">
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; margin: 0; padding: 0; }
-        body, html { 
-            width: 100%; height: 100%; 
-            background: var(--bg); color: var(--text);
-            font-family: 'Noto Sans KR', 'Urbanist', sans-serif;
-            overflow: hidden; position: relative;
-        }
+<title>GD IRON v5.0.1</title>
 
-        /* [2. 모바일 노-스크롤 단일 화면 가로 스냅 레이아웃] */
-        .app-container {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            overflow-x: auto;
-            overflow-y: hidden;
-            scroll-snap-type: x mandatory;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-        }
-        .app-container::-webkit-scrollbar { display: none; }
+<style>
 
-        .slide-page {
-            flex: 0 0 100%;
-            width: 100%;
-            height: 100%;
-            scroll-snap-align: start;
-            scroll-snap-stop: always;
-            display: flex;
-            flex-direction: column;
-            padding: 16px 16px calc(210px + env(safe-area-inset-bottom)) 16px; /* 콕핏 패널 공간 확보 */
-            overflow-y: auto;
-            justify-content: flex-start;
-        }
-        .slide-page::-webkit-scrollbar { display: none; }
+:root{
+--bg:#050505;
+--card:#111;
+--line:#222;
 
-        /* [3. 헤더 영역 초압축] */
-        .header-area { margin-bottom: 12px; display: flex; flex-direction: column; justify-content: center; min-height: 44px; flex-shrink: 0; }
-        .header-area h1 { font-size: 24px; font-weight: 900; color: var(--text); letter-spacing: -1px; line-height: 1.2; }
-        .header-area h1 span { color: var(--primary); }
-        .header-area p { font-size: 11px; color: var(--text-dim); margin-top: 2px; font-weight: 500; }
-        .slide-title { font-size: 20px; font-weight: 900; color: var(--accent); display: flex; align-items: center; justify-content: space-between; }
+--text:#fff;
+--sub:#888;
 
-        /* [4. 가로형 컴팩트 표(Table) UI 인프라] */
-        .card {
-            background: var(--card); border-radius: 20px; padding: 14px;
-            margin-bottom: 8px; border: 1px solid var(--border);
-        }
+--main:#d9ff3f;
 
-        .grip-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 5px;
-        }
-        .grip-table th {
-            font-size: 11px;
-            color: var(--text-dim);
-            font-weight: 700;
-            padding-bottom: 8px;
-            text-align: center;
-        }
-        .grip-table th:first-child { text-align: left; padding-left: 4px; }
-        
-        .grip-table td {
-            padding: 6px 3px;
-            vertical-align: middle;
-            text-align: center;
-        }
-        .grip-table td:first-child {
-            text-align: left;
-            font-size: 13px;
-            font-weight: 900;
-            color: #fff;
-            padding-left: 4px;
-            width: 55px;
-        }
+--warm:#57a7ff;
+--negative:#ff8a3d;
+--hold:#b47cff;
 
-        /* 표 내부 스마트 인풋 셀 */
-        .table-cell-box {
-            background: var(--card-sub);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 10px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.1s ease;
-            position: relative;
-        }
-        .table-cell-box .val {
-            font-family: 'Urbanist', sans-serif;
-            font-size: 18px;
-            font-weight: 900;
-            color: #fff;
-        }
-        .table-cell-box .unit {
-            font-size: 11px;
-            color: var(--text-dim);
-            margin-left: 2px;
-            font-weight: 500;
-        }
+--green:#53ff8f;
+--red:#ff6666;
+}
 
-        /* 특수 운동(네거티브, 홀딩)용 타이머 유도 셀 디자인 */
-        .table-cell-box.action-trigger {
-            border-style: dashed;
-            background: rgba(99, 102, 241, 0.03);
-        }
-        .table-cell-box.action-trigger::after {
-            content: '⏱️';
-            position: absolute;
-            top: 2px;
-            right: 4px;
-            font-size: 9px;
-            opacity: 0.7;
-        }
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+-webkit-tap-highlight-color:transparent;
+}
 
-        /* 셀 활성화(포커스) 강력한 네온 테두리 */
-        .table-cell-box.active {
-            background: var(--selected);
-            border-color: var(--selected-border);
-            box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
-        }
-        .table-cell-box.active .val { color: var(--accent); }
-        .table-cell-box.active .unit { color: var(--accent); }
+html,
+body{
+width:100%;
+height:100%;
+overflow:hidden;
+background:var(--bg);
+color:var(--text);
+}
 
-        /* 세션 간이 히스토리 레이블 */
-        .table-prev-info {
-            font-size: 11px;
-            color: var(--text-dim);
-            margin-top: 10px;
-            padding-top: 8px;
-            border-top: 1px solid rgba(255,255,255,0.04);
-            font-weight: 500;
-        }
+button{
+border:none;
+outline:none;
+cursor:pointer;
+}
 
-        /* [5. 세션 휴식 일반 타이머 팝업 모달] */
-        .timer-popup {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.96);
-            z-index: 9999; display: none; flex-direction: column;
-            align-items: center; justify-content: center; backdrop-filter: blur(15px);
-        }
-        .timer-popup.active { display: flex; }
-        .clock-circle {
-            width: 230px; height: 230px; border-radius: 50%;
-            border: 8px solid var(--primary); display: flex; flex-direction: column;
-            align-items: center; justify-content: center; margin-bottom: 30px;
-            box-shadow: 0 0 40px rgba(99, 102, 241, 0.3);
-        }
-        .clock-time { font-size: 60px; font-weight: 900; color: white; font-family: 'Urbanist'; }
-        .clock-msg { font-size: 13px; color: var(--text-dim); font-weight: 700; margin-top: -2px; letter-spacing: 1px; }
-        .btn-timer-close {
-            background: var(--danger); color: white; border: none;
-            padding: 12px 36px; border-radius: 100px; font-size: 14px; font-weight: 900; cursor: pointer;
-        }
+.hidden{
+display:none!important;
+}
 
-        /* [6. 특수 계측용 초대형 익스트림 팝업 모달] */
-        .extreme-popup {
-            position: fixed; inset: 0; background: #000000;
-            z-index: 9999; display: none; flex-direction: column;
-            align-items: center; justify-content: justify-content; padding: 40px 20px;
-        }
-        .extreme-popup.active { display: flex; }
-        .ex-header { text-align: center; margin-top: 20px; }
-        .ex-header h2 { font-size: 28px; font-weight: 900; color: var(--accent); }
-        .ex-header p { font-size: 14px; color: var(--text-dim); margin-top: 6px; }
-        
-        .ex-counter-box {
-            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;
-        }
-        .ex-giant-number {
-            font-family: 'Urbanist', sans-serif;
-            font-size: 90px; font-weight: 900; color: #fff;
-            text-shadow: 0 0 30px rgba(255,255,255,0.2);
-        }
-        .ex-status-msg {
-            font-size: 18px; font-weight: 900; color: var(--warning); margin-top: 10px; letter-spacing: -0.5px;
-        }
+.app{
+height:100dvh;
+display:flex;
+flex-direction:column;
+padding:
+8px
+12px
+calc(12px + env(safe-area-inset-bottom));
+overflow:hidden;
+}
 
-        .ex-action-btn {
-            width: 100%; max-width: 340px; padding: 22px; border-radius: 20px; border: none;
-            font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            margin-bottom: calc(10px + env(safe-area-inset-bottom));
-        }
+.topbar{
+height:42px;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:22px;
+font-weight:900;
+letter-spacing:2px;
+flex-shrink:0;
+}
 
-        /* [7. 하단 고정식 통합 콕핏 마스터 패널] */
-        .dock-master-panel {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            background: rgba(10, 10, 10, 0.96);
-            border-top: 1px solid var(--border);
-            z-index: 5000;
-            display: flex;
-            flex-direction: column;
-            padding-bottom: env(safe-area-inset-bottom);
-            backdrop-filter: blur(25px);
-        }
-        .fixed-giant-controller {
-            display: flex;
-            flex-direction: column;
-            padding: 12px 16px 8px 16px;
-            background: linear-gradient(180deg, #0d0d0c 0%, #000000 100%);
-            gap: 10px;
-        }
-        .controller-stepper-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-        }
-        .master-btn {
-            width: 85px; height: 58px;
-            border-radius: 18px; border: none;
-            color: #fff; font-size: 32px; font-weight: 900;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            transition: transform 0.05s ease;
-        }
-        .master-btn-minus { background: #2d3748; }
-        .master-btn-plus { background: var(--primary); }
-        .master-btn:active { transform: scale(0.93); filter: brightness(1.2); }
-        
-        .master-status-monitor { text-align: center; }
-        .master-status-monitor .target-title { font-size: 12px; color: var(--text-dim); font-weight: 700; }
-        .master-status-monitor .target-value { font-size: 26px; font-weight: 900; color: var(--accent); font-family: 'Urbanist'; margin-top: 1px; }
+.page{
+flex:1;
+overflow-y:auto;
+display:flex;
+flex-direction:column;
+gap:10px;
+padding-bottom:10px;
+}
 
-        .btn-complete-docked {
-            width: 100%; padding: 15px; border-radius: 16px; border: none;
-            background: var(--success); color: white; font-size: 15px;
-            font-weight: 900; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .btn-complete-docked:active { transform: scale(0.98); }
+.card{
+background:var(--card);
+border:1px solid var(--line);
+border-radius:22px;
+padding:16px;
+}
 
-        .bottom-nav {
-            height: 60px; display: flex; justify-content: space-around; align-items: center;
-            border-top: 1px solid rgba(255,255,255,0.02);
-        }
-        .nav-tab {
-            flex: 1; display: flex; flex-direction: column; align-items: center;
-            color: #4b5563; text-decoration: none; font-size: 10px; font-weight: 700;
-        }
-        .nav-tab i { font-size: 18px; margin-bottom: 2px; }
-        .nav-tab.active { color: var(--primary); font-weight: 900; }
+.label{
+font-size:10px;
+letter-spacing:2px;
+color:var(--sub);
+margin-bottom:8px;
+}
 
-        /* [8. 대시보드 홈 및 가상 컴포넌트] */
-        .page-home-scroll { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-        .pr-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-        .pr-tile { background: var(--card-sub); border-radius: 14px; padding: 12px; border: 1px solid var(--border); }
-        .pr-tile .lab { font-size: 11px; color: var(--text-dim); font-weight: 700; }
-        .pr-tile .num { font-size: 22px; font-weight: 900; color: var(--accent); margin-top: 2px; font-family: 'Urbanist'; }
+.value{
+font-size:32px;
+font-weight:900;
+}
 
-        .cal-box { background: var(--card); border-radius: 20px; padding: 14px; border: 1px solid var(--border); }
-        .cal-control-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .cal-month-title { font-size: 15px; font-weight: 900; color: #fff; font-family: 'Urbanist'; }
-        .cal-nav-btn {
-            background: var(--card-sub); color: #fff; border: 1px solid var(--border);
-            width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;
-        }
-        .cal-week-header { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-bottom: 6px; }
-        .cal-week-header div { font-size: 10px; color: var(--text-dim); font-weight: 900; }
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
-        .cal-d { font-size: 11px; padding: 8px 0; color: #374151; border-radius: 6px; background: rgba(255,255,255,0.01); font-weight: 700; font-family: 'Urbanist'; }
-        .cal-d.done { background: var(--success) !important; color: white !important; font-weight: 900; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
-        .cal-d.today { border: 1.5px solid var(--primary); color: var(--primary); background: rgba(99, 102, 241, 0.05); }
-        .cal-d.empty { background: transparent; visibility: hidden; }
+.small{
+font-size:20px;
+}
 
-        textarea {
-            width: 100%; background: var(--card-sub); border: 1px solid var(--border);
-            border-radius: 14px; color: white; padding: 12px; font-family: inherit; font-size: 13px; resize: none; line-height: 1.4;
-        }
-        .btn-reset-data {
-            width: 100%; padding: 12px; margin-top: 4px; background: transparent;
-            color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 12px;
-            font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;
-        }
-    </style>
+.row{
+display:flex;
+gap:10px;
+}
+
+.row .card{
+flex:1;
+}
+
+.main-btn{
+width:100%;
+height:72px;
+border-radius:22px;
+background:var(--main);
+color:black;
+font-size:20px;
+font-weight:900;
+flex-shrink:0;
+}
+
+.sub-btn{
+width:100%;
+height:56px;
+border-radius:20px;
+background:#1a1a1a;
+color:white;
+font-size:16px;
+font-weight:900;
+}
+
+.session{
+flex:1;
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+overflow:hidden;
+}
+
+.session-top{
+display:flex;
+flex-direction:column;
+gap:10px;
+overflow-y:auto;
+padding-bottom:10px;
+}
+
+.left-mode{
+align-items:flex-start;
+text-align:left;
+}
+
+.right-mode{
+align-items:flex-end;
+text-align:right;
+}
+
+.phase-badge{
+padding:8px 14px;
+border-radius:999px;
+font-size:12px;
+font-weight:900;
+letter-spacing:1px;
+}
+
+.phase-warm{
+background:rgba(87,167,255,.15);
+color:var(--warm);
+}
+
+.phase-main{
+background:rgba(217,255,63,.12);
+color:var(--main);
+}
+
+.phase-negative{
+background:rgba(255,138,61,.15);
+color:var(--negative);
+}
+
+.phase-hold{
+background:rgba(180,124,255,.15);
+color:var(--hold);
+}
+
+.hand{
+font-size:46px;
+font-weight:900;
+line-height:1;
+}
+
+.exercise{
+font-size:24px;
+font-weight:900;
+line-height:1.1;
+}
+
+.progress-wrap{
+width:100%;
+display:flex;
+flex-direction:column;
+gap:6px;
+}
+
+.progress-info{
+display:flex;
+justify-content:space-between;
+font-size:11px;
+color:var(--sub);
+}
+
+.progress{
+height:8px;
+border-radius:999px;
+background:#1a1a1a;
+overflow:hidden;
+}
+
+.progress-fill{
+height:100%;
+background:var(--main);
+width:0%;
+transition:.25s;
+}
+
+.main-card{
+width:100%;
+background:#111;
+border:1px solid #222;
+border-radius:26px;
+padding:20px;
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:8px;
+}
+
+.weight{
+font-size:58px;
+font-weight:900;
+line-height:1;
+}
+
+.target{
+font-size:16px;
+font-weight:800;
+}
+
+.previous{
+width:100%;
+background:#0f0f0f;
+border:1px solid #1d1d1d;
+border-radius:16px;
+padding:12px 14px;
+display:flex;
+flex-direction:column;
+gap:6px;
+}
+
+.previous-label{
+font-size:11px;
+letter-spacing:2px;
+color:#777;
+}
+
+.previous-value{
+font-size:13px;
+font-weight:900;
+line-height:1.4;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
+
+.rep-wrap{
+width:100%;
+align-self:stretch;
+}
+
+.rep-grid{
+width:100%;
+display:grid;
+grid-template-columns:repeat(6,1fr);
+gap:8px;
+}
+
+.rep-btn{
+height:50px;
+border-radius:14px;
+background:#1a1a1a;
+color:white;
+font-size:18px;
+font-weight:900;
+}
+
+.rep-btn.active{
+background:var(--main);
+color:black;
+}
+
+.setting-grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:10px;
+}
+
+.setting-btn{
+height:54px;
+border-radius:18px;
+background:#1a1a1a;
+color:white;
+font-size:18px;
+font-weight:900;
+}
+
+.setting-btn.active{
+background:var(--main);
+color:black;
+}
+
+.tabs{
+height:60px;
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:8px;
+padding-top:8px;
+flex-shrink:0;
+}
+
+.tab{
+border-radius:18px;
+background:#111;
+color:#777;
+font-size:12px;
+font-weight:900;
+}
+
+.tab.active{
+background:var(--main);
+color:black;
+}
+
+.overlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.95);
+z-index:99999;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+}
+
+.overlay-wrap{
+width:100%;
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:18px;
+}
+
+.overlay-title{
+font-size:18px;
+font-weight:900;
+letter-spacing:4px;
+color:var(--main);
+}
+
+.overlay-time{
+font-size:96px;
+font-weight:900;
+line-height:1;
+}
+
+.overlay-btn{
+width:100%;
+height:56px;
+border-radius:22px;
+background:#181818;
+color:white;
+font-size:16px;
+font-weight:900;
+}
+
+.result-page{
+position:fixed;
+inset:0;
+background:#050505;
+z-index:999999;
+padding:24px;
+overflow-y:auto;
+}
+
+.result-title{
+font-size:34px;
+font-weight:900;
+margin-bottom:24px;
+}
+
+.result-section{
+margin-bottom:24px;
+padding:16px;
+border-radius:20px;
+}
+
+.result-main{
+background:rgba(217,255,63,.06);
+border:1px solid rgba(217,255,63,.15);
+}
+
+.result-negative{
+background:rgba(255,138,61,.06);
+border:1px solid rgba(255,138,61,.15);
+}
+
+.result-hold{
+background:rgba(180,124,255,.06);
+border:1px solid rgba(180,124,255,.15);
+}
+
+.result-label{
+font-size:12px;
+letter-spacing:2px;
+margin-bottom:6px;
+font-weight:900;
+}
+
+.result-weight{
+font-size:13px;
+font-weight:900;
+margin-bottom:10px;
+opacity:.8;
+}
+
+.result-line{
+font-size:15px;
+font-weight:900;
+margin-bottom:6px;
+}
+
+.history-card{
+background:#111;
+border:1px solid #222;
+border-radius:22px;
+padding:18px;
+display:flex;
+flex-direction:column;
+gap:14px;
+}
+
+.history-title{
+font-size:12px;
+letter-spacing:2px;
+color:#888;
+}
+
+.history-block{
+padding-left:12px;
+border-left:4px solid;
+}
+
+.history-main{
+border-color:var(--main);
+}
+
+.history-negative{
+border-color:var(--negative);
+}
+
+.history-hold{
+border-color:var(--hold);
+}
+
+.history-label{
+font-size:11px;
+font-weight:900;
+margin-bottom:8px;
+}
+
+.history-line{
+font-size:14px;
+font-weight:800;
+margin-bottom:4px;
+}
+
+.fail{
+color:var(--red);
+}
+
+</style>
 </head>
+
 <body>
 
-    <div class="timer-popup" id="timer-popup">
-        <div class="clock-circle">
-            <div class="clock-time" id="clock-time">02:00</div>
-            <div class="clock-msg">세션 휴식 및 섬유질 회복 중</div>
-        </div>
-        <button class="btn-timer-close" onclick="stopRestTimer()">휴식 매칭 건너뛰기</button>
-    </div>
+<div class="app">
 
-    <div class="extreme-popup" id="extreme-popup">
-        <div class="ex-header">
-            <h2 id="ex-popup-title">네거티브 훈련 계측</h2>
-            <p id="ex-popup-subtitle">준비 상태를 점검하세요</p>
-        </div>
-        <div class="ex-counter-box">
-            <div class="ex-giant-number" id="ex-giant-number">5</div>
-            <div class="ex-status-msg" id="ex-status-msg">대기야, 마음의 준비를 해!</div>
-        </div>
-        <button class="ex-action-btn" id="ex-action-btn" onclick="handleExtremeAction()">
-            기록 측정 시작
-        </button>
-    </div>
+<div class="topbar">
+GD IRON
+</div>
 
-    <div class="app-container" id="app-container" onscroll="handleSlideScroll()">
-        
-        <div class="slide-page" id="page-home">
-            <div class="header-area">
-                <h1>GD 악력 <span>PRO</span></h1>
-                <p>전완근 강화를 위한 고도화 통계 대시보드</p>
-            </div>
-            <div class="page-home-scroll">
-                <div class="pr-grid">
-                    <div class="pr-tile"><div class="lab">웜업 최고 세팅</div><div class="num" id="pr-w">25kg</div></div>
-                    <div class="pr-tile"><div class="lab">메인 최고 세팅</div><div class="num" id="pr-m">47kg</div></div>
-                    <div class="pr-tile"><div class="lab">네거티브 최고</div><div class="num" id="pr-n">58kg</div></div>
-                    <div class="pr-tile"><div class="lab">홀딩 최고 기록</div><div class="num" id="pr-h">47kg</div></div>
-                </div>
-                <div class="cal-box">
-                    <div class="cal-control-bar">
-                        <button class="cal-nav-btn" onclick="changeMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-                        <div class="cal-month-title" id="cal-month-title">2026.05</div>
-                        <button class="cal-nav-btn" onclick="changeMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
-                    </div>
-                    <div class="cal-week-header">
-                        <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
-                    </div>
-                    <div class="cal-grid" id="cal-grid"></div>
-                </div>
-                <button class="btn-reset-data" onclick="resetAllData()"><i class="fa-solid fa-trash-can"></i> 전체 데이터 초기화 및 포맷</button>
-            </div>
-        </div>
+<!-- HOME -->
 
-        <div class="slide-page">
-            <div class="header-area">
-                <div class="slide-title">1. 워밍업 (WARM UP)</div>
-                <p>가벼운 강도로 관절 혈류 공급 및 윤활유 공급 유도</p>
-            </div>
-            <div class="card">
-                <table class="grip-table">
-                    <thead>
-                        <tr>
-                            <th>세트</th>
-                            <th style="width: 36%;">무게</th>
-                            <th style="width: 27%;">L</th>
-                            <th style="width: 27%;">R</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1세트</td>
-                            <td>
-                                <div class="table-cell-box" id="cell-w-w1" onclick="setCellTarget('w-w1', '웜업 무게', 'kg', true)">
-                                    <span class="val" id="w-w1-txt">25</span><span class="unit">kg</span>
-                                    <input type="hidden" id="w-w1" value="25">
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-cell-box" id="cell-l-w1" onclick="setCellTarget('l-w1', '웜업 왼손', '회', false)">
-                                    <span class="val" id="l-w1-txt">10</span><span class="unit">회</span>
-                                    <input type="hidden" id="l-w1" value="10">
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-cell-box" id="cell-r-w1" onclick="setCellTarget('r-w1', '웜업 오른손', '회', false)">
-                                    <span class="val" id="r-w1-txt">10</span><span class="unit">회</span>
-                                    <input type="hidden" id="r-w1" value="10">
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="table-prev-info" id="prev-w-1">이전 기록 로딩 중...</div>
-            </div>
-        </div>
+<div class="page" id="homePage">
 
-        <div class="slide-page">
-            <div class="header-area">
-                <div class="slide-title">2. 메인 세트 (MAIN STR)</div>
-                <p>본격적인 근섬유 파괴 및 고강도 저반복 악력 매치</p>
-            </div>
-            <div class="card">
-                <table class="grip-table">
-                    <thead>
-                        <tr>
-                            <th>세트</th>
-                            <th style="width: 36%;">무게</th>
-                            <th style="width: 27%;">L</th>
-                            <th style="width: 27%;">R</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1세트</td>
-                            <td>
-                                <div class="table-cell-box" id="cell-w-m1" onclick="setCellTarget('w-m1', '메인1 무게', 'kg', true)">
-                                    <span class="val" id="w-m1-txt">47</span><span class="unit">kg</span>
-                                    <input type="hidden" id="w-m1" value="47">
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-cell-box" id="cell-l-m1" onclick="setCellTarget('l-m1', '메인1 왼손', '회', false)">
-                                    <span class="val" id="l-m1-txt">0</span><span class="unit">회</span>
-                                    <input type="hidden" id="l-m1" value="0">
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-cell-box" id="cell-r-m1" onclick="setCellTarget('r-m1', '메인1 오른손', '회', false)">
-                                    <span class="val" id="r-m1-txt">0</span><span class="unit">회</span>
-                                    <input type="hidden" id="r-m1" value="0">
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2세트</td>
-                            <td>
-                                <div class="table-cell-box" id="cell-w-m2" onclick="setCellTarget('w-m2', '메인2 무게', 'kg', true)">
-                                    <span class="val" id="w-m2-txt">47</span><span class="unit">kg</span>
-                                    <input type="hidden" id="w-m2" value="47">
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-cell-box" id="cell-l-m2" onclick="setCellTarget('l-m2', '메인2 왼손', '회', false)">
-                                    <span class="val" id="l-m2-txt">0</span><span class="unit">회</span>
-                                    <input type="hidden" id="l-m2" value="0">
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-cell-box" id="cell-r-m2" onclick="setCellTarget('r-m2', '메인2 오른손', '회', false)">
-                                    <span class="val" id="r-m2-txt">0</span><span class="unit">회</span>
-                                    <input type="hidden" id="r-m2" value="0">
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>3세트</td>
-                            <td>
-                                <div class="table-cell-box" id="cell-w-m3" onclick="setCellTarget('w-m3', '메인3 무게', 'kg', true)">
-                                    <span class="val" id="w-m3-txt">47</span><span class="unit">kg</span>
-                                    <input type="hidden" id="w-m3" value="47">
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-cell-box" id="cell-l-m3" onclick="setCellTarget('l-m3', '메인3 왼손', '회', false)">
-                                    <span class="val" id="l-m3-txt">0</span><span class="unit">회</span>
-                                    <input type="hidden" id="l-m3" value="0">
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-cell-box" id="cell-r-m3" onclick="setCellTarget('r-m3', '메인3 오른손', '회', false)">
-                                    <span class="val" id="r-m3-txt">0</span><span class="unit">회</span>
-                                    <input type="hidden" id="r-m3" value="0">
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="table-prev-info" id="prev-m-all">이전 메인 세트 기록 아카이빙 로드 중...</div>
-            </div>
-        </div>
+<div class="card">
 
-        <div class="slide-page">
-            <div class="header-area">
-                <div class="slide-title">3. 네거티브 (NEGATIVE)</div>
-                <p>양손 폐쇄 후 단일 손 버티기 (셀 터치 시 거대 타이머 팝업 구동)</p>
-            </div>
-            <div class="card">
-                <table class="grip-table">
-                    <thead>
-                        <tr>
-                            <th>세트</th>
-                            <th style="width: 36%;">무게</th>
-                            <th style="width: 27%;">L</th>
-                            <th style="width: 27%;">R</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1세트</td>
-                            <td>
-                                <div class="table-cell-box" id="cell-w-n1" onclick="setCellTarget('w-n1', '네거1 무게', 'kg', true)">
-                                    <span class="val" id="w-n1-txt">58</span><span class="unit">kg</span>
-                                    <input type="hidden" id="w-n1" value="58">
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-cell-box action-trigger" id="cell-l-n1" onclick="setCellTarget('l-n1', '네거1 왼손', '회', false)">
-                                    <span class="val" id="l-n1-txt">0</span><span class="unit">회</span>
-                                    <input type="hidden" id="l-n1" value="0">
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-cell-box action-trigger" id="cell-r-n1" onclick="setCellTarget('r-n1', '네거1 오른손', '회', false)">
-                                    <span class="val" id="r-n1-txt">0</span><span class="unit">회</span>
-                                    <input type="hidden" id="r-n1" value="0">
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2세트</td>
-                            <td>
-                                <div class="table-cell-box" id="cell-w-n2" onclick="setCellTarget('w-n2', '네거2 무게', 'kg', true)">
-                                    <span class="val" id="w-n2-txt">58</span><span class="unit">kg</span>
-                                    <input type="hidden" id="w-n2" value="58">
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-cell-box action-trigger" id="cell-l-n2" onclick="setCellTarget('l-n2', '네거2 왼손', '회', false)">
-                                    <span class="val" id="l-n2-txt">0</span><span class="unit">회</span>
-                                    <input type="hidden" id="l-n2" value="0">
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-cell-box action-trigger" id="cell-r-n2" onclick="setCellTarget('r-n2', '네거2 오른손', '회', false)">
-                                    <span class="val" id="r-n2-txt">0</span><span class="unit">회</span>
-                                    <input type="hidden" id="r-n2" value="0">
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="table-prev-info" id="prev-n-all">이전 네거티브 기록 로딩 중...</div>
-            </div>
-        </div>
+<div class="label">
+현재 메인 무게
+</div>
 
-        <div class="slide-page">
-            <div class="header-area">
-                <div class="slide-title">4. 맥스 홀딩 (HOLDING)</div>
-                <p>풀 스케일 밀봉 버팀 시간 측정 (셀 터치 시 풀스크린 밀리초 계측계 시동)</p>
-            </div>
-            <div class="card">
-                <table class="grip-table">
-                    <thead>
-                        <tr>
-                            <th>세트</th>
-                            <th style="width: 36%;">무게</th>
-                            <th style="width: 27%;">L</th>
-                            <th style="width: 27%;">R</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1세트</td>
-                            <td>
-                                <div class="table-cell-box" id="cell-w-h1" onclick="setCellTarget('w-h1', '홀딩1 무게', 'kg', true)">
-                                    <span class="val" id="w-h1-txt">47</span><span class="unit">kg</span>
-                                    <input type="hidden" id="w-h1" value="47">
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-cell-box action-trigger" id="cell-l-h1" onclick="setCellTarget('l-h1', '홀딩1 왼손', '초', false)">
-                                    <span class="val" id="l-h1-txt">0</span><span class="unit">초</span>
-                                    <input type="hidden" id="l-h1" value="0">
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-cell-box action-trigger" id="cell-r-h1" onclick="setCellTarget('r-h1', '홀딩1 오른손', '초', false)">
-                                    <span class="val" id="r-h1-txt">0</span><span class="unit">초</span>
-                                    <input type="hidden" id="r-h1" value="0">
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2세트</td>
-                            <td>
-                                <div class="table-cell-box" id="cell-w-h2" onclick="setCellTarget('w-h2', '홀딩2 무게', 'kg', true)">
-                                    <span class="val" id="w-h2-txt">47</span><span class="unit">kg</span>
-                                    <input type="hidden" id="w-h2" value="47">
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-cell-box action-trigger" id="cell-l-h2" onclick="setCellTarget('l-h2', '홀딩2 왼손', '초', false)">
-                                    <span class="val" id="l-h2-txt">0</span><span class="unit">초</span>
-                                    <input type="hidden" id="l-h2" value="0">
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-cell-box action-trigger" id="cell-r-h2" onclick="setCellTarget('r-h2', '홀딩2 오른손', '초', false)">
-                                    <span class="val" id="r-h2-txt">0</span><span class="unit">초</span>
-                                    <input type="hidden" id="r-h2" value="0">
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="table-prev-info" id="prev-h-all">이전 홀딩 매치 기록 로딩 중...</div>
-            </div>
-        </div>
+<div class="value" id="homeWeight">
+58kg
+</div>
 
-        <div class="slide-page">
-            <div class="header-area">
-                <div class="slide-title">세션 로그 종합 업로드</div>
-                <p>오늘 소화해낸 파괴적인 세션 결과물을 로컬 영구 장치에 트래킹 인덱싱합니다.</p>
-            </div>
-            <div class="card" style="height: auto; padding-top: 20px;">
-                <label style="font-size: 13px; font-weight: 900; color: var(--primary); margin-bottom: 8px; display: block;">트레이닝 총평 및 컨디션 기술 일지</label>
-                <textarea id="final-memo" rows="5" placeholder="오늘 피로도, 전완 자극도 특이사항 기록..."></textarea>
-                <div style="margin-top: 20px;"></div>
-                <button class="btn-complete-docked" style="background: var(--primary); padding: 18px; font-size: 16px;" onclick="finalizeAll()"><i class="fa-solid fa-cloud-arrow-up"></i> 오늘의 전완근 루틴 최종 연동 및 저장 🔥</button>
-            </div>
-        </div>
+</div>
 
-    </div>
+<div class="row">
 
-    <div class="dock-master-panel">
-        
-        <div class="fixed-giant-controller" id="master-control-panel" style="display: none;">
-            <div class="controller-stepper-row">
-                <button class="master-btn master-btn-minus" onclick="handleMasterStep(-1)">-</button>
-                <div class="master-status-monitor">
-                    <span class="target-title" id="master-target-title">선택된 항목 없음</span>
-                    <span class="target-value" id="master-target-value">-</span>
-                </div>
-                <button class="master-btn master-btn-plus" onclick="handleMasterStep(1)">+</button>
-            </div>
-            
-            <button class="btn-complete-docked" id="master-action-btn" onclick="handleMasterActionClick()">
-                <i class="fa-solid fa-hourglass-start"></i> 세트 완료 및 휴식 타이머 가동
-            </button>
-        </div>
+<div class="card">
 
-        <nav class="bottom-nav">
-            <a href="javascript:void(0)" class="nav-tab active" onclick="scrollSlideTo(0)"><i class="fa-solid fa-chart-line"></i><span>홈</span></a>
-            <a href="javascript:void(0)" class="nav-tab" onclick="scrollSlideTo(1)"><i class="fa-solid fa-fire"></i><span>웜업(1)</span></a>
-            <a href="javascript:void(0)" class="nav-tab" onclick="scrollSlideTo(2)"><i class="fa-solid fa-dumbbell"></i><span>메인(3)</span></a>
-            <a href="javascript:void(0)" class="nav-tab" onclick="scrollSlideTo(3)"><i class="fa-solid fa-bolt"></i><span>네거(2)</span></a>
-            <a href="javascript:void(0)" class="nav-tab" onclick="scrollSlideTo(4)"><i class="fa-solid fa-stopwatch"></i><span>홀딩(2)</span></a>
-            <a href="javascript:void(0)" class="nav-tab" onclick="scrollSlideTo(5)"><i class="fa-solid fa-check-double"></i><span>완료</span></a>
-        </nav>
-    </div>
+<div class="label">
+다음 목표
+</div>
 
-    <script>
-        const GD80_LEVELS = [25, 36, 47, 58, 69, 80];
-        let restInt = null;
-        let extremeInt = null;
-        
-        let dates = JSON.parse(localStorage.getItem('grip_dates_final') || '[]');
-        let pr = JSON.parse(localStorage.getItem('grip_pr_final') || '{"warmup":25,"main":47,"negative":58,"holding":47}');
-        let lastSession = JSON.parse(localStorage.getItem('grip_last_session_final') || '{}');
-        
-        let currentCalendarDate = new Date();
+<div class="value small" id="nextWeight">
+69kg
+</div>
 
-        let activeInputId = null;     
-        let activeUnit = '';          
-        let isWeightType = false;     
-        
-        // 익스트림 팝업 제어 상태 객체
-        let extremeState = {
-            id: '',
-            type: '', // 'nega' 또는 'hold'
-            mode: 'ready', // 'ready', 'countdown', 'running'
-            counter: 0
-        };
+</div>
 
-        // 표 형식 셀 타겟팅 제어 엔진
-        function setCellTarget(id, title, unit, isWeight) {
-            document.querySelectorAll('.table-cell-box').forEach(el => el.classList.remove('active'));
-            
-            activeInputId = id;
-            activeUnit = unit;
-            isWeightType = isWeight;
+<div class="card">
 
-            const cellEl = document.getElementById('cell-' + id);
-            if(cellEl) cellEl.classList.add('active');
+<div class="label">
+최근 결과
+</div>
 
-            document.getElementById('master-target-title').innerText = title;
-            const curVal = document.getElementById(id).value;
-            document.getElementById('master-target-value').innerText = curVal + unit;
+<div class="value small" id="recentResult">
+없음
+</div>
 
-            // 하단 대형 콕핏 액션 버튼 텍스트 최적화 분기
-            const actBtn = document.getElementById('master-action-btn');
-            if(id.startsWith('l-n') || id.startsWith('r-n')) {
-                actBtn.style.background = "var(--primary)";
-                actBtn.innerHTML = `<i class="fa-solid fa-bolt"></i> 거대 네거티브 타이머 팝업 실행`;
-            } else if(id.startsWith('l-h') || id.startsWith('r-h')) {
-                actBtn.style.background = "var(--warning)";
-                actBtn.style.color = "#000";
-                actBtn.innerHTML = `<i class="fa-solid fa-stopwatch"></i> 거대 홀딩 스톱워치 팝업 실행`;
-            } else {
-                actBtn.style.background = "var(--success)";
-                actBtn.style.color = "#fff";
-                actBtn.innerHTML = `<i class="fa-solid fa-hourglass-start"></i> 세트 완료 및 휴식 타이머 가동`;
-            }
+</div>
 
-            document.getElementById('master-control-panel').style.display = 'flex';
-        }
+</div>
 
-        function handleMasterStep(dir) {
-            if(!activeInputId) return;
+<div class="row">
 
-            const inputEl = document.getElementById(activeInputId);
-            const txtEl = document.getElementById(activeInputId + '-txt');
-            let cur = parseInt(inputEl.value) || 0;
+<div class="card">
 
-            if(isWeightType) {
-                if(dir > 0) {
-                    const next = GD80_LEVELS.find(l => l > cur);
-                    if(next) cur = next;
-                } else {
-                    const prev = [...GD80_LEVELS].reverse().find(l => l < cur);
-                    if(prev) cur = prev;
-                }
-            } else {
-                cur += dir;
-                if(cur < 0) cur = 0; 
-            }
+<div class="label">
+L HOLD BEST
+</div>
 
-            inputEl.value = cur;
-            if(txtEl) txtEl.innerText = cur;
+<div class="value small" id="bestLeftHold">
+0.0s
+</div>
 
-            document.getElementById('master-target-value').innerText = cur + activeUnit;
-        }
+</div>
 
-        // 콕핏 하단 마스터 제어 버튼 연동 허브
-        function handleMasterActionClick() {
-            if(!activeInputId) return;
+<div class="card">
 
-            if(activeInputId.startsWith('l-n') || activeInputId.startsWith('r-n')) {
-                openExtremePopup(activeInputId, 'nega');
-            } else if(activeInputId.startsWith('l-h') || activeInputId.startsWith('r-h')) {
-                openExtremePopup(activeInputId, 'hold');
-            } else {
-                triggerRest();
-            }
-        }
+<div class="label">
+R HOLD BEST
+</div>
 
-        /* [익스트림 팝업 고도화 엔진 코어] */
-        function openExtremePopup(id, type) {
-            extremeState.id = id;
-            extremeState.type = type;
-            extremeState.mode = 'ready';
-            
-            const pop = document.getElementById('extreme-popup');
-            const title = document.getElementById('ex-popup-title');
-            const sub = document.getElementById('ex-popup-subtitle');
-            const num = document.getElementById('ex-giant-number');
-            const msg = document.getElementById('ex-status-msg');
-            const btn = document.getElementById('ex-action-btn');
+<div class="value small" id="bestRightHold">
+0.0s
+</div>
 
-            pop.classList.add('active');
+</div>
 
-            if(type === 'nega') {
-                title.innerText = "네거티브 5-5 차단 트레이닝";
-                sub.innerText = "양손으로 쥐고 단일 손 인계 후 버틸 준비를 하십시오.";
-                num.innerText = "5";
-                msg.innerText = "계측 대기 상태";
-                btn.style.background = "var(--primary)";
-                btn.style.color = "#fff";
-                btn.innerText = "5초 준비 카운트다운 시작 ⚡";
-            } else {
-                title.innerText = "맥스 홀딩 스트렝스 계측";
-                sub.innerText = "완벽 밀봉 후 파지 상태가 풀릴 때까지 사투를 벌이세요.";
-                num.innerText = "00.0";
-                msg.innerText = "스톱워치 대기 상태";
-                btn.style.background = "var(--warning)";
-                btn.style.color = "#000";
-                btn.innerText = "카운트다운 및 타임 체커 시동 ⏱️";
-            }
-        }
+</div>
 
-        function handleExtremeAction() {
-            const num = document.getElementById('ex-giant-number');
-            const msg = document.getElementById('ex-status-msg');
-            const btn = document.getElementById('ex-action-btn');
+<button class="main-btn" id="startBtn">
+훈련 시작
+</button>
 
-            if(extremeState.mode === 'ready') {
-                // 5초 준비 카운트다운 진입 공통 로직
-                extremeState.mode = 'countdown';
-                let readySec = 5;
-                num.innerText = readySec;
-                msg.innerText = "악력기를 파지하고 포지션을 세팅하세요!";
-                btn.disabled = true;
-                btn.style.opacity = "0.4";
-                btn.innerText = "준비 카운트다운 진행 중...";
+</div>
 
-                clearInterval(extremeInt);
-                extremeInt = setInterval(() => {
-                    readySec--;
-                    num.innerText = readySec;
-                    if(readySec === 0) {
-                        clearInterval(extremeInt);
-                        btn.disabled = false;
-                        btn.style.opacity = "1";
-                        
-                        if(extremeState.type === 'nega') {
-                            startNegaRunning();
-                        } else {
-                            startHoldRunning();
-                        }
-                    }
-                }, 1000);
-            } else if(extremeState.mode === 'running' && extremeState.type === 'hold') {
-                // 홀딩 운동 수동 터치 격파 종료 로직
-                clearInterval(extremeInt);
-                const finalSec = Math.round(extremeState.counter / 10);
-                
-                const input = document.getElementById(extremeState.id);
-                const txt = document.getElementById(extremeState.id + '-txt');
-                input.value = finalSec;
-                if(txt) txt.innerText = finalSec;
-                
-                document.getElementById('master-target-value').innerText = finalSec + "초";
+<!-- SESSION -->
 
-                alert(`경이로운 집념! 총 ${finalSec}초 동안 버텨내셨습니다.`);
-                closeExtremePopup();
-                triggerRest();
-            }
-        }
+<div class="session hidden" id="sessionPage">
 
-        function startNegaRunning() {
-            extremeState.mode = 'running';
-            const num = document.getElementById('ex-giant-number');
-            const msg = document.getElementById('ex-status-msg');
-            const btn = document.getElementById('ex-action-btn');
+<div class="session-top left-mode" id="sessionTop">
 
-            let runSec = 5;
-            num.innerText = runSec;
-            num.style.color = "var(--accent)";
-            msg.innerText = "🔥 인계 완료! 버티세요! 극대 수축 상태 유지! 🔥";
-            btn.disabled = true;
-            btn.style.background = "#1f2937";
-            btn.innerText = "버티는 중 (화면 떼기 금지)";
+<div class="phase-badge" id="phaseBadge">
+MAIN
+</div>
 
-            extremeInt = setInterval(() => {
-                runSec--;
-                num.innerText = runSec;
-                if(runSec === 0) {
-                    clearInterval(extremeInt);
-                    num.style.color = "#fff";
-                    
-                    const input = document.getElementById(extremeState.id);
-                    const txt = document.getElementById(extremeState.id + '-txt');
-                    let newVal = (parseInt(input.value) || 0) + 1;
-                    input.value = newVal;
-                    if(txt) txt.innerText = newVal;
-                    
-                    document.getElementById('master-target-value').innerText = newVal + "회";
-                    
-                    alert("네거티브 단일 세션 성공! 카운트 1회가 정상 합산 반영되었습니다.");
-                    closeExtremePopup();
-                    triggerRest();
-                }
-            }, 1000);
-        }
+<div class="hand" id="handText">
+LEFT
+</div>
 
-        function startHoldRunning() {
-            extremeState.mode = 'running';
-            const num = document.getElementById('ex-giant-number');
-            const msg = document.getElementById('ex-status-msg');
-            const btn = document.getElementById('ex-action-btn');
+<div class="exercise" id="exerciseText">
+메인 1세트
+</div>
 
-            extremeState.counter = 0;
-            num.style.color = "var(--danger)";
-            msg.innerText = "🏃 악력이 완전히 풀릴 때까지 무제한 버티기! 🏃";
-            btn.style.background = "var(--danger)";
-            btn.style.color = "#fff";
-            btn.innerText = "💥 파지 풀림 완료 (기록 계측 종료 클릭) 💥";
+<div class="desc" id="descText">
+치팅 없이 순수 클로징
+</div>
 
-            extremeInt = setInterval(() => {
-                extremeState.counter++;
-                let displaySec = (extremeState.counter / 10).toFixed(1);
-                num.innerText = displaySec;
-            }, 100);
-        }
+<div class="progress-wrap">
 
-        function closeExtremePopup() {
-            clearInterval(extremeInt);
-            document.getElementById('extreme-popup').classList.remove('active');
-            document.getElementById('ex-giant-number').style.color = "#fff";
-        }
+<div class="progress-info">
 
-        /* [내비게이션 및 슬라이더 스냅 제어] */
-        function scrollSlideTo(idx) {
-            const container = document.getElementById('app-container');
-            const pageWidth = container.clientWidth;
-            container.scrollTo({ left: idx * pageWidth, behavior: 'smooth' });
-            updateTabState(idx);
-        }
+<div id="progressText">
+1 / 7
+</div>
 
-        function handleSlideScroll() {
-            const container = document.getElementById('app-container');
-            const idx = Math.round(container.scrollLeft / container.clientWidth);
-            updateTabState(idx);
-        }
+<div id="statusText">
+LEFT 진행
+</div>
 
-        function updateTabState(idx) {
-            document.querySelectorAll('.nav-tab').forEach((tab, i) => {
-                if(i === idx) tab.classList.add('active');
-                else tab.classList.remove('active');
-            });
+</div>
 
-            if(idx === 0 || idx === 5) {
-                document.getElementById('master-control-panel').style.display = 'none';
-                document.querySelectorAll('.table-cell-box').forEach(el => el.classList.remove('active'));
-                activeInputId = null;
-            } else {
-                autoSelectFirstItemInPage(idx);
-            }
-        }
+<div class="progress">
 
-        function autoSelectFirstItemInPage(pageIdx) {
-            let targetId = ""; let label = ""; let unit = ""; let isW = false;
+<div class="progress-fill" id="progressFill">
+</div>
 
-            if(pageIdx === 1) { targetId = "w-w1"; label = "웜업 무게"; unit = "kg"; isW = true; }
-            else if(pageIdx === 2) { targetId = "w-m1"; label = "메인1 무게"; unit = "kg"; isW = true; }
-            else if(pageIdx === 3) { targetId = "w-n1"; label = "네거1 무게"; unit = "kg"; isW = true; }
-            else if(pageIdx === 4) { targetId = "w-h1"; label = "홀딩1 무게"; unit = "kg"; isW = true; }
+</div>
 
-            if(targetId) setCellTarget(targetId, label, unit, isW);
-        }
+</div>
 
-        function triggerRest() {
-            const pop = document.getElementById('timer-popup');
-            const timeVal = document.getElementById('clock-time');
-            pop.classList.add('active');
-            
-            let left = 120; 
-            clearInterval(restInt);
-            restInt = setInterval(() => {
-                left--;
-                let m = Math.floor(left / 60);
-                let s = left % 60;
-                timeVal.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-                
-                if(left <= 0) stopRestTimer();
-            }, 1000);
-        }
+<div class="main-card">
 
-        function stopRestTimer() {
-            clearInterval(restInt);
-            document.getElementById('timer-popup').classList.remove('active');
-            document.getElementById('clock-time').innerText = "02:00";
-            
-            const container = document.getElementById('app-container');
-            const curIdx = Math.round(container.scrollLeft / container.clientWidth);
-            if(curIdx < 5) scrollSlideTo(curIdx + 1);
-        }
+<div class="weight" id="weightText">
+58kg
+</div>
 
-        /* [캘린더 엔진 및 파싱 시스템] */
-        function renderCalendar(targetDate) {
-            const grid = document.getElementById('cal-grid');
-            grid.innerHTML = "";
-            const year = targetDate.getFullYear();
-            const month = targetDate.getMonth();
-            document.getElementById('cal-month-title').innerText = `${year}.${String(month + 1).padStart(2, '0')}`;
-            const firstDayIdx = new Date(year, month, 1).getDay();
-            const lastDateVal = new Date(year, month + 1, 0).getDate();
-            const today = new Date();
-            
-            for(let i = 0; i < firstDayIdx; i++) {
-                let emptyCell = document.createElement('div'); emptyCell.className = 'cal-d empty'; grid.appendChild(emptyCell);
-            }
-            for(let i = 1; i <= lastDateVal; i++) {
-                let dayCell = document.createElement('div'); dayCell.className = 'cal-d'; dayCell.innerText = i;
-                let dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                if(year === today.getFullYear() && month === today.getMonth() && i === today.getDate()) dayCell.classList.add('today');
-                if(dates.includes(dateKey)) dayCell.classList.add('done');
-                grid.appendChild(dayCell);
-            }
-        }
+<div class="target" id="targetText">
+10회 수행
+</div>
 
-        function changeMonth(dir) {
-            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + dir);
-            renderCalendar(currentCalendarDate);
-        }
+</div>
 
-        function resetAllData() {
-            if (confirm("정말로 모든 악력 훈련 기록과 PR 데이터를 초기화하시겠습니까?")) {
-                localStorage.removeItem('grip_dates_final');
-                localStorage.removeItem('grip_pr_final');
-                localStorage.removeItem('grip_last_session_final');
-                alert("트레이닝 아카이브 포맷이 완료되었습니다. 🔥");
-                location.reload();
-            }
-        }
+<div class="previous">
 
-        function finalizeAll() {
-            const today = new Date();
-            const dateStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-            if(!dates.includes(dateStr)) dates.push(dateStr);
-            
-            const sessionData = {
-                w1_w: parseInt(document.getElementById('w-w1').value), w1_l: parseInt(document.getElementById('l-w1').value), w1_r: parseInt(document.getElementById('r-w1').value),
-                m1_w: parseInt(document.getElementById('w-m1').value), m1_l: parseInt(document.getElementById('l-m1').value || 0), m1_r: parseInt(document.getElementById('r-m1').value || 0),
-                m2_w: parseInt(document.getElementById('w-m2').value), m2_l: parseInt(document.getElementById('l-m2').value || 0), m2_r: parseInt(document.getElementById('r-m2').value || 0),
-                m3_w: parseInt(document.getElementById('w-m3').value), m3_l: parseInt(document.getElementById('l-m3').value || 0), m3_r: parseInt(document.getElementById('r-m3').value || 0),
-                n1_w: parseInt(document.getElementById('w-n1').value), n1_l: parseInt(document.getElementById('l-n1').value), n1_r: parseInt(document.getElementById('r-n1').value),
-                n2_w: parseInt(document.getElementById('w-n2').value), n2_l: parseInt(document.getElementById('l-n2').value), n2_r: parseInt(document.getElementById('r-n2').value),
-                h1_w: parseInt(document.getElementById('w-h1').value), h1_l: parseInt(document.getElementById('l-h1').value || 0), h1_r: parseInt(document.getElementById('r-h1').value || 0),
-                h2_w: parseInt(document.getElementById('w-h2').value), h2_l: parseInt(document.getElementById('l-h2').value || 0), h2_r: parseInt(document.getElementById('r-h2').value || 0)
-            };
+<div class="previous-label">
+PREV
+</div>
 
-            if(sessionData.w1_w > pr.warmup) pr.warmup = sessionData.w1_w;
-            
-            const maxM = Math.max(sessionData.m1_w, sessionData.m2_w, sessionData.m3_w);
-            if(maxM > pr.main) pr.main = maxM;
-            
-            const maxN = Math.max(sessionData.n1_w, sessionData.n2_w);
-            if(maxN > pr.negative) pr.negative = maxN;
-            
-            const maxH = Math.max(sessionData.h1_w, sessionData.h2_w);
-            if(maxH > pr.holding) pr.holding = maxH;
+<div class="previous-value" id="prevRecord">
+없음
+</div>
 
-            localStorage.setItem('grip_dates_final', JSON.stringify(dates));
-            localStorage.setItem('grip_pr_final', JSON.stringify(pr));
-            localStorage.setItem('grip_last_session_final', JSON.stringify(sessionData));
-            
-            alert("전완근 고강도 훈련 인덱스 저장이 완료되었습니다. 고생하셨습니다! 🔥");
-            location.reload();
-        }
+</div>
 
-        window.onload = function() {
-            renderCalendar(currentCalendarDate);
-            document.getElementById('pr-w').innerText = pr.warmup + 'kg';
-            document.getElementById('pr-m').innerText = pr.main + 'kg';
-            document.getElementById('pr-n').innerText = pr.negative + 'kg';
-            document.getElementById('pr-h').innerText = pr.holding + 'kg';
+<div class="rep-wrap" id="repSection">
 
-            if(lastSession.w1_w) {
-                document.getElementById('prev-w-1').innerText = `이전: ${lastSession.w1_w}kg / L ${lastSession.w1_l}회, R ${lastSession.w1_r}회`;
-                
-                document.getElementById('prev-m-all').innerHTML = 
-                    `이전 1세트: ${lastSession.m1_w}kg (L${lastSession.m1_l}/R${lastSession.m1_r})<br>` +
-                    `이전 2세트: ${lastSession.m2_w}kg (L${lastSession.m2_l}/R${lastSession.m2_r})<br>` +
-                    `이전 3세트: ${lastSession.m3_w || lastSession.m2_w}kg (L${lastSession.m3_l || 0}/R${lastSession.m3_r || 0})`;
-                
-                document.getElementById('prev-n-all').innerHTML = 
-                    `이전 1세트: ${lastSession.n1_w}kg (L${lastSession.n1_l}/R${lastSession.n1_r}) | ` +
-                    `이전 2세트: ${lastSession.n2_w}kg (L${lastSession.n2_l}/R${lastSession.n2_r})`;
+<div class="rep-grid">
 
-                document.getElementById('prev-h-all').innerHTML = 
-                    `이전 1세트: ${lastSession.h1_w}kg (L${lastSession.h1_l}초/R${lastSession.h1_r}초) | ` +
-                    `이전 2세트: ${lastSession.h2_w}kg (L${lastSession.h2_l}초/R${lastSession.h2_r}초)─`;
-            }
-        }
-    </script>
+<button class="rep-btn">5</button>
+<button class="rep-btn">6</button>
+<button class="rep-btn">7</button>
+<button class="rep-btn">8</button>
+<button class="rep-btn">9</button>
+<button class="rep-btn active">10</button>
+
+</div>
+
+</div>
+
+</div>
+
+<button class="main-btn" id="actionBtn">
+완료
+</button>
+
+</div>
+
+<!-- HISTORY -->
+
+<div class="page hidden" id="historyPage">
+</div>
+
+<!-- SETTINGS -->
+
+<div class="page hidden" id="settingPage">
+
+<div class="card">
+
+<div class="label">
+메인 무게 설정
+</div>
+
+<div class="setting-grid">
+
+<button class="setting-btn">25</button>
+<button class="setting-btn">36</button>
+<button class="setting-btn">47</button>
+<button class="setting-btn">58</button>
+<button class="setting-btn">69</button>
+<button class="setting-btn">80</button>
+
+</div>
+
+</div>
+
+<button
+class="sub-btn"
+id="resetBtn"
+>
+데이터 초기화
+</button>
+
+</div>
+
+<!-- TABS -->
+
+<div class="tabs">
+
+<button class="tab active" data-page="home">
+홈
+</button>
+
+<button class="tab" data-page="session">
+훈련
+</button>
+
+<button class="tab" data-page="history">
+기록
+</button>
+
+<button class="tab" data-page="setting">
+설정
+</button>
+
+</div>
+
+</div>
+
+<!-- OVERLAY -->
+
+<div class="overlay hidden" id="overlay">
+
+<div class="overlay-wrap">
+
+<div class="overlay-title" id="overlayTitle">
+REST
+</div>
+
+<div class="overlay-time" id="overlayTime">
+02:00
+</div>
+
+<button class="overlay-btn" id="overlayBtn">
+건너뛰기
+</button>
+
+</div>
+
+</div>
+
+<!-- RESET -->
+
+<div
+class="overlay hidden"
+id="resetOverlay"
+style="z-index:9999999;"
+>
+
+<div class="overlay-wrap">
+
+<div
+class="overlay-title"
+style="color:#ff6666;"
+>
+RESET
+</div>
+
+<div
+style="
+font-size:20px;
+font-weight:900;
+text-align:center;
+line-height:1.5;
+"
+>
+모든 기록을 초기화할까요?
+</div>
+
+<button
+class="main-btn"
+id="confirmResetBtn"
+style="
+background:#ff6666;
+color:white;
+height:60px;
+"
+>
+초기화
+</button>
+
+<button
+class="overlay-btn"
+id="cancelResetBtn"
+>
+취소
+</button>
+
+</div>
+
+</div>
+
+<!-- RESULT -->
+
+<div class="result-page hidden" id="resultPage">
+
+<div class="result-title">
+훈련 완료
+</div>
+
+<div
+class="result-section result-main"
+id="resultMain">
+</div>
+
+<div
+class="result-section result-negative"
+id="resultNegative">
+</div>
+
+<div
+class="result-section result-hold"
+id="resultHold">
+</div>
+
+<button
+class="main-btn"
+id="resultCloseBtn"
+>
+홈으로
+</button>
+
+</div>
+
+<script>
+
+const weights=[25,36,47,58,69,80];
+
+let userData=
+JSON.parse(
+localStorage.getItem('gdiron_v501')
+)
+||
+{
+mainIndex:1,
+history:[]
+};
+
+function saveData(){
+
+localStorage.setItem(
+'gdiron_v501',
+JSON.stringify(userData)
+);
+
+}
+
+function updateBestHold(){
+
+let bestL=0;
+let bestR=0;
+
+userData.history.forEach(h=>{
+
+const l=
+parseFloat(h.holdLeft||0);
+
+const r=
+parseFloat(h.holdRight||0);
+
+if(l>bestL) bestL=l;
+if(r>bestR) bestR=r;
+
+});
+
+document.getElementById(
+'bestLeftHold'
+).textContent=
+`${bestL.toFixed(1)}s`;
+
+document.getElementById(
+'bestRightHold'
+).textContent=
+`${bestR.toFixed(1)}s`;
+
+}
+
+function updateHomeUI(){
+
+document.getElementById(
+'homeWeight'
+).textContent=
+`${weights[userData.mainIndex-1]}kg`;
+
+document.getElementById(
+'nextWeight'
+).textContent=
+`${weights[
+Math.min(5,userData.mainIndex)
+]}kg`;
+
+if(userData.history.length){
+
+const recent=
+userData.history[0];
+
+const success=
+recent.mainResults.every(
+r=>r.left>=10&&r.right>=10
+);
+
+document.getElementById(
+'recentResult'
+).textContent=
+success
+?
+'성공'
+:
+'실패';
+
+}else{
+
+document.getElementById(
+'recentResult'
+).textContent='없음';
+
+}
+
+updateBestHold();
+
+}
+
+let flow=[];
+let flowIndex=0;
+
+let currentHand='LEFT';
+
+let selectedRep=10;
+
+let mainResults=[];
+let negativeResults=[];
+
+let holdLeft=0;
+let holdRight=0;
+
+function buildFlow(){
+
+const main=userData.mainIndex;
+
+flow=[];
+
+flow.push({
+type:'warmup',
+title:'웜업',
+weight:
+weights[
+Math.max(0,main-3)
+]
+});
+
+for(let i=1;i<=3;i++){
+
+flow.push({
+type:'main',
+title:`메인 ${i}세트`,
+set:i,
+weight:
+weights[main-1]
+});
+
+}
+
+for(let i=1;i<=2;i++){
+
+flow.push({
+type:'negative',
+title:`네거티브 ${i}세트`,
+set:i,
+weight:
+weights[
+Math.min(5,main)
+]
+});
+
+}
+
+flow.push({
+type:'hold',
+title:'최대 홀딩',
+weight:
+weights[main-1]
+});
+
+}
+
+function openPage(page){
+
+document
+.querySelectorAll(
+'.page,.session'
+)
+.forEach(p=>{
+p.classList.add('hidden');
+});
+
+if(page==='home'){
+homePage.classList.remove('hidden');
+}
+
+if(page==='session'){
+sessionPage.classList.remove('hidden');
+}
+
+if(page==='history'){
+historyPage.classList.remove('hidden');
+}
+
+if(page==='setting'){
+settingPage.classList.remove('hidden');
+}
+
+}
+
+function getPrevRecord(type,setNum){
+
+if(!userData.history.length)
+return '없음';
+
+const last=
+userData.history[0];
+
+if(type==='main'){
+
+const item=
+last.mainResults.find(
+r=>r.set===setNum
+);
+
+if(!item)
+return '없음';
+
+return `${last.mainWeight}kg | L${item.left} / R${item.right}`;
+
+}
+
+if(type==='negative'){
+
+const left=
+last.negativeResults.find(
+n=>n.hand==='LEFT'
+);
+
+const right=
+last.negativeResults.find(
+n=>n.hand==='RIGHT'
+);
+
+return `${last.negativeWeight}kg | L${left?.value||0} / R${right?.value||0}`;
+
+}
+
+if(type==='hold'){
+
+
+return `${last.holdWeight}kg | L${last.holdLeft} / R${last.holdRight}`;
+
+}
+
+return '없음';
+
+}
+
+function renderStep(){
+
+const item=flow[flowIndex];
+
+const top=
+document.getElementById(
+'sessionTop'
+);
+
+top.classList.remove(
+'left-mode',
+'right-mode'
+);
+
+top.classList.add(
+currentHand==='LEFT'
+?
+'left-mode'
+:
+'right-mode'
+);
+
+const badge=
+document.getElementById(
+'phaseBadge'
+);
+
+badge.className='phase-badge';
+
+if(item.type==='warmup'){
+badge.classList.add('phase-warm');
+badge.textContent='WARMUP';
+}
+
+if(item.type==='main'){
+badge.classList.add('phase-main');
+badge.textContent='MAIN';
+}
+
+if(item.type==='negative'){
+badge.classList.add('phase-negative');
+badge.textContent='NEGATIVE';
+}
+
+if(item.type==='hold'){
+badge.classList.add('phase-hold');
+badge.textContent='HOLD';
+}
+
+document.getElementById(
+'handText'
+).textContent=currentHand;
+
+document.getElementById(
+'exerciseText'
+).textContent=item.title;
+
+document.getElementById(
+'weightText'
+).textContent=
+`${item.weight}kg`;
+
+document.getElementById(
+'targetText'
+).textContent=
+
+item.type==='negative'
+?
+'5초 유지'
+
+:
+item.type==='hold'
+?
+'최대한 유지'
+
+:
+'10회 수행';
+
+document.getElementById(
+'progressText'
+).textContent=
+`${flowIndex+1}/${flow.length}`;
+
+document.getElementById(
+'progressFill'
+).style.width=
+`${((flowIndex+1)/flow.length)*100}%`;
+
+document.getElementById(
+'prevRecord'
+).textContent=
+getPrevRecord(
+item.type,
+item.set
+);
+
+document.getElementById(
+'repSection'
+).style.display=
+item.type==='main'
+?
+'block'
+:
+'none';
+
+}
+
+document
+.querySelectorAll('.rep-btn')
+.forEach(btn=>{
+
+btn.onclick=()=>{
+
+document
+.querySelectorAll('.rep-btn')
+.forEach(b=>{
+b.classList.remove('active');
+});
+
+btn.classList.add('active');
+
+selectedRep=
+Number(btn.textContent);
+
+};
+
+});
+
+document.getElementById(
+'startBtn'
+).onclick=()=>{
+
+buildFlow();
+
+flowIndex=0;
+
+currentHand='LEFT';
+
+mainResults=[];
+negativeResults=[];
+
+holdLeft=0;
+holdRight=0;
+
+openPage('session');
+
+renderStep();
+
+};
+
+const overlay=
+document.getElementById(
+'overlay'
+);
+
+let timer;
+
+function startRest(){
+
+overlay.classList.remove('hidden');
+
+document.getElementById(
+'overlayTitle'
+).textContent='REST';
+
+document.getElementById(
+'overlayBtn'
+).textContent='건너뛰기';
+
+let sec=120;
+
+updateRest(sec);
+
+clearInterval(timer);
+
+timer=setInterval(()=>{
+
+sec--;
+
+updateRest(sec);
+
+if(sec<=0){
+
+clearInterval(timer);
+
+overlay.classList.add('hidden');
+
+nextStep();
+
+}
+
+},1000);
+
+document.getElementById(
+'overlayBtn'
+).onclick=()=>{
+
+clearInterval(timer);
+
+overlay.classList.add('hidden');
+
+nextStep();
+
+};
+
+}
+
+function updateRest(sec){
+
+const m=
+String(Math.floor(sec/60))
+.padStart(2,'0');
+
+const s=
+String(sec%60)
+.padStart(2,'0');
+
+document.getElementById(
+'overlayTime'
+).textContent=
+`${m}:${s}`;
+
+}
+
+function startNegative(){
+
+overlay.classList.remove('hidden');
+
+document.getElementById(
+'overlayTitle'
+).textContent='NEGATIVE';
+
+document.getElementById(
+'overlayBtn'
+).textContent='종료';
+
+const start=Date.now();
+
+clearInterval(timer);
+
+timer=setInterval(()=>{
+
+const sec=
+5-
+((Date.now()-start)/1000);
+
+document.getElementById(
+'overlayTime'
+).textContent=
+Math.max(0,sec).toFixed(1);
+
+if(sec<=0){
+
+clearInterval(timer);
+
+finishNegative(5);
+
+}
+
+},100);
+
+document.getElementById(
+'overlayBtn'
+).onclick=()=>{
+
+clearInterval(timer);
+
+const sec=
+((Date.now()-start)/1000);
+
+finishNegative(sec);
+
+};
+
+}
+
+function finishNegative(sec){
+
+negativeResults.push({
+hand:currentHand,
+value:sec.toFixed(1)
+});
+
+overlay.classList.add('hidden');
+
+if(currentHand==='LEFT'){
+
+currentHand='RIGHT';
+
+renderStep();
+
+return;
+
+}
+
+startRest();
+
+}
+
+function startHold(){
+
+overlay.classList.remove('hidden');
+
+document.getElementById(
+'overlayTitle'
+).textContent='HOLD';
+
+document.getElementById(
+'overlayBtn'
+).textContent='종료';
+
+const start=Date.now();
+
+clearInterval(timer);
+
+timer=setInterval(()=>{
+
+const sec=
+((Date.now()-start)/1000);
+
+document.getElementById(
+'overlayTime'
+).textContent=
+sec.toFixed(1);
+
+},100);
+
+document.getElementById(
+'overlayBtn'
+).onclick=()=>{
+
+clearInterval(timer);
+
+const sec=
+((Date.now()-start)/1000);
+
+finishHold(sec);
+
+};
+
+}
+
+function finishHold(sec){
+
+overlay.classList.add('hidden');
+
+if(currentHand==='LEFT'){
+
+holdLeft=sec;
+
+currentHand='RIGHT';
+
+renderStep();
+
+return;
+
+}
+
+holdRight=sec;
+
+finishSession();
+
+}
+
+function nextStep(){
+
+flowIndex++;
+
+currentHand='LEFT';
+
+if(flowIndex>=flow.length){
+
+finishSession();
+return;
+
+}
+
+renderStep();
+
+}
+
+document.getElementById(
+'actionBtn'
+).onclick=()=>{
+
+const item=flow[flowIndex];
+
+if(item.type==='negative'){
+startNegative();
+return;
+}
+
+if(item.type==='hold'){
+startHold();
+return;
+}
+
+if(item.type==='main'){
+
+if(currentHand==='LEFT'){
+
+mainResults.push({
+set:item.set,
+left:selectedRep,
+right:null
+});
+
+currentHand='RIGHT';
+
+renderStep();
+
+return;
+
+}
+
+mainResults[
+mainResults.length-1
+].right=selectedRep;
+
+startRest();
+
+return;
+
+}
+
+if(currentHand==='LEFT'){
+
+currentHand='RIGHT';
+
+renderStep();
+
+return;
+
+}
+
+startRest();
+
+};
+
+function finishSession(){
+
+const success=
+mainResults.every(
+r=>r.left>=10 && r.right>=10
+);
+
+const currentMainWeight=
+weights[userData.mainIndex-1];
+
+const currentNegativeWeight=
+weights[
+Math.min(5,userData.mainIndex)
+];
+
+if(success && userData.mainIndex<6){
+userData.mainIndex++;
+}
+
+userData.history.unshift({
+
+date:
+new Date()
+.toLocaleDateString(),
+
+mainWeight:
+currentMainWeight,
+
+negativeWeight:
+currentNegativeWeight,
+
+holdWeight:
+currentMainWeight,
+
+mainResults,
+
+negativeResults,
+
+holdLeft:
+holdLeft.toFixed(1),
+
+holdRight:
+holdRight.toFixed(1)
+
+});
+
+saveData();
+
+updateHomeUI();
+
+renderResult();
+
+}
+
+function renderResult(){
+
+document.getElementById(
+'resultPage'
+).classList.remove('hidden');
+
+const history=
+userData.history[0];
+
+document.getElementById(
+'resultMain'
+).innerHTML=
+
+`
+<div
+class="result-label"
+style="color:var(--main);"
+>
+메인 운동
+</div>
+
+<div class="result-weight">
+${history.mainWeight}kg
+</div>
+
+${history.mainResults.map(r=>`
+
+<div
+class="result-line"
+style="color:var(--main);"
+>
+${r.set}세트
+L${r.left}
+/
+R${r.right}
+</div>
+
+`).join('')}
+`;
+
+document.getElementById(
+'resultNegative'
+).innerHTML=
+
+`
+<div
+class="result-label"
+style="color:var(--negative);"
+>
+네거티브
+</div>
+
+<div class="result-weight">
+${history.negativeWeight}kg
+</div>
+
+${history.negativeResults.map(n=>`
+
+<div
+class="result-line"
+style="color:var(--negative);"
+>
+${n.hand}
+${n.value}초
+</div>
+
+`).join('')}
+`;
+
+document.getElementById(
+'resultHold'
+).innerHTML=
+
+`
+<div
+class="result-label"
+style="color:var(--hold);"
+>
+홀딩
+</div>
+
+<div class="result-weight">
+${history.holdWeight}kg
+</div>
+
+<div
+class="result-line"
+style="color:var(--hold);"
+>
+LEFT
+${history.holdLeft}초
+</div>
+
+<div
+class="result-line"
+style="color:var(--hold);"
+>
+RIGHT
+${history.holdRight}초
+</div>
+
+`;
+
+loadHistory();
+
+}
+
+document.getElementById(
+'resultCloseBtn'
+).onclick=()=>{
+
+document.getElementById(
+'resultPage'
+).classList.add('hidden');
+
+openPage('home');
+
+};
+
+function loadHistory(){
+
+const page=
+document.getElementById(
+'historyPage'
+);
+
+page.innerHTML='';
+
+userData.history.forEach(item=>{
+
+const div=
+document.createElement('div');
+
+div.className='history-card';
+
+div.innerHTML=`
+
+<div class="history-title">
+${item.date}
+</div>
+
+<div
+class="
+history-block
+history-main
+"
+>
+
+<div
+class="history-label"
+style="color:var(--main);"
+>
+MAIN
+${item.mainWeight}kg
+</div>
+
+${item.mainResults.map(r=>`
+
+<div
+class="
+history-line
+${(
+r.left<10
+||
+r.right<10
+)
+?
+'fail'
+:
+''
+}
+"
+>
+
+${r.set}세트
+L${r.left}
+/
+R${r.right}
+
+</div>
+
+`).join('')}
+
+</div>
+
+<div
+class="
+history-block
+history-negative
+"
+>
+
+<div
+class="history-label"
+style="color:var(--negative);"
+>
+NEGATIVE
+${item.negativeWeight}kg
+</div>
+
+${item.negativeResults.map(n=>`
+
+<div class="history-line">
+${n.hand}
+${n.value}초
+</div>
+
+`).join('')}
+
+</div>
+
+<div
+class="
+history-block
+history-hold
+"
+>
+
+<div
+class="history-label"
+style="color:var(--hold);"
+>
+HOLD
+${item.holdWeight}kg
+</div>
+
+<div class="history-line">
+LEFT
+${item.holdLeft}초
+</div>
+
+<div class="history-line">
+RIGHT
+${item.holdRight}초
+</div>
+
+</div>
+
+`;
+
+page.appendChild(div);
+
+});
+
+}
+
+document
+.querySelectorAll('.setting-btn')
+.forEach((btn,index)=>{
+
+if(userData.mainIndex===index+1){
+btn.classList.add('active');
+}
+
+btn.onclick=()=>{
+
+document
+.querySelectorAll('.setting-btn')
+.forEach(b=>{
+b.classList.remove('active');
+});
+
+btn.classList.add('active');
+
+userData.mainIndex=index+1;
+
+saveData();
+
+updateHomeUI();
+
+};
+
+});
+
+document
+.querySelectorAll('.tab')
+.forEach(tab=>{
+
+tab.onclick=()=>{
+
+document
+.querySelectorAll('.tab')
+.forEach(t=>{
+t.classList.remove('active');
+});
+
+tab.classList.add('active');
+
+openPage(tab.dataset.page);
+
+};
+
+});
+
+document.getElementById(
+'resetBtn'
+).onclick=()=>{
+
+document.getElementById(
+'resetOverlay'
+).classList.remove('hidden');
+
+};
+
+document.getElementById(
+'cancelResetBtn'
+).onclick=()=>{
+
+document.getElementById(
+'resetOverlay'
+).classList.add('hidden');
+
+};
+
+document.getElementById(
+'confirmResetBtn'
+).onclick=()=>{
+
+localStorage.removeItem(
+'gdiron_v501'
+);
+
+userData={
+mainIndex:1,
+history:[]
+};
+
+saveData();
+
+updateHomeUI();
+
+loadHistory();
+
+document.getElementById(
+'resetOverlay'
+).classList.add('hidden');
+
+openPage('home');
+
+};
+
+updateHomeUI();
+
+loadHistory();
+
+</script>
+
 </body>
 </html>
