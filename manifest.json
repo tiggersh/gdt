@@ -3,7 +3,7 @@
   "short_name": "SH Grip Pro",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#050505",
+  "background_color": "#f4f6f9",
   "theme_color": "#050505",
   "icons": [
     {
