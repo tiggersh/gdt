@@ -1,9 +1,9 @@
 <!--
-SH_Grip_Pro_v5.1
+SH_Grip_Pro_v5.2
 FULL STABLE BUILD
 
 BASE:
-v5.0
+v5.1
 
 FIX:
 1. HOME AUTO UPDATE
@@ -11,8 +11,9 @@ FIX:
 3. HISTORY WEIGHT DISPLAY
 4. PREV RECORD RESTORE
 
-KEEP:
-ALL v5.0 FEATURES
+NEW FEATURES:
+1. REST TIMER END NOTIFICATION (SOUND & VIBRATION)
+2. TRAINING PROGRESS BACK/PREVIOUS STEP RESTORE
 -->
 
 <!DOCTYPE html>
@@ -73,6 +74,11 @@ button{
 border:none;
 outline:none;
 cursor:pointer;
+}
+
+button:disabled {
+opacity: 0.3;
+cursor: not-allowed;
 }
 
 .hidden{
@@ -167,11 +173,13 @@ font-weight:900;
 flex:1;
 display:flex;
 flex-direction:column;
-justify-content:space-between;
+justify-content:between;
 overflow:hidden;
+gap:10px;
 }
 
 .session-top{
+flex:1;
 display:flex;
 flex-direction:column;
 gap:10px;
@@ -521,6 +529,28 @@ margin-bottom:4px;
 color:var(--red);
 }
 
+.action-wrap {
+display:flex;
+gap:10px;
+width:100%;
+flex-shrink:0;
+}
+
+.prev-step-btn {
+width: 35%;
+height: 72px;
+border-radius: 22px;
+background: #222;
+color: #fff;
+font-size: 16px;
+font-weight: 900;
+border: 1px solid #333;
+}
+
+.action-wrap .main-btn {
+width: 65%;
+}
+
 </style>
 </head>
 
@@ -696,9 +726,10 @@ PREV
 
 </div>
 
-<button class="main-btn" id="actionBtn">
-완료
-</button>
+<div class="action-wrap">
+<button class="prev-step-btn" id="prevStepBtn">이전 단계</button>
+<button class="main-btn" id="actionBtn">완료</button>
+</div>
 
 </div>
 
@@ -1211,6 +1242,14 @@ item.type==='main'
 :
 'none';
 
+// 첫 단계이며 왼손일 경우 '이전 단계' 버튼 비활성화
+const prevBtn = document.getElementById('prevStepBtn');
+if (flowIndex === 0 && currentHand === 'LEFT') {
+    prevBtn.disabled = true;
+} else {
+    prevBtn.disabled = false;
+}
+
 }
 
 document
@@ -1263,6 +1302,37 @@ document.getElementById(
 
 let timer;
 
+// 알림 기능 (소리 + 진동) 함수
+function triggerRestEndNotification() {
+    // 1. 진동 알림 (지원 기기에서 500ms 진동)
+    if (navigator.vibrate) {
+        navigator.vibrate(500);
+    }
+    
+    // 2. 사운드 알림 (Web Audio API를 이용해 신호음 생성)
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // 440Hz음
+        gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime); // 볼륨 50%
+        
+        oscillator.start();
+        // 0.4초 후 소리 끄기
+        setTimeout(() => {
+            oscillator.stop();
+            audioCtx.close();
+        }, 400);
+    } catch (e) {
+        console.log("AudioContext를 시작할 수 없습니다. 사용자 상호작용이 필요할 수 있습니다.");
+    }
+}
+
 function startRest(){
 
 overlay.classList.remove('hidden');
@@ -1292,6 +1362,8 @@ if(sec<=0){
 clearInterval(timer);
 
 overlay.classList.add('hidden');
+
+triggerRestEndNotification(); // 알림 발생
 
 nextStep();
 
@@ -1543,6 +1615,51 @@ return;
 
 startRest();
 
+};
+
+// 이전 단계로 되돌아가는 기능 구현
+document.getElementById('prevStepBtn').onclick = () => {
+    if (flowIndex === 0 && currentHand === 'LEFT') return; // 첫 상태면 작동 안 함
+
+    const currentItem = flow[flowIndex];
+
+    if (currentHand === 'RIGHT') {
+        // RIGHT 상태에서 뒤로가기 클릭 시, 현재 단계의 LEFT 상태로 후퇴
+        currentHand = 'LEFT';
+        
+        // 데이터 배열에서 이미 들어간 데이터 파기 처리
+        if (currentItem.type === 'main') {
+            mainResults.pop();
+        } else if (currentItem.type === 'negative') {
+            negativeResults.pop();
+        } else if (currentItem.type === 'hold') {
+            holdLeft = 0;
+        }
+    } else {
+        // LEFT 상태에서 뒤로가기 클릭 시, 이전 flowIndex의 RIGHT 상태로 후퇴
+        flowIndex--;
+        currentHand = 'RIGHT';
+        
+        const prevItem = flow[flowIndex];
+        if (prevItem.type === 'main') {
+            // 메인인 경우 이전 결과 객체의 right 데이터 지우고 rep 선택 복원
+            if(mainResults.length > 0) {
+                const lastMain = mainResults[mainResults.length - 1];
+                selectedRep = lastMain.left; 
+                lastMain.right = null;
+                
+                // 버튼 선택 상태 UI 동기화
+                document.querySelectorAll('.rep-btn').forEach(b => {
+                    b.classList.remove('active');
+                    if(Number(b.textContent) === selectedRep) b.classList.add('active');
+                });
+            }
+        } else if (prevItem.type === 'negative') {
+            negativeResults.pop();
+        }
+    }
+    
+    renderStep();
 };
 
 function finishSession(){
