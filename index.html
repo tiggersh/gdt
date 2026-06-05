@@ -364,51 +364,46 @@ background:var(--main);
 color:black;
 }
 
-/* 오버레이 버튼 자이언트화 및 풀스크린 터치 영역 개선 */
 .overlay{
 position:fixed;
 inset:0;
-background:rgba(0,0,0,.96);
+background:rgba(0,0,0,.95);
 z-index:99999;
 display:flex;
 justify-content:center;
 align-items:center;
-padding:24px;
+padding:20px;
 }
 
 .overlay-wrap{
 width:100%;
-height: 82dvh;
 display:flex;
 flex-direction:column;
-justify-content: center;
 align-items:center;
-gap:24px;
+gap:18px;
 }
 
 .overlay-title{
-font-size:24px;
+font-size:18px;
 font-weight:900;
 letter-spacing:4px;
 color:var(--main);
 }
 
 .overlay-time{
-font-size:110px;
+font-size:96px;
 font-weight:900;
 line-height:1;
-margin-bottom: 10px;
 }
 
 .overlay-btn{
 width:100%;
-height:110px;
-border-radius:26px;
-background:var(--main);
-color:black;
-font-size:26px;
+height:56px;
+border-radius:22px;
+background:#181818;
+color:white;
+font-size:16px;
 font-weight:900;
-box-shadow: 0 0 20px rgba(217,255,63,0.2);
 }
 
 .result-page{
@@ -538,27 +533,7 @@ border: 1px solid #333;
 width: 65%;
 }
 
-#homeRecentDetail {
-    font-size: 14px !important;
-    font-weight: 700;
-    margin-top: 6px;
-    line-height: 1.6 !important;
-    color: #eee;
-}
-.home-rep-line {
-    display: flex;
-    justify-content: space-between;
-    padding: 4px 0;
-    border-bottom: 1px dashed #222;
-}
-.home-rep-line:last-child {
-    border-bottom: none;
-}
-.home-rep-label {
-    color: var(--main);
-}
-
-/* 최근 메인 세트 기록 내부 줄바꿈 레이아웃 전용 스타일 */
+/* 최근 메인 세트 기록 줄바꿈 및 스타일 최적화 */
 #homeRecentDetail {
     font-size: 14px !important;
     font-weight: 700;
@@ -574,16 +549,14 @@ width: 65%;
 .home-rep-line:last-child {
     border-bottom: none;
 }
-/* 세트 글씨는 주변 라벨과 결을 맞춘 회색 정의 */
 .home-rep-label {
-    color: var(--sub);
+    color: var(--sub); /* 세트명 회색 통일 */
     font-weight: 800;
 }
-/* 양손 횟수 데이터는 흰색 정의 */
 .home-rep-value {
-    color: var(--text);
+    color: var(--text); /* 기록 수치 흰색 통일 */
 }
-    
+
 </style>
 </head>
 
@@ -638,7 +611,7 @@ SH Grip Pro
 </div>
 
 <div class="card" style="margin-top: 2px;">
-<div class="label">최근 메인 기록 (<span id="homeRecentWeight" style="color: var(--main);">0kg</span>)</div>
+<div class="label">최근 메인 세트 기록 (<span id="homeRecentWeight" style="color: var(--main);">0kg</span>)</div>
 <div class="value small" id="homeRecentDetail">
 훈련 데이터가 없습니다.
 </div>
@@ -649,7 +622,7 @@ SH Grip Pro
 <div class="card">
 
 <div class="label">
-L 홀드 기록
+L HOLD (최근 기록)
 </div>
 
 <div class="value small" id="bestLeftHold">
@@ -661,21 +634,7 @@ L 홀드 기록
 <div class="card">
 
 <div class="label">
-R 홀드 기록
-</div>
-
-<div class="value small" id="bestRightHold">
-0.0s
-</div>
-
-</div>
-
-</div>
-
-<div class="card">
-
-<div class="label">
-R 홀드 기록
+R HOLD (최근 기록)
 </div>
 
 <div class="value small" id="bestRightHold">
@@ -838,9 +797,9 @@ id="resetBtn"
 
 </div>
 
-<div class="overlay hidden" id="overlay" data-start-time="0">
+<div class="overlay hidden" id="overlay">
 
-<div class="overlay-wrap" id="overlayWrap">
+<div class="overlay-wrap">
 
 <div class="overlay-title" id="overlayTitle">
 REST
@@ -962,7 +921,7 @@ JSON.stringify(userData)
 
 function updateBestHold(){
 
-// 역대 최고가 아닌 가장 최신 회차의 홀드 기록을 다이렉트로 매핑
+// 최고 기록 연산 대신 직전 최근 회차(history[0])의 홀드 기록을 매핑
 if(userData.history.length) {
     const recent = userData.history[0];
     document.getElementById('bestLeftHold').textContent = `${parseFloat(recent.holdLeft || 0).toFixed(1)}s`;
@@ -992,18 +951,18 @@ if(userData.history.length){
 
     const recent = userData.history[0];
     
-    // 최근 결과 탭에 성공/실패 텍스트 대신 최근 실제 훈련 날짜 바인딩
+    // 최근 훈련일을 표시
     document.getElementById('recentResult').textContent = recent.date;
     
-    // 최근 훈련 시 진행했던 타겟 메인 무게 출력
+    // 최근 운동의 메인 세트 무게 표시
     document.getElementById('homeRecentWeight').textContent = `${recent.mainWeight}kg`;
     
-    // 회색(라벨)과 흰색(데이터)이 명확히 대조되도록 템플릿 마크업 분할 주입
+    // 세트 라벨(회색)과 횟수 기록(흰색) 분리 바인딩
     const detailHtml = recent.mainResults.map(r => {
         const rightText = r.right !== null ? `R${r.right}` : 'R -';
         return `<div class="home-rep-line">
                     <span class="home-rep-label">${r.set}세트</span>
-                    <span class="home-rep-value">L${r.left} / ${rightText}</span>
+                    <span class="home-rep-value">L${r.left} / R${r.right}</span>
                 </div>`;
     }).join('');
     
@@ -1020,7 +979,7 @@ if(userData.history.length){
 updateBestHold();
 
 }
-    
+
 let flow=[];
 let flowIndex=0;
 
@@ -1266,6 +1225,7 @@ item.type==='main'
 :
 'none';
 
+// 첫 단계이며 왼손일 경우 '이전 단계' 버튼 비활성화
 const prevBtn = document.getElementById('prevStepBtn');
 if (flowIndex === 0 && currentHand === 'LEFT') {
     prevBtn.disabled = true;
@@ -1325,7 +1285,7 @@ document.getElementById(
 
 let timer;
 
-// 사운드 알림 비프 주파수 제어용 공통 유틸 함수
+// 사운드 비프 생성 전용 공통 유틸 함수
 function playBeep(frequency, duration) {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1337,7 +1297,7 @@ function playBeep(frequency, duration) {
         
         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-        gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime); // 볼륨 40%
         
         oscillator.start();
         setTimeout(() => {
@@ -1345,16 +1305,17 @@ function playBeep(frequency, duration) {
             audioCtx.close();
         }, duration);
     } catch (e) {
-        console.log("AudioContext 블록 우회 에러");
+        console.log("AudioContext 오류 발생 방지 우회");
     }
 }
 
-// 최종 종료 및 정지 알림
+// 알림 기능 (소리 + 진동) 함수
 function triggerRestEndNotification() {
     if (navigator.vibrate) {
         navigator.vibrate(500);
     }
-    playBeep(523.25, 400); // 도(C5) 고음 신호음
+    // 종료 안내는 기존 주파수인 440Hz 신호음 적용
+    playBeep(440, 400);
 }
 
 function startRest(){
@@ -1381,9 +1342,9 @@ sec--;
 
 updateRest(sec);
 
-// 추천기능 추가: 휴식 종료 3초, 2초, 1초 전 셋팅 준비 카운트다운 틱 비프음 발생
-if (sec === 3 || sec === 2 || sec === 1) {
-    playBeep(329.63, 100); // 미(E4) 플랫 톤 단음
+// 3초 전, 2초 전, 1초 전에 고주파(880Hz)로 짧게 틱 비프음 발생
+if(sec === 3 || sec === 2 || sec === 1) {
+    playBeep(880, 80);
 }
 
 if(sec<=0){
@@ -1392,13 +1353,23 @@ clearInterval(timer);
 
 overlay.classList.add('hidden');
 
-triggerRestEndNotification();
+triggerRestEndNotification(); // 알림 발생
 
 nextStep();
 
 }
 
 },1000);
+
+// 오버레이 내부 버튼 이벤트 명시적 분리 처리
+document.getElementById(
+'overlayBtn'
+).onclick=(e)=>{
+e.stopPropagation(); // 부모 overlay 풀스크린 클릭 이벤트 전파 완전 차단
+clearInterval(timer);
+overlay.classList.add('hidden');
+nextStep();
+};
 
 }
 
@@ -1432,7 +1403,6 @@ document.getElementById(
 ).textContent='종료';
 
 const start=Date.now();
-overlay.dataset.startTime = start; // 전역 스크린 터치 타임스탬프 백업
 
 clearInterval(timer);
 
@@ -1456,6 +1426,16 @@ finishNegative(5);
 }
 
 },100);
+
+document.getElementById(
+'overlayBtn'
+).onclick=(e)=>{
+e.stopPropagation(); // 풀스크린 트리거 전파 차단
+clearInterval(timer);
+const sec=
+((Date.now()-start)/1000);
+finishNegative(sec);
+};
 
 }
 
@@ -1495,7 +1475,6 @@ document.getElementById(
 ).textContent='종료';
 
 const start=Date.now();
-overlay.dataset.startTime = start; // 전역 스크린 터치 타임스탬프 백업
 
 clearInterval(timer);
 
@@ -1510,6 +1489,16 @@ document.getElementById(
 sec.toFixed(1);
 
 },100);
+
+document.getElementById(
+'overlayBtn'
+).onclick=(e)=>{
+e.stopPropagation(); // 풀스크린 트리거 전파 차단
+clearInterval(timer);
+const sec=
+((Date.now()-start)/1000);
+finishHold(sec);
+};
 
 }
 
@@ -1610,15 +1599,17 @@ startRest();
 
 };
 
-// 이전 단계 기능
+// 이전 단계로 되돌아가는 기능 구현
 document.getElementById('prevStepBtn').onclick = () => {
-    if (flowIndex === 0 && currentHand === 'LEFT') return;
+    if (flowIndex === 0 && currentHand === 'LEFT') return; // 첫 상태면 작동 안 함
 
     const currentItem = flow[flowIndex];
 
     if (currentHand === 'RIGHT') {
+        // RIGHT 상태에서 뒤로가기 클릭 시, 현재 단계의 LEFT 상태로 후퇴
         currentHand = 'LEFT';
         
+        // 데이터 배열에서 이미 들어간 데이터 파기 처리
         if (currentItem.type === 'main') {
             mainResults.pop();
         } else if (currentItem.type === 'negative') {
@@ -1627,16 +1618,19 @@ document.getElementById('prevStepBtn').onclick = () => {
             holdLeft = 0;
         }
     } else {
+        // LEFT 상태에서 뒤로가기 클릭 시, 이전 flowIndex의 RIGHT 상태로 후퇴
         flowIndex--;
         currentHand = 'RIGHT';
         
         const prevItem = flow[flowIndex];
         if (prevItem.type === 'main') {
+            // 메인인 경우 이전 결과 객체의 right 데이터 지우고 rep 선택 복원
             if(mainResults.length > 0) {
                 const lastMain = mainResults[mainResults.length - 1];
                 selectedRep = lastMain.left; 
                 lastMain.right = null;
                 
+                // 버튼 선택 상태 UI 동기화
                 document.querySelectorAll('.rep-btn').forEach(b => {
                     b.classList.remove('active');
                     if(Number(b.textContent) === selectedRep) b.classList.add('active');
@@ -1650,46 +1644,20 @@ document.getElementById('prevStepBtn').onclick = () => {
     renderStep();
 };
 
-// 개선/추가기능 반영: 버튼뿐 아니라 오버레이 컨테이너 스크린 영역 전체 터치 대응 로직 보강
-overlay.onclick=(e)=>{
-    clearInterval(timer);
-    overlay.classList.add('hidden');
+// 오버레이 풀스크린 화면 어디를 터치해도 동작을 수행하도록 전역 바인딩 정의
+document.getElementById('overlay').onclick = function() {
+    const currentMode = document.getElementById('overlayTitle').textContent;
+    const btnElement = document.getElementById('overlayBtn');
     
-    const mode = document.getElementById('overlayTitle').textContent;
-    if(mode === 'REST') {
-        nextStep();
-    } else if(mode === 'NEGATIVE') {
-        const start = Number(overlay.dataset.startTime || Date.now());
-        const sec = ((Date.now() - start) / 1000);
-        finishNegative(sec);
-    } else if(mode === 'HOLD') {
-        const start = Number(overlay.dataset.startTime || Date.now());
-        const sec = ((Date.now() - start) / 1000);
-        finishHold(sec);
+    // 강제 클릭 트리거 핸들링 연동
+    if (btnElement) {
+        btnElement.click();
     }
 };
 
-// 자식 엘리먼트 클릭 시 버블링 에러 레이아웃 전파 차단
-document.getElementById('overlayWrap').onclick=(e)=>{
+// 내부 콘텐츠 박스를 클릭할 때는 버블링 현상 방지
+document.querySelector('.overlay-wrap').onclick = function(e) {
     e.stopPropagation();
-};
-document.getElementById('overlayBtn').onclick=(e)=>{
-    e.stopPropagation();
-    clearInterval(timer);
-    overlay.classList.add('hidden');
-    
-    const mode = document.getElementById('overlayTitle').textContent;
-    if(mode === 'REST') {
-        nextStep();
-    } else if(mode === 'NEGATIVE') {
-        const start = Number(overlay.dataset.startTime || Date.now());
-        const sec = ((Date.now() - start) / 1000);
-        finishNegative(sec);
-    } else if(mode === 'HOLD') {
-        const start = Number(overlay.dataset.startTime || Date.now());
-        const sec = ((Date.now() - start) / 1000);
-        finishHold(sec);
-    }
 };
 
 function finishSession(){
