@@ -538,6 +538,26 @@ border: 1px solid #333;
 width: 65%;
 }
 
+#homeRecentDetail {
+    font-size: 14px !important;
+    font-weight: 700;
+    margin-top: 6px;
+    line-height: 1.6 !important;
+    color: #eee;
+}
+.home-rep-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px dashed #222;
+}
+.home-rep-line:last-child {
+    border-bottom: none;
+}
+.home-rep-label {
+    color: var(--main);
+}
+    
 </style>
 </head>
 
@@ -592,8 +612,8 @@ SH Grip Pro
 </div>
 
 <div class="card" style="margin-top: 2px;">
-<div class="label" style="color: var(--main);">최근 메인 세트 기록</div>
-<div class="value small" id="homeRecentDetail" style="font-size: 15px; font-weight: 700; margin-top: 4px; line-height: 1.4;">
+<div class="label" style="color: var(--main);">최근 메인 세트 기록 (<span id="homeRecentWeight">0kg</span>)</div>
+<div class="value small" id="homeRecentDetail">
 훈련 데이터가 없습니다.
 </div>
 </div>
@@ -949,14 +969,23 @@ if(userData.history.length){
 const recent=
 userData.history[0];
 
-// 최근결과(성공/실패) 문구 대신 최근 운동 날짜 표기 변경
+// 최근 결과(성공/실패) 문구 대신 최근 운동 날짜 표기 변경
 document.getElementById(
 'recentResult'
 ).textContent= recent.date;
 
-// 최근 메인 운동 기록 상세 바인딩
-const detailText = recent.mainResults.map(r => `[${r.set}세트] L${r.left}/R${r.right}`).join(' | ');
-document.getElementById('homeRecentDetail').textContent = `${recent.mainWeight}kg : ${detailText}`;
+// 최근 메인 운동 기록 상세 바인딩 (줄바꿈 리스트 형태로 시인성 개선)
+document.getElementById('homeRecentWeight').textContent = `${recent.mainWeight}kg`;
+
+const detailHtml = recent.mainResults.map(r => {
+    const rightText = r.right !== null ? `R${r.right}` : 'R -';
+    return `<div class="home-rep-line">
+                <span class="home-rep-label">${r.set}세트</span>
+                <span>L${r.left} / ${rightText}</span>
+            </div>`;
+}).join('');
+
+document.getElementById('homeRecentDetail').innerHTML = detailHtml;
 
 }else{
 
