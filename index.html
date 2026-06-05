@@ -533,12 +533,12 @@ border: 1px solid #333;
 width: 65%;
 }
 
-/* 최근 메인 세트 기록 줄바꿈 및 스타일 최적화 */
+/* 최근 메인 세트 디테일 스타일 최적화 (회색/흰색 완벽 통일) */
 #homeRecentDetail {
-    font-size: 14px !important;
+    font-size: 14px;
     font-weight: 700;
     margin-top: 6px;
-    line-height: 1.6 !important;
+    line-height: 1.6;
 }
 .home-rep-line {
     display: flex;
@@ -550,11 +550,11 @@ width: 65%;
     border-bottom: none;
 }
 .home-rep-label {
-    color: var(--sub); /* 세트명 회색 통일 */
+    color: var(--sub); /* 라벨 회색 통일 */
     font-weight: 800;
 }
 .home-rep-value {
-    color: var(--text); /* 기록 수치 흰색 통일 */
+    color: var(--text); /* 데이터 흰색 통일 */
 }
 
 </style>
@@ -621,7 +621,7 @@ SH Grip Pro
 
 <div class="card">
 
-<div class="label">
+<div class="label" id="lblLeftHold">
 L HOLD (최근 기록)
 </div>
 
@@ -633,7 +633,7 @@ L HOLD (최근 기록)
 
 <div class="card">
 
-<div class="label">
+<div class="label" id="lblRightHold">
 R HOLD (최근 기록)
 </div>
 
@@ -921,14 +921,18 @@ JSON.stringify(userData)
 
 function updateBestHold(){
 
-// 최고 기록 연산 대신 직전 최근 회차(history[0])의 홀드 기록을 매핑
+// BEST 대신 가장 최근 회차(history[0])의 훈련 결과에서 가져와 다이렉트 매핑
 if(userData.history.length) {
     const recent = userData.history[0];
     document.getElementById('bestLeftHold').textContent = `${parseFloat(recent.holdLeft || 0).toFixed(1)}s`;
     document.getElementById('bestRightHold').textContent = `${parseFloat(recent.holdRight || 0).toFixed(1)}s`;
+    document.getElementById('lblLeftHold').textContent = "L HOLD (최근 기록)";
+    document.getElementById('lblRightHold').textContent = "R HOLD (최근 기록)";
 } else {
     document.getElementById('bestLeftHold').textContent = `0.0s`;
     document.getElementById('bestRightHold').textContent = `0.0s`;
+    document.getElementById('lblLeftHold').textContent = "L HOLD (최근 기록)";
+    document.getElementById('lblRightHold').textContent = "R HOLD (최근 기록)";
 }
 
 }
@@ -951,15 +955,14 @@ if(userData.history.length){
 
     const recent = userData.history[0];
     
-    // 최근 훈련일을 표시
+    // 최근 훈련일 매핑
     document.getElementById('recentResult').textContent = recent.date;
     
     // 최근 운동의 메인 세트 무게 표시
     document.getElementById('homeRecentWeight').textContent = `${recent.mainWeight}kg`;
     
-    // 세트 라벨(회색)과 횟수 기록(흰색) 분리 바인딩
+    // 세트 라벨(회색 클래스)과 횟수 수치(흰색 클래스) 동적 주입 구조로 매핑 수정
     const detailHtml = recent.mainResults.map(r => {
-        const rightText = r.right !== null ? `R${r.right}` : 'R -';
         return `<div class="home-rep-line">
                     <span class="home-rep-label">${r.set}세트</span>
                     <span class="home-rep-value">L${r.left} / R${r.right}</span>
@@ -1285,7 +1288,7 @@ document.getElementById(
 
 let timer;
 
-// 사운드 비프 생성 전용 공통 유틸 함수
+// 사운드 비프 생성 공통 함수
 function playBeep(frequency, duration) {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1305,7 +1308,7 @@ function playBeep(frequency, duration) {
             audioCtx.close();
         }, duration);
     } catch (e) {
-        console.log("AudioContext 오류 발생 방지 우회");
+        console.log("AudioContext 차단 우회");
     }
 }
 
@@ -1314,8 +1317,7 @@ function triggerRestEndNotification() {
     if (navigator.vibrate) {
         navigator.vibrate(500);
     }
-    // 종료 안내는 기존 주파수인 440Hz 신호음 적용
-    playBeep(440, 400);
+    playBeep(440, 400); // 종료 신호음 오리지널 주파수 440Hz 적용
 }
 
 function startRest(){
@@ -1342,7 +1344,7 @@ sec--;
 
 updateRest(sec);
 
-// 3초 전, 2초 전, 1초 전에 고주파(880Hz)로 짧게 틱 비프음 발생
+// 3초 전, 2초 전, 1초 전에 고주파(880Hz)로 짧은 틱 비프음 구현
 if(sec === 3 || sec === 2 || sec === 1) {
     playBeep(880, 80);
 }
@@ -1361,11 +1363,11 @@ nextStep();
 
 },1000);
 
-// 오버레이 내부 버튼 이벤트 명시적 분리 처리
+// 오버레이 내부 버튼 클릭 시 부모 클릭 버블링 방지
 document.getElementById(
 'overlayBtn'
 ).onclick=(e)=>{
-e.stopPropagation(); // 부모 overlay 풀스크린 클릭 이벤트 전파 완전 차단
+e.stopPropagation();
 clearInterval(timer);
 overlay.classList.add('hidden');
 nextStep();
@@ -1430,7 +1432,7 @@ finishNegative(5);
 document.getElementById(
 'overlayBtn'
 ).onclick=(e)=>{
-e.stopPropagation(); // 풀스크린 트리거 전파 차단
+e.stopPropagation();
 clearInterval(timer);
 const sec=
 ((Date.now()-start)/1000);
@@ -1493,7 +1495,7 @@ sec.toFixed(1);
 document.getElementById(
 'overlayBtn'
 ).onclick=(e)=>{
-e.stopPropagation(); // 풀스크린 트리거 전파 차단
+e.stopPropagation();
 clearInterval(timer);
 const sec=
 ((Date.now()-start)/1000);
@@ -1599,17 +1601,14 @@ startRest();
 
 };
 
-// 이전 단계로 되돌아가는 기능 구현
+// 이전 단계 복원 (백트래킹) 기능 구현
 document.getElementById('prevStepBtn').onclick = () => {
-    if (flowIndex === 0 && currentHand === 'LEFT') return; // 첫 상태면 작동 안 함
+    if (flowIndex === 0 && currentHand === 'LEFT') return;
 
     const currentItem = flow[flowIndex];
 
     if (currentHand === 'RIGHT') {
-        // RIGHT 상태에서 뒤로가기 클릭 시, 현재 단계의 LEFT 상태로 후퇴
         currentHand = 'LEFT';
-        
-        // 데이터 배열에서 이미 들어간 데이터 파기 처리
         if (currentItem.type === 'main') {
             mainResults.pop();
         } else if (currentItem.type === 'negative') {
@@ -1618,19 +1617,16 @@ document.getElementById('prevStepBtn').onclick = () => {
             holdLeft = 0;
         }
     } else {
-        // LEFT 상태에서 뒤로가기 클릭 시, 이전 flowIndex의 RIGHT 상태로 후퇴
         flowIndex--;
         currentHand = 'RIGHT';
         
         const prevItem = flow[flowIndex];
         if (prevItem.type === 'main') {
-            // 메인인 경우 이전 결과 객체의 right 데이터 지우고 rep 선택 복원
             if(mainResults.length > 0) {
                 const lastMain = mainResults[mainResults.length - 1];
                 selectedRep = lastMain.left; 
                 lastMain.right = null;
                 
-                // 버튼 선택 상태 UI 동기화
                 document.querySelectorAll('.rep-btn').forEach(b => {
                     b.classList.remove('active');
                     if(Number(b.textContent) === selectedRep) b.classList.add('active');
@@ -1644,18 +1640,14 @@ document.getElementById('prevStepBtn').onclick = () => {
     renderStep();
 };
 
-// 오버레이 풀스크린 화면 어디를 터치해도 동작을 수행하도록 전역 바인딩 정의
+// 오버레이 풀스크린 화면 어디든 터치 시 동작하도록 글로벌 이벤트 리스너 연동
 document.getElementById('overlay').onclick = function() {
-    const currentMode = document.getElementById('overlayTitle').textContent;
     const btnElement = document.getElementById('overlayBtn');
-    
-    // 강제 클릭 트리거 핸들링 연동
     if (btnElement) {
         btnElement.click();
     }
 };
 
-// 내부 콘텐츠 박스를 클릭할 때는 버블링 현상 방지
 document.querySelector('.overlay-wrap').onclick = function(e) {
     e.stopPropagation();
 };
