@@ -962,12 +962,15 @@ if(userData.history.length){
     document.getElementById('homeRecentWeight').textContent = `${recent.mainWeight}kg`;
     
     // 세트 라벨(회색 클래스)과 횟수 수치(흰색 클래스) 동적 주입 구조로 매핑 수정
-    const detailHtml = recent.mainResults.map(r => {
-        return `<div class="home-rep-line">
-                    <span class="home-rep-label">${r.set}세트</span>
-                    <span class="home-rep-value">L${r.left} / R${r.right}</span>
-                </div>`;
-    }).join('');
+const detailHtml = recent.mainResults.map(r => {
+    // 오른손 기록이 없을 때를 대비한 예외 처리 포함
+    const rightText = r.right !== null ? `R${r.right}` : 'R -';
+    
+    return `<div class="home-rep-line">
+                <span class="home-rep-label">${r.set}세트</span>
+                <span class="home-rep-value">L${r.left} / ${rightText}</span>
+            </div>`;
+}).join('');
     
     document.getElementById('homeRecentDetail').innerHTML = detailHtml;
 
