@@ -557,6 +557,32 @@ width: 65%;
 .home-rep-label {
     color: var(--main);
 }
+
+/* 최근 메인 세트 기록 내부 줄바꿈 레이아웃 전용 스타일 */
+#homeRecentDetail {
+    font-size: 14px !important;
+    font-weight: 700;
+    margin-top: 6px;
+    line-height: 1.6 !important;
+}
+.home-rep-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px dashed #222;
+}
+.home-rep-line:last-child {
+    border-bottom: none;
+}
+/* 세트 글씨는 주변 라벨과 결을 맞춘 회색 정의 */
+.home-rep-label {
+    color: var(--sub);
+    font-weight: 800;
+}
+/* 양손 횟수 데이터는 흰색 정의 */
+.home-rep-value {
+    color: var(--text);
+}
     
 </style>
 </head>
@@ -612,7 +638,7 @@ SH Grip Pro
 </div>
 
 <div class="card" style="margin-top: 2px;">
-<div class="label" style="color: var(--main);">최근 메인 세트 기록 (<span id="homeRecentWeight">0kg</span>)</div>
+<div class="label">최근 메인 기록 (<span id="homeRecentWeight" style="color: var(--main);">0kg</span>)</div>
 <div class="value small" id="homeRecentDetail">
 훈련 데이터가 없습니다.
 </div>
@@ -623,7 +649,7 @@ SH Grip Pro
 <div class="card">
 
 <div class="label">
-L HOLD BEST
+L 홀드 기록
 </div>
 
 <div class="value small" id="bestLeftHold">
@@ -635,7 +661,21 @@ L HOLD BEST
 <div class="card">
 
 <div class="label">
-R HOLD BEST
+R 홀드 기록
+</div>
+
+<div class="value small" id="bestRightHold">
+0.0s
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="label">
+R 홀드 기록
 </div>
 
 <div class="value small" id="bestRightHold">
@@ -922,31 +962,15 @@ JSON.stringify(userData)
 
 function updateBestHold(){
 
-let bestL=0;
-let bestR=0;
-
-userData.history.forEach(h=>{
-
-const l=
-parseFloat(h.holdLeft||0);
-
-const r=
-parseFloat(h.holdRight||0);
-
-if(l>bestL) bestL=l;
-if(r>bestR) bestR=r;
-
-});
-
-document.getElementById(
-'bestLeftHold'
-).textContent=
-`${bestL.toFixed(1)}s`;
-
-document.getElementById(
-'bestRightHold'
-).textContent=
-`${bestR.toFixed(1)}s`;
+// 역대 최고가 아닌 가장 최신 회차의 홀드 기록을 다이렉트로 매핑
+if(userData.history.length) {
+    const recent = userData.history[0];
+    document.getElementById('bestLeftHold').textContent = `${parseFloat(recent.holdLeft || 0).toFixed(1)}s`;
+    document.getElementById('bestRightHold').textContent = `${parseFloat(recent.holdRight || 0).toFixed(1)}s`;
+} else {
+    document.getElementById('bestLeftHold').textContent = `0.0s`;
+    document.getElementById('bestRightHold').textContent = `0.0s`;
+}
 
 }
 
@@ -966,41 +990,37 @@ Math.min(5,userData.mainIndex)
 
 if(userData.history.length){
 
-const recent=
-userData.history[0];
-
-// 최근 결과(성공/실패) 문구 대신 최근 운동 날짜 표기 변경
-document.getElementById(
-'recentResult'
-).textContent= recent.date;
-
-// 최근 메인 운동 기록 상세 바인딩 (줄바꿈 리스트 형태로 시인성 개선)
-document.getElementById('homeRecentWeight').textContent = `${recent.mainWeight}kg`;
-
-const detailHtml = recent.mainResults.map(r => {
-    const rightText = r.right !== null ? `R${r.right}` : 'R -';
-    return `<div class="home-rep-line">
-                <span class="home-rep-label">${r.set}세트</span>
-                <span>L${r.left} / ${rightText}</span>
-            </div>`;
-}).join('');
-
-document.getElementById('homeRecentDetail').innerHTML = detailHtml;
+    const recent = userData.history[0];
+    
+    // 최근 결과 탭에 성공/실패 텍스트 대신 최근 실제 훈련 날짜 바인딩
+    document.getElementById('recentResult').textContent = recent.date;
+    
+    // 최근 훈련 시 진행했던 타겟 메인 무게 출력
+    document.getElementById('homeRecentWeight').textContent = `${recent.mainWeight}kg`;
+    
+    // 회색(라벨)과 흰색(데이터)이 명확히 대조되도록 템플릿 마크업 분할 주입
+    const detailHtml = recent.mainResults.map(r => {
+        const rightText = r.right !== null ? `R${r.right}` : 'R -';
+        return `<div class="home-rep-line">
+                    <span class="home-rep-label">${r.set}세트</span>
+                    <span class="home-rep-value">L${r.left} / ${rightText}</span>
+                </div>`;
+    }).join('');
+    
+    document.getElementById('homeRecentDetail').innerHTML = detailHtml;
 
 }else{
 
-document.getElementById(
-'recentResult'
-).textContent='없음';
-
-document.getElementById('homeRecentDetail').textContent = '훈련 데이터가 없습니다.';
+    document.getElementById('recentResult').textContent = '없음';
+    document.getElementById('homeRecentWeight').textContent = '0kg';
+    document.getElementById('homeRecentDetail').textContent = '훈련 데이터가 없습니다.';
 
 }
 
 updateBestHold();
 
 }
-
+    
 let flow=[];
 let flowIndex=0;
 
