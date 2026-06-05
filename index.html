@@ -753,12 +753,14 @@ PREV
 
 <div class="setting-grid">
 
-<button class="setting-btn">25</button>
-<button class="setting-btn">36</button>
-<button class="setting-btn">47</button>
-<button class="setting-btn">58</button>
-<button class="setting-btn">69</button>
-<button class="setting-btn">80</button>
+<button class="setting-btn" style="font-size: 13px; line-height: 1.2;">25kg<br><span style="font-size:10px; opacity:0.6;">55lb</span></button>
+<button class="setting-btn" style="font-size: 13px; line-height: 1.2;">36kg<br><span style="font-size:10px; opacity:0.6;">79lb</span></button>
+<button class="setting-btn" style="font-size: 13px; line-height: 1.2;">47kg<br><span style="font-size:10px; opacity:0.6;">104lb</span></button>
+<button class="setting-btn" style="font-size: 13px; line-height: 1.2;">58kg<br><span style="font-size:10px; opacity:0.6;">128lb</span></button>
+<button class="setting-btn" style="font-size: 13px; line-height: 1.2;">69kg<br><span style="font-size:10px; opacity:0.6;">152lb</span></button>
+<button class="setting-btn" style="font-size: 13px; line-height: 1.2;">80kg<br><span style="font-size:10px; opacity:0.6;">176lb</span></button>
+
+</div>
 
 </div>
 
@@ -897,6 +899,7 @@ id="resultCloseBtn"
 <script>
 
 const weights=[25,36,47,58,69,80];
+const lbs=[55,79,104,128,152,176]; // 파운드 데이터 추가 매핑
 
 let userData=
 JSON.parse(
@@ -937,17 +940,14 @@ if(userData.history.length) {
 
 function updateHomeUI(){
 
-document.getElementById(
-'homeWeight'
-).textContent=
-`${weights[userData.mainIndex-1]}kg`;
+// 오늘 도전 무게에 파운드 추가
+const currentKg = weights[userData.mainIndex-1];
+const currentLb = lbs[userData.mainIndex-1];
+document.getElementById('homeWeight').textContent = `${currentKg}kg (${currentLb}lb)`;
 
-document.getElementById(
-'nextWeight'
-).textContent=
-`${weights[
-Math.min(5,userData.mainIndex)
-]}kg`;
+// 다음 목표에 파운드 추가 (폰트 크기를 고려해 알맞게 배치)
+const nextIdx = Math.min(5, userData.mainIndex);
+document.getElementById('nextWeight').textContent = `${weights[nextIdx]}kg (${lbs[nextIdx]}lb)`;
 
 if(userData.history.length){
 
@@ -1181,10 +1181,12 @@ document.getElementById(
 'exerciseText'
 ).textContent=item.title;
 
-document.getElementById(
-'weightText'
-).textContent=
-`${item.weight}kg`;
+// 현재 단계의 무게(kg)에 맞는 파운드(lb) 인덱스를 찾아 매핑
+const weightIdx = weights.indexOf(item.weight);
+const displayLb = weightIdx !== -1 ? lbs[weightIdx] : '';
+
+document.getElementById('weightText').textContent = 
+    displayLb ? `${item.weight}kg (${displayLb}lb)` : `${item.weight}kg`;
 
 document.getElementById(
 'targetText'
