@@ -260,7 +260,7 @@ gap:8px;
 }
 
 .weight{
-font-size:58px;
+font-size:44px; /* 파운드 병기를 위해 폰트 사이즈 미세 조절 */
 font-weight:900;
 line-height:1;
 }
@@ -533,7 +533,7 @@ border: 1px solid #333;
 width: 65%;
 }
 
-/* 최근 메인 세트 디테일 스타일 최적화 (회색/흰색 완벽 통일) */
+/* 최근 메인 세트 디테일 스타일 (세트 라벨 흰색 통일 완료) */
 #homeRecentDetail {
     font-size: 14px;
     font-weight: 700;
@@ -551,10 +551,10 @@ width: 65%;
     border-bottom: none;
 }
 .home-rep-label {
-    color: var(--text); /* 1세트, 2세트 -> 깔끔한 흰색(--text)으로 변경 완료 */
+    color: var(--text); /* 1세트, 2세트, 3세트 -> 완벽한 흰색(--text)으로 매핑 */
 }
 .home-rep-value {
-    color: var(--text); 
+    color: var(--text); /* L10 / R10 -> 깔끔한 흰색(--text) */
 }
 
 </style>
@@ -764,8 +764,6 @@ PREV
 
 </div>
 
-</div>
-
 <button
 class="sub-btn"
 id="resetBtn"
@@ -794,6 +792,34 @@ id="resetBtn"
 </button>
 
 </div>
+
+</div> <div class="result-page hidden" id="resultPage">
+
+<div class="result-title">
+훈련 완료
+</div>
+
+<div
+class="result-section result-main"
+id="resultMain">
+</div>
+
+<div
+class="result-section result-negative"
+id="resultNegative">
+</div>
+
+<div
+class="result-section result-hold"
+id="resultHold">
+</div>
+
+<button
+class="main-btn"
+id="resultCloseBtn"
+>
+홈으로
+</button>
 
 </div>
 
@@ -866,40 +892,10 @@ id="cancelResetBtn"
 
 </div>
 
-<div class="result-page hidden" id="resultPage">
-
-<div class="result-title">
-훈련 완료
-</div>
-
-<div
-class="result-section result-main"
-id="resultMain">
-</div>
-
-<div
-class="result-section result-negative"
-id="resultNegative">
-</div>
-
-<div
-class="result-section result-hold"
-id="resultHold">
-</div>
-
-<button
-class="main-btn"
-id="resultCloseBtn"
->
-홈으로
-</button>
-
-</div>
-
 <script>
 
 const weights=[25,36,47,58,69,80];
-const lbs=[55,79,104,128,152,176]; // 파운드 데이터 추가 매핑
+const lbs=[55,79,104,128,152,176]; // 매핑할 파운드 데이터 배열 추가
 
 let userData=
 JSON.parse(
@@ -922,7 +918,6 @@ JSON.stringify(userData)
 
 function updateBestHold(){
 
-// BEST 대신 가장 최근 회차(history[0])의 훈련 결과에서 가져와 다이렉트 매핑
 if(userData.history.length) {
     const recent = userData.history[0];
     document.getElementById('bestLeftHold').textContent = `${parseFloat(recent.holdLeft || 0).toFixed(1)}s`;
@@ -940,12 +935,12 @@ if(userData.history.length) {
 
 function updateHomeUI(){
 
-// 오늘 도전 무게에 파운드 추가
+// 오늘 도전 무게 (kg + lb 매핑)
 const currentKg = weights[userData.mainIndex-1];
 const currentLb = lbs[userData.mainIndex-1];
 document.getElementById('homeWeight').textContent = `${currentKg}kg (${currentLb}lb)`;
 
-// 다음 목표에 파운드 추가 (폰트 크기를 고려해 알맞게 배치)
+// 다음 목표 무게 (kg + lb 매핑)
 const nextIdx = Math.min(5, userData.mainIndex);
 document.getElementById('nextWeight').textContent = `${weights[nextIdx]}kg (${lbs[nextIdx]}lb)`;
 
@@ -953,22 +948,20 @@ if(userData.history.length){
 
     const recent = userData.history[0];
     
-    // 최근 훈련일 매핑
     document.getElementById('recentResult').textContent = recent.date;
     
-    // 최근 운동의 메인 세트 무게 표시
-    document.getElementById('homeRecentWeight').textContent = `${recent.mainWeight}kg`;
+    // 최근 운동의 메인 세트 무게 표시 (kg + lb 함께 표시)
+    const recentWeightIdx = weights.indexOf(recent.mainWeight);
+    const recentLb = recentWeightIdx !== -1 ? lbs[recentWeightIdx] : '';
+    document.getElementById('homeRecentWeight').textContent = recentLb ? `${recent.mainWeight}kg (${recentLb}lb)` : `${recent.mainWeight}kg`;
     
-    // 세트 라벨(회색 클래스)과 횟수 수치(흰색 클래스) 동적 주입 구조로 매핑 수정
-const detailHtml = recent.mainResults.map(r => {
-    // 오른손 기록이 없을 때를 대비한 예외 처리 포함
-    const rightText = r.right !== null ? `R${r.right}` : 'R -';
-    
-    return `<div class="home-rep-line">
-                <span class="home-rep-label">${r.set}세트</span>
-                <span class="home-rep-value">L${r.left} / ${rightText}</span>
-            </div>`;
-}).join('');
+    const detailHtml = recent.mainResults.map(r => {
+        const rightText = r.right !== null ? `R${r.right}` : 'R -';
+        return `<div class="home-rep-line">
+                    <span class="home-rep-label">${r.set}세트</span>
+                    <span class="home-rep-value">L${r.left} / ${rightText}</span>
+                </div>`;
+    }).join('');
     
     document.getElementById('homeRecentDetail').innerHTML = detailHtml;
 
@@ -1049,30 +1042,31 @@ weights[main-1]
 
 function openPage(page){
 
-document
-.querySelectorAll(
-'.page,.session'
-)
-.forEach(p=>{
-p.classList.add('hidden');
-});
+    document.querySelectorAll('.page,.session').forEach(p=>{
+        p.classList.add('hidden');
+    });
 
-if(page==='home'){
-homePage.classList.remove('hidden');
-}
+    const tabsMenu = document.querySelector('.tabs');
 
-if(page==='session'){
-sessionPage.classList.remove('hidden');
-}
+    if(page==='home'){
+        homePage.classList.remove('hidden');
+        if(tabsMenu) tabsMenu.classList.remove('hidden'); // 홈으로 복귀 시 하단 탭 메뉴 무조건 노출 복원
+    }
 
-if(page==='history'){
-historyPage.classList.remove('hidden');
-}
+    if(page==='session'){
+        sessionPage.classList.remove('hidden');
+        if(tabsMenu) tabsMenu.classList.add('hidden'); // 세션 중에는 화면 확보를 위해 숨김
+    }
 
-if(page==='setting'){
-settingPage.classList.remove('hidden');
-}
+    if(page==='history'){
+        historyPage.classList.remove('hidden');
+        if(tabsMenu) tabsMenu.classList.remove('hidden');
+    }
 
+    if(page==='setting'){
+        settingPage.classList.remove('hidden');
+        if(tabsMenu) tabsMenu.classList.remove('hidden');
+    }
 }
 
 function getPrevRecord(type,setNum){
@@ -1181,12 +1175,10 @@ document.getElementById(
 'exerciseText'
 ).textContent=item.title;
 
-// 현재 단계의 무게(kg)에 맞는 파운드(lb) 인덱스를 찾아 매핑
+// 진행화면 타이틀 무게 매핑 (kg + lb 병기)
 const weightIdx = weights.indexOf(item.weight);
 const displayLb = weightIdx !== -1 ? lbs[weightIdx] : '';
-
-document.getElementById('weightText').textContent = 
-    displayLb ? `${item.weight}kg (${displayLb}lb)` : `${item.weight}kg`;
+document.getElementById('weightText').textContent = displayLb ? `${item.weight}kg (${displayLb}lb)` : `${item.weight}kg`;
 
 document.getElementById(
 'targetText'
@@ -1231,7 +1223,6 @@ item.type==='main'
 :
 'none';
 
-// 첫 단계이며 왼손일 경우 '이전 단계' 버튼 비활성화
 const prevBtn = document.getElementById('prevStepBtn');
 if (flowIndex === 0 && currentHand === 'LEFT') {
     prevBtn.disabled = true;
@@ -1291,7 +1282,6 @@ document.getElementById(
 
 let timer;
 
-// 사운드 비프 생성 공통 함수
 function playBeep(frequency, duration) {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1303,7 +1293,7 @@ function playBeep(frequency, duration) {
         
         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-        gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime); // 볼륨 40%
+        gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
         
         oscillator.start();
         setTimeout(() => {
@@ -1315,12 +1305,11 @@ function playBeep(frequency, duration) {
     }
 }
 
-// 알림 기능 (소리 + 진동) 함수
 function triggerRestEndNotification() {
     if (navigator.vibrate) {
         navigator.vibrate(500);
     }
-    playBeep(440, 400); // 종료 신호음 오리지널 주파수 440Hz 적용
+    playBeep(440, 400);
 }
 
 function startRest(){
@@ -1347,7 +1336,6 @@ sec--;
 
 updateRest(sec);
 
-// 3초 전, 2초 전, 1초 전에 고주파(880Hz)로 짧은 틱 비프음 구현
 if(sec === 3 || sec === 2 || sec === 1) {
     playBeep(880, 80);
 }
@@ -1358,7 +1346,7 @@ clearInterval(timer);
 
 overlay.classList.add('hidden');
 
-triggerRestEndNotification(); // 알림 발생
+triggerRestEndNotification();
 
 nextStep();
 
@@ -1366,7 +1354,6 @@ nextStep();
 
 },1000);
 
-// 오버레이 내부 버튼 클릭 시 부모 클릭 버블링 방지
 document.getElementById(
 'overlayBtn'
 ).onclick=(e)=>{
@@ -1604,7 +1591,6 @@ startRest();
 
 };
 
-// 이전 단계 복원 (백트래킹) 기능 구현
 document.getElementById('prevStepBtn').onclick = () => {
     if (flowIndex === 0 && currentHand === 'LEFT') return;
 
@@ -1643,7 +1629,6 @@ document.getElementById('prevStepBtn').onclick = () => {
     renderStep();
 };
 
-// 오버레이 풀스크린 화면 어디든 터치 시 동작하도록 글로벌 이벤트 리스너 연동
 document.getElementById('overlay').onclick = function() {
     const btnElement = document.getElementById('overlayBtn');
     if (btnElement) {
@@ -1816,16 +1801,18 @@ loadHistory();
 
 }
 
-document.getElementById(
-'resultCloseBtn'
-).onclick=()=>{
+// 결과 닫기 및 탭 인덱스 매핑 수정 완료
+document.getElementById('resultCloseBtn').onclick=()=>{
 
-document.getElementById(
-'resultPage'
-).classList.add('hidden');
+    document.getElementById('resultPage').classList.add('hidden');
+    
+    // 탭 선택 상태 초기화 후 '홈' 활성화 복원
+    document.querySelectorAll('.tab').forEach(t => {
+        t.classList.remove('active');
+        if(t.dataset.page === 'home') t.classList.add('active');
+    });
 
-openPage('home');
-
+    openPage('home');
 };
 
 function loadHistory(){
