@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="ko">
 <head>
 <link rel="manifest" href="manifest.json">  
@@ -17,17 +16,18 @@ viewport-fit=cover
 
 <style>
 
-:root{\r
---bg:#050505;\r
---card:#111;\r
---line:#222;\r\n\r
---text:#fff;\r
---sub:#888;\r\n\r
---main:#d9ff3f;\r\n\r
---warm:#57a7ff;\r
---negative:#ff8a3d;\r
---hold:#b47cff;\r\n\r
---green:#53ff8f;\r\n--red:#ff6666;\r
+:root {
+    --bg: #050505;
+    --card: #111;
+    --line: #222;
+    --text: #fff;
+    --sub: #888;
+    --main: #d9ff3f;
+    --warm: #57a7ff;
+    --negative: #ff8a3d;
+    --hold: #b47cff;
+    --green: #53ff8f;
+    --red: #ff6666;
 }
 
 *{
@@ -528,7 +528,7 @@ border: 1px solid #333;
 width: 65%;
 }
 
-/* 최근 메인 세트 디테일 스타일 (완벽한 흰색 통일) */
+/* 최근 메인 세트 디테일 라벨 색상 흰색 통일 */
 #homeRecentDetail {
     font-size: 14px;
     font-weight: 700;
@@ -546,10 +546,10 @@ width: 65%;
     border-bottom: none;
 }
 .home-rep-label {
-    color: var(--text); /* 1세트, 2세트, 3세트 모두 흰색 */
+    color: var(--text);
 }
 .home-rep-value {
-    color: var(--text); /* L10 / R10 수치 데이터도 흰색 */
+    color: var(--text);
 }
 
 </style>
@@ -788,7 +788,9 @@ id="resetBtn"
 
 </div>
 
-</div> <div class="result-page hidden" id="resultPage">
+</div>
+
+<div class="result-page hidden" id="resultPage">
 
 <div class="result-title">
 훈련 완료
@@ -890,7 +892,7 @@ id="cancelResetBtn"
 <script>
 
 const weights=[25,36,47,58,69,80];
-const lbs=[55,79,104,128,152,176]; // 파운드 배열 기입 유지
+const lbs=[55,79,104,128,152,176];
 
 let userData=
 JSON.parse(
@@ -930,12 +932,10 @@ if(userData.history.length) {
 
 function updateHomeUI(){
 
-// 오늘 도전 무게 파운드 병기 반영
 const currentKg = weights[userData.mainIndex-1];
 const currentLb = lbs[userData.mainIndex-1];
 document.getElementById('homeWeight').textContent = `${currentKg}kg (${currentLb}lb)`;
 
-// 다음 목표 무게 파운드 병기 반영
 const nextIdx = Math.min(5, userData.mainIndex);
 document.getElementById('nextWeight').textContent = `${weights[nextIdx]}kg (${lbs[nextIdx]}lb)`;
 
@@ -945,7 +945,6 @@ if(userData.history.length){
     
     document.getElementById('recentResult').textContent = recent.date;
     
-    // 최근 메인 세트의 타이틀 무게 파운드 병기 처리
     const recentWeightIdx = weights.indexOf(recent.mainWeight);
     const recentLb = recentWeightIdx !== -1 ? lbs[recentWeightIdx] : '';
     document.getElementById('homeRecentWeight').textContent = recentLb ? `${recent.mainWeight}kg (${recentLb}lb)` : `${recent.mainWeight}kg`;
@@ -1035,7 +1034,6 @@ weights[main-1]
 
 }
 
-// 오픈페이지 함수 전면 수정 (훈련 탭에서도 하단탭 고정 노출 유지)
 function openPage(page){
 
     document.querySelectorAll('.page,.session').forEach(p=>{
@@ -1051,7 +1049,7 @@ function openPage(page){
 
     if(page==='session'){
         sessionPage.classList.remove('hidden');
-        if(tabsMenu) tabsMenu.classList.remove('hidden'); // 숨김(add) 대신 표시(remove)로 고정 완료
+        if(tabsMenu) tabsMenu.classList.remove('hidden'); // 훈련 탭에서도 하단 메뉴 고정 노출
     }
 
     if(page==='history'){
@@ -1171,7 +1169,6 @@ document.getElementById(
 'exerciseText'
 ).textContent=item.title;
 
-// 진행 뷰 무게 파운드 표기 매핑
 const weightIdx = weights.indexOf(item.weight);
 const displayLb = weightIdx !== -1 ? lbs[weightIdx] : '';
 document.getElementById('weightText').textContent = displayLb ? `${item.weight}kg (${displayLb}lb)` : `${item.weight}kg`;
@@ -1797,7 +1794,6 @@ loadHistory();
 
 }
 
-// 결과 완료 [홈으로] 클릭 시 하단 탭 바인딩 초기화 정상화 적용 완료
 document.getElementById('resultCloseBtn').onclick=()=>{
 
     document.getElementById('resultPage').classList.add('hidden');
