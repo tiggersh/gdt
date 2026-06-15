@@ -391,14 +391,16 @@ font-weight:900;
 line-height:1;
 }
 
+/* 종료/건너뛰기 버튼 크기 및 가시성 대폭 확대 */
 .overlay-btn{
 width:100%;
-height:56px;
+height:80px;
 border-radius:22px;
-background:#181818;
+background:#222;
 color:white;
-font-size:16px;
+font-size:22px;
 font-weight:900;
+border: 2px solid #444;
 }
 
 .result-page{
@@ -1049,7 +1051,7 @@ function openPage(page){
 
     if(page==='session'){
         sessionPage.classList.remove('hidden');
-        if(tabsMenu) tabsMenu.classList.remove('hidden'); // 훈련 탭에서도 하단 메뉴 고정 노출
+        if(tabsMenu) tabsMenu.classList.remove('hidden');
     }
 
     if(page==='history'){
@@ -1216,6 +1218,16 @@ item.type==='main'
 :
 'none';
 
+// 수정사항 1: 네거티브 운동일 때 완료 버튼의 텍스트를 '시작'으로 변경
+const actionBtn = document.getElementById('actionBtn');
+if (item.type === 'negative') {
+    actionBtn.textContent = '시작';
+} else if (item.type === 'hold') {
+    actionBtn.textContent = '시작';
+} else {
+    actionBtn.textContent = '완료';
+}
+
 const prevBtn = document.getElementById('prevStepBtn');
 if (flowIndex === 0 && currentHand === 'LEFT') {
     prevBtn.disabled = true;
@@ -1303,6 +1315,14 @@ function triggerRestEndNotification() {
         navigator.vibrate(500);
     }
     playBeep(440, 400);
+}
+
+// 수정사항 3-1: 네거티브 5초 타임오버 완료 알림용 트리거 함수 구현
+function triggerNegativeEndNotification() {
+    if (navigator.vibrate) {
+        navigator.vibrate(600); // 0.6초 강한 진동
+    }
+    playBeep(587.33, 450); // 고주파 완료 비프음
 }
 
 function startRest(){
@@ -1405,6 +1425,9 @@ Math.max(0,sec).toFixed(1);
 if(sec<=0){
 
 clearInterval(timer);
+
+// 수정사항 3-2: 5초 정상 완료 시 소리 및 진동 알림 호출
+triggerNegativeEndNotification();
 
 finishNegative(5);
 
