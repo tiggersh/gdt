@@ -717,12 +717,12 @@ PREV
 
 <div class="rep-grid">
 
+<button class="rep-btn">3</button>
+<button class="rep-btn">4</button>
 <button class="rep-btn">5</button>
 <button class="rep-btn">6</button>
 <button class="rep-btn">7</button>
-<button class="rep-btn">8</button>
-<button class="rep-btn">9</button>
-<button class="rep-btn active">10</button>
+<button class="rep-btn active">8</button>
 
 </div>
 
@@ -902,9 +902,11 @@ localStorage.getItem('gdiron_v501')
 )
 ||
 {
-mainIndex:1,
-history:[]
-};
+ mainIndex:1,
+ bestHoldLeft:0,
+ bestHoldRight:0,
+ history:[]
+}
 
 function saveData(){
 
@@ -988,51 +990,52 @@ let holdRight=0;
 
 function buildFlow(){
 
-const main=userData.mainIndex;
+    const main=userData.mainIndex;
 
-flow=[];
+    flow=[];
 
-flow.push({
-type:'warmup',
-title:'웜업',
-weight:
-weights[
-Math.max(0,main-3)
-]
-});
+    // 워밍업 1
+    flow.push({
+        type:'warmup',
+        title:'웜업 1',
+        target:15,
+        weight:weights[Math.max(0,main-3)]
+    });
 
-for(let i=1;i<=3;i++){
+    // 워밍업 2
+    flow.push({
+        type:'warmup',
+        title:'웜업 2',
+        target:8,
+        weight:weights[Math.max(0,main-2)]
+    });
 
-flow.push({
-type:'main',
-title:`메인 ${i}세트`,
-set:i,
-weight:
-weights[main-1]
-});
+    // 메인 3세트
+    for(let i=1;i<=3;i++){
 
-}
+        flow.push({
+            type:'main',
+            title:`메인 ${i}세트`,
+            set:i,
+            target:8,
+            weight:weights[main-1]
+        });
 
-for(let i=1;i<=2;i++){
+    }
 
-flow.push({
-type:'negative',
-title:`네거티브 ${i}세트`,
-set:i,
-weight:
-weights[
-Math.min(5,main)
-]
-});
+    // 네거티브
+    flow.push({
+        type:'negative',
+        title:'네거티브',
+        weight:weights[Math.min(5,main)]
+    });
 
-}
-
-flow.push({
-type:'hold',
-title:'최대 홀딩',
-weight:
-weights[main-1]
-});
+    // 홀딩
+    flow.push({
+        type:'hold',
+        title:'최대 홀딩',
+        weight:weights[main-1]
+    });
 
 }
 
@@ -1189,7 +1192,7 @@ item.type==='hold'
 '최대한 유지'
 
 :
-'10회 수행';
+`${item.target || 8}회 수행`;
 
 document.getElementById(
 'progressText'
@@ -1658,9 +1661,20 @@ document.querySelector('.overlay-wrap').onclick = function(e) {
 
 function finishSession(){
 
+userData.bestHoldLeft=
+Math.max(
+userData.bestHoldLeft||0,
+holdLeft
+);
+
+userData.bestHoldRight=
+Math.max(
+userData.bestHoldRight||0,
+holdRight
+);
 const success=
 mainResults.every(
-r=>r.left>=10 && r.right>=10
+r=>r.left>=8 && r.right>=8
 );
 
 const currentMainWeight=
@@ -1872,9 +1886,9 @@ ${item.mainResults.map(r=>`
 class="
 history-line
 ${(
-r.left<10
+r.left<8
 ||
-r.right<10
+r.right<8
 )
 ?
 'fail'
