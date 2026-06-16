@@ -994,25 +994,24 @@ function buildFlow(){
 
     flow=[];
 
-    // 워밍업 1
+    // 웜업 1: 메인 - 2단계 (최소 1단계 즉, 0번 인덱스)
     flow.push({
         type:'warmup',
         title:'웜업 1',
         target:15,
-        weight:weights[Math.max(0,main-3)]
+        weight:weights[Math.max(0, main - 3)]
     });
 
-    // 워밍업 2
+    // 웜업 2: 메인 - 1단계 (최소 1단계 즉, 0번 인덱스)
     flow.push({
         type:'warmup',
         title:'웜업 2',
         target:8,
-        weight:weights[Math.max(0,main-2)]
+        weight:weights[Math.max(0, main - 2)]
     });
 
     // 메인 3세트
     for(let i=1;i<=3;i++){
-
         flow.push({
             type:'main',
             title:`메인 ${i}세트`,
@@ -1020,22 +1019,29 @@ function buildFlow(){
             target:8,
             weight:weights[main-1]
         });
-
     }
 
-    // 네거티브
-    flow.push({
-        type:'negative',
-        title:'네거티브',
-        weight:weights[Math.min(5,main)]
-    });
+    // 네거티브: 메인 + 1단계 (최대 6단계 즉, 5번 인덱스), 총 2회 수행을 위해 2개 세트로 분할 추가
+    for(let i=1;i<=2;i++){
+        flow.push({
+            type:'negative',
+            title:`네거티브 ${i}회차`,
+            set:i,
+            target:5,
+            weight:weights[Math.min(5, main)]
+        });
+    }
 
-    // 홀딩
-    flow.push({
-        type:'hold',
-        title:'최대 홀딩',
-        weight:weights[main-1]
-    });
+    // 홀딩: 메인무게 동일, 20초 설정, 총 2회 수행을 위해 2개 세트로 분할 추가
+    for(let i=1;i<=2;i++){
+        flow.push({
+            type:'hold',
+            title:`최대 홀딩 ${i}회차`,
+            set:i,
+            target:20,
+            weight:weights[main-1]
+        });
+    }
 
 }
 
@@ -1091,26 +1097,19 @@ return `${last.mainWeight}kg | L${item.left} / R${item.right}`;
 }
 
 if(type==='negative'){
-
-const left=
-last.negativeResults.find(
-n=>n.hand==='LEFT'
-);
-
-const right=
-last.negativeResults.find(
-n=>n.hand==='RIGHT'
-);
-
-return `${last.negativeWeight}kg | L${left?.value||0} / R${right?.value||0}`;
-
+    // 최신 기록의 네거티브 배열에서 현재 세트(회차) 번호와 일치하는 데이터 탐색
+    const left = last.negativeResults.filter(n => n.hand === 'LEFT')[setNum - 1];
+    const right = last.negativeResults.filter(n => n.hand === 'RIGHT')[setNum - 1];
+    return `${last.negativeWeight}kg | L${left?.value || 0}s / R${right?.value || 0}s`;
 }
 
 if(type==='hold'){
-
-
-return `${last.holdWeight}kg | L${last.holdLeft} / R${last.holdRight}`;
-
+    // 데이터 구조 유지를 위해, 홀딩 기록도 유연하게 현재 세트 매칭 혹은 전체 배열 순서 매칭 처리
+    // 기존 요약 데이터(holdLeft/Right) 대신 배열이 보관된다면 베스트지만, 기존 구조 호환을 위해 세트별 분할 매칭 처리 유도 가능
+    // 만약 기존 result 저장 방식이 단일값 형태라면 아래와 같이 단순 유지하거나, 히스토리 기반 필터링 수행
+    const left = last.holdResults ? last.holdResults.filter(h => h.hand === 'LEFT')[setNum - 1]?.value : last.holdLeft;
+    const right = last.holdResults ? last.holdResults.filter(h => h.hand === 'RIGHT')[setNum - 1]?.value : last.holdRight;
+    return `${last.holdWeight}kg | L${left || 0}s / R${right || 0}s`;
 }
 
 return '없음';
@@ -1189,7 +1188,7 @@ item.type==='negative'
 :
 item.type==='hold'
 ?
-'최대한 유지'
+`${item.target || 20}초 유지`
 
 :
 `${item.target || 8}회 수행`;
@@ -1513,27 +1512,36 @@ finishHold(sec);
 
 }
 
-function finishHold(sec){
+    // 상단 전역 변수 선언부(let holdLeft=0; 등)가 있는 곳 근처에 아래 변수를 추가하거나 함수 내에서 배열로 관리
+    // 여기서는 기존 데이터를 배열로 누적하도록 수정합니다.
+    function finishHold(sec){
 
-overlay.classList.add('hidden');
+        overlay.classList.add('hidden');
 
-if(currentHand==='LEFT'){
+        // 전역 변수 구조에 맞춰 holdResults 배열이 없다면 초기화 (startBtn 클릭 시 초기화 권장)
+        if (!window.holdResults) window.holdResults = [];
 
-holdLeft=sec;
+        if(currentHand==='LEFT'){
+            window.holdResults.push({
+                set: flow[flowIndex].set,
+                left: sec.toFixed(1),
+                right: null
+            });
 
-currentHand='RIGHT';
+            currentHand='RIGHT';
+            renderStep();
+            return;
+        }
 
-renderStep();
+        window.holdResults[window.holdResults.length - 1].right = sec.toFixed(1);
 
-return;
-
-}
-
-holdRight=sec;
-
-finishSession();
-
-}
+        // 홀딩이 2회차까지 있으므로, 마지막 세트가 아니면 휴식으로 보냄
+        if (flowIndex < flow.length - 1) {
+            startRest();
+        } else {
+            finishSession();
+        }
+    }
 
 function nextStep(){
 
@@ -1689,32 +1697,29 @@ if(success && userData.mainIndex<6){
 userData.mainIndex++;
 }
 
-userData.history.unshift({
+    userData.history.unshift({
 
-date:
-new Date()
-.toLocaleDateString(),
+    date:
+    new Date()
+    .toLocaleDateString(),
 
-mainWeight:
-currentMainWeight,
+    mainWeight:
+    currentMainWeight,
 
-negativeWeight:
-currentNegativeWeight,
+    negativeWeight:
+    currentNegativeWeight,
 
-holdWeight:
-currentMainWeight,
+    holdWeight:
+    currentMainWeight,
 
-mainResults,
+    mainResults,
 
-negativeResults,
+    negativeResults,
 
-holdLeft:
-holdLeft.toFixed(1),
+    // 단일 값 대신에 세트별 배열 전체를 저장하도록 변경
+    holdResults: window.holdResults || []
 
-holdRight:
-holdRight.toFixed(1)
-
-});
+    });
 
 saveData();
 
@@ -1809,21 +1814,12 @@ style="color:var(--hold);"
 ${history.holdWeight}kg
 </div>
 
-<div
-class="result-line"
-style="color:var(--hold);"
->
-LEFT
-${history.holdLeft}초
-</div>
-
-<div
-class="result-line"
-style="color:var(--hold);"
->
-RIGHT
-${history.holdRight}초
-</div>
+    // 결과창과 히스토리 창 모두 아래처럼 배열 매핑 방식으로 변경해 줍니다.
+    ${(history.holdResults || []).map(h => `
+    <div class="result-line" style="color:var(--hold);">
+    ${h.set}회차 L${h.left}초 / R${h.right}초
+    </div>
+    `).join('')}
 
 `;
 
