@@ -1472,45 +1472,51 @@ startRest();
 
 }
 
-function startHold(){
+    function startHold(){
 
-overlay.classList.remove('hidden');
+        overlay.classList.remove('hidden');
 
-document.getElementById(
-'overlayTitle'
-).textContent='HOLD';
+        document.getElementById('overlayTitle').textContent='HOLD';
+        document.getElementById('overlayBtn').textContent='종료';
 
-document.getElementById(
-'overlayBtn'
-).textContent='종료';
+        const start=Date.now();
+        // 네거티브처럼 목표 시간(20초) 설정
+        const targetDuration = 20; 
 
-const start=Date.now();
+        clearInterval(timer);
 
-clearInterval(timer);
+        timer=setInterval(()=>{
+            // 20초에서 경과 시간을 빼서 카운트다운 계산
+            const sec = targetDuration - ((Date.now()-start)/1000);
 
-timer=setInterval(()=>{
+            // 화면에는 남은 시간을 표시 (0초 이하로 떨어지지 않게 제한)
+            document.getElementById('overlayTime').textContent = Math.max(0, sec).toFixed(1);
 
-const sec=
-((Date.now()-start)/1000);
+            // 20초를 모두 버텨서 0초에 도달한 경우
+            if(sec <= 0){
+                clearInterval(timer);
+                
+                // 네거티브 종료 알림음이 있다면 여기서도 호출 가능
+                if (typeof triggerNegativeEndNotification === 'function') {
+                    triggerNegativeEndNotification(); 
+                }
+                
+                finishHold(targetDuration);
+            }
 
-document.getElementById(
-'overlayTime'
-).textContent=
-sec.toFixed(1);
+        }, 100);
 
-},100);
+        // 사용자가 중간에 힘이 빠져서 '종료' 버튼을 누른 경우 (버틴 시간만큼만 기록)
+        document.getElementById('overlayBtn').onclick=(e)=>{
+            e.stopPropagation();
+            clearInterval(timer);
+            const rawSec = ((Date.now()-start)/1000);
+            // 혹시라도 20초를 넘겨서 누른 경우 최대 20초로 제한
+            const finalSec = Math.min(targetDuration, rawSec);
+            finishHold(finalSec);
+        };
 
-document.getElementById(
-'overlayBtn'
-).onclick=(e)=>{
-e.stopPropagation();
-clearInterval(timer);
-const sec=
-((Date.now()-start)/1000);
-finishHold(sec);
-};
-
-}
+    }
 
     // 상단 전역 변수 선언부(let holdLeft=0; 등)가 있는 곳 근처에 아래 변수를 추가하거나 함수 내에서 배열로 관리
     // 여기서는 기존 데이터를 배열로 누적하도록 수정합니다.
