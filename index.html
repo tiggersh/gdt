@@ -541,11 +541,56 @@ border: 1px solid #333;
 width: 65%;
 }
 
-#homeRecentDetail {
+/* 홈 개편 대시보드 커스텀 스타일 */
+.streak-box {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.streak-row {
+    background: #161616;
+    border-radius: 16px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.streak-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.streak-hand-title {
     font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+.streak-hand-title.left { color: var(--main); }
+.streak-hand-title.right { color: var(--warm); }
+
+.streak-dots {
+    display: flex;
+    gap: 6px;
+}
+.dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #2a2a2a;
+    display: inline-block;
+}
+.dot.success-active {
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+}
+.dot.fail-active {
+    background: var(--red);
+    box-shadow: 0 0 8px var(--red);
+}
+.streak-msg {
+    font-size: 11px;
+    color: var(--sub);
     font-weight: 700;
-    margin-top: 6px;
-    line-height: 1.6;
 }
 .home-rep-line {
     display: flex;
@@ -554,14 +599,10 @@ width: 65%;
     font-size: 14px;
     font-weight: 700;
 }
-.home-rep-line:last-child {
-    border-bottom: none;
-}
-.home-rep-label {
-    color: var(--text);
-}
-.home-rep-value {
-    color: var(--text);
+#homeRecentDetail {
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 6px;
 }
 </style>
 </head>
@@ -576,36 +617,51 @@ SH Grip Pro
 
 <div class="page" id="homePage">
 
-<div class="card">
-<div class="label">오늘 도전 무게</div>
-<div class="value" id="homeWeight" style="font-size: 26px;">L: 25kg / R: 25kg</div>
-</div>
-
-<div class="row">
-<div class="card">
-<div class="label">다음 목표</div>
-<div class="value small" id="nextWeight">L:25k / R:25k</div>
+<div class="card" style="background: linear-gradient(145deg, #111, #1a1a1a); border-color: #333;">
+<div class="label" style="text-align: center;">🔥 오늘 도전 무게 (CURRENT WEIGHT)</div>
+<div class="value" id="homeWeight" style="font-size: 34px; text-align: center; color: var(--main); margin: 6px 0;">L: 25kg / R: 25kg</div>
 </div>
 
 <div class="card">
-<div class="label">최근 훈련일</div>
-<div class="value small" id="recentResult">없음</div>
+<div class="label">🎯 연속 성공 / 실패 기록 상태</div>
+<div class="streak-box">
+    <div class="streak-row">
+        <div class="streak-header">
+            <span class="streak-hand-title left">LEFT HAND</span>
+            <div class="streak-dots" id="leftDots">
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        </div>
+        <div class="streak-msg" id="leftStreakMsg">연속 기록 분석 중...</div>
+    </div>
+    <div class="streak-row">
+        <div class="streak-header">
+            <span class="streak-hand-title right">RIGHT HAND</span>
+            <div class="streak-dots" id="rightDots">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        </div>
+        <div class="streak-msg" id="rightStreakMsg">연속 기록 분석 중...</div>
+    </div>
 </div>
 </div>
 
 <div class="card">
-    <div class="label">최근 메인 세트 기록 (<span id="homeRecentWeight" style="color: var(--sub);">0kg</span>)</div>
+    <div class="label">📋 최근 메인 세트 기록 요약 (<span id="homeRecentWeight" style="color: var(--sub);">0kg</span>)</div>
     <div id="homeRecentDetail">훈련 데이터가 없습니다.</div>
 </div>
 
 <div class="row">
 <div class="card">
-<div class="label" id="lblLeftHold">L HOLD (최근 기록)</div>
+<div class="label" id="lblLeftHold">L HOLD (최고)</div>
 <div class="value small" id="bestLeftHold">0.0s</div>
 </div>
 
 <div class="card">
-<div class="label" id="lblRightHold">R HOLD (최근 기록)</div>
+<div class="label" id="lblRightHold">R HOLD (최고)</div>
 <div class="value small" id="bestRightHold">0.0s</div>
 </div>
 </div>
@@ -735,14 +791,14 @@ let userData = JSON.parse(localStorage.getItem('gdiron_v501')) || {
  history: []
 };
 
-// 하위 호환 구조 지원 (구버전의 mainIndex가 존재할 경우 데이터 마이그레이션)
+// 마이그레이션 호환 처리
 if(userData.mainIndex && !userData.mainIndexLeft) {
     userData.mainIndexLeft = userData.mainIndex;
     userData.mainIndexRight = userData.mainIndex;
     delete userData.mainIndex;
 }
 
-let currentSettingHand = 'LEFT'; // 무게 설정 화면용 상태값
+let currentSettingHand = 'LEFT'; 
 
 function saveData(){
     localStorage.setItem('gdiron_v501', JSON.stringify(userData));
@@ -765,22 +821,92 @@ function updateBestHold(){
         document.getElementById('bestLeftHold').textContent = `0.0s`;
         document.getElementById('bestRightHold').textContent = `0.0s`;
     }
-    document.getElementById('lblLeftHold').textContent = "L HOLD (최근 최고)";
-    document.getElementById('lblRightHold').textContent = "R HOLD (최근 최고)";
+    document.getElementById('lblLeftHold').textContent = "L HOLD 최고";
+    document.getElementById('lblRightHold').textContent = "R HOLD 최고";
 }
 
+// 홈 UI 갱신 시 연속 스트릭 데이터를 실시간으로 읽어와서 그리는 핵심 알고리즘 포함
 function updateHomeUI(){
     const leftKg = weights[userData.mainIndexLeft-1];
     const rightKg = weights[userData.mainIndexRight-1];
     document.getElementById('homeWeight').textContent = `L: ${leftKg}kg / R: ${rightKg}kg`;
 
-    const nextLIdx = Math.min(5, userData.mainIndexLeft);
-    const nextRIdx = Math.min(5, userData.mainIndexRight);
-    document.getElementById('nextWeight').textContent = `L:${weights[nextLIdx]}k / R:${weights[nextRIdx]}k`;
+    // 1. 역사적 연속 기록(Streak) 연산 분기 부
+    let leftCountSuccess = 0; let leftCountFail = 0;
+    let rightCountSuccess = 0; let rightCountFail = 0;
 
+    // 왼손 연속 판단
+    if(userData.history.length > 0) {
+        const firstLeftSuccess = userData.history[0].mainResults.every(r => r.left >= 8);
+        if(firstLeftSuccess) {
+            for(let i=0; i<userData.history.length; i++){
+                if(userData.history[i].mainResults.every(r => r.left >= 8)) leftCountSuccess++;
+                else break;
+            }
+        } else {
+            for(let i=0; i<userData.history.length; i++){
+                if(!userData.history[i].mainResults.every(r => r.left >= 8)) leftCountFail++;
+                else break;
+            }
+        }
+    }
+
+    // 오른손 연속 판단
+    if(userData.history.length > 0) {
+        const firstRightSuccess = userData.history[0].mainResults.every(r => r.right >= 8);
+        if(firstRightSuccess) {
+            for(let i=0; i<userData.history.length; i++){
+                if(userData.history[i].mainResults.every(r => r.right >= 8)) rightCountSuccess++;
+                else break;
+            }
+        } else {
+            for(let i=0; i<userData.history.length; i++){
+                if(!userData.history[i].mainResults.every(r => r.right >= 8)) rightCountFail++;
+                else break;
+            }
+        }
+    }
+
+    // 2. 왼손 도트 인디케이터 바인딩 및 가이드라인 문구 출력
+    const leftDots = document.getElementById('leftDots').querySelectorAll('.dot');
+    leftDots.forEach(d => d.className = 'dot'); // 초기화
+    const leftMsg = document.getElementById('leftStreakMsg');
+
+    if(leftCountSuccess > 0) {
+        // 최대 2칸 채우기
+        for(let i=0; i<Math.min(2, leftCountSuccess); i++) { leftDots[i].classList.add('success-active'); }
+        leftMsg.textContent = `🔥 연속 ${leftCountSuccess}회 성공 중! (1회 더 성공 시 무게 증량)`;
+        leftMsg.style.color = 'var(--green)';
+    } else if(leftCountFail > 0) {
+        for(let i=0; i<Math.min(2, leftCountFail); i++) { leftDots[i].classList.add('fail-active'); }
+        leftMsg.textContent = `⚠️ 연속 ${leftCountFail}회 실패 상태 (3회 연속 실패 시 무게 감량)`;
+        leftMsg.style.color = 'var(--red)';
+    } else {
+        leftMsg.textContent = `⚡ 신규 기록 대기 중 (8회 달성 시 스택 누적)`;
+        leftMsg.style.color = 'var(--sub)';
+    }
+
+    // 3. 오른손 도트 인디케이터 바인딩 및 가이드라인 문구 출력 (감량 기준이 3칸이므로 도트 개수 대응)
+    const rightDots = document.getElementById('rightDots').querySelectorAll('.dot');
+    rightDots.forEach(d => d.className = 'dot');
+    const rightMsg = document.getElementById('rightStreakMsg');
+
+    if(rightCountSuccess > 0) {
+        for(let i=0; i<Math.min(2, rightCountSuccess); i++) { rightDots[i].classList.add('success-active'); }
+        rightMsg.textContent = `🔥 연속 ${rightCountSuccess}회 성공 중! (1회 더 성공 시 무게 증량)`;
+        rightMsg.style.color = 'var(--green)';
+    } else if(rightCountFail > 0) {
+        for(let i=0; i<Math.min(3, rightCountFail); i++) { rightDots[i].classList.add('fail-active'); }
+        rightMsg.textContent = `⚠️ 연속 ${rightCountFail}회 실패 상태 (${3 - Math.min(3, rightCountFail)}회 더 실패 시 무게 감량)`;
+        rightMsg.style.color = 'var(--red)';
+    } else {
+        rightMsg.textContent = `⚡ 신규 기록 대기 중 (8회 달성 시 스택 누적)`;
+        rightMsg.style.color = 'var(--sub)';
+    }
+
+    // 최근 메인 세트 결과 렌더링 로직
     if(userData.history.length){
         const recent = userData.history[0];
-        document.getElementById('recentResult').textContent = recent.date;
         document.getElementById('homeRecentWeight').textContent = recent.mainWeight || `L:${leftKg}k/R:${rightKg}k`;
         
         const detailHtml = recent.mainResults.map(r => {
@@ -792,7 +918,6 @@ function updateHomeUI(){
         }).join('');
         document.getElementById('homeRecentDetail').innerHTML = detailHtml;
     }else{
-        document.getElementById('recentResult').textContent = '없음';
         document.getElementById('homeRecentWeight').textContent = '0kg';
         document.getElementById('homeRecentDetail').textContent = '훈련 데이터가 없습니다.';
     }
@@ -808,7 +933,6 @@ let negativeResults=[];
 
 function buildFlow(){
     flow = [];
-    // 웜업 1, 2 단계 설정 및 메인, 네거티브, 홀딩 단계 분할
     flow.push({ type:'warmup', title:'웜업 1', target:15 });
     flow.push({ type:'warmup', title:'웜업 2', target:8 });
 
@@ -887,7 +1011,6 @@ function renderStep(){
     document.getElementById('handText').textContent=currentHand;
     document.getElementById('exerciseText').textContent=item.title;
 
-    // 현재 손의 인덱스 기준 무게 설정 계산
     const currentIdx = currentHand === 'LEFT' ? userData.mainIndexLeft : userData.mainIndexRight;
     let stepWeight = weights[currentIdx - 1];
     if (item.type === 'warmup') {
@@ -1007,7 +1130,7 @@ function updateRest(sec){
     document.getElementById('overlayTime').textContent=`${m}:${s}`;
 }
 
-// 준비 및 타이머 통합 컨트롤 (수정본 반영: 직관적인 3..2..1 카운트다운)
+// 수정사항 반영: 준비 시간 카운트는 소수점을 없애고 확실하게 3 -> 2 -> 1 정수로 노출
 function startNegative(){
     overlay.classList.remove('hidden');
     document.getElementById('overlayTitle').textContent='READY';
@@ -1071,6 +1194,7 @@ function finishNegative(sec){
     startRest();
 }
 
+// 수정사항 반영: 홀딩 타이머 진입 전 준비시간도 확실히 3 -> 2 -> 1 정수 노출
 function startHold(){
     overlay.classList.remove('hidden');
     document.getElementById('overlayTitle').textContent='READY';
@@ -1212,7 +1336,7 @@ document.getElementById('overlay').onclick = function() {
 };
 document.querySelector('.overlay-wrap').onclick = function(e) { e.stopPropagation(); };
 
-// 핵심 알고리즘: 완벽한 독립 증량/감량 로직 처리 함수
+// 핵심 비즈니스 로직: 2회 연속 성공 시 증량 / 3회 연속 실패 시 감량 완전 분리 정산
 function finishSession(){
     const leftSuccess = mainResults.every(r => r.left >= 8);
     const rightSuccess = mainResults.every(r => r.right >= 8);
@@ -1222,7 +1346,7 @@ function finishSession(){
     let rightSuccessStreak = rightSuccess ? 1 : 0;
     let rightFailStreak = !rightSuccess ? 1 : 0;
 
-    // 히스토리 기반 스트릭 개별 연산
+    // 과거 데이터를 추적하여 독립 연산
     for (let i = 0; i < userData.history.length; i++) {
         const hist = userData.history[i];
         if (!hist.mainResults || hist.mainResults.length === 0) break;
@@ -1230,7 +1354,7 @@ function finishSession(){
         const histLeftSuccess = hist.mainResults.every(r => r.left >= 8);
         if (leftSuccess && histLeftSuccess) leftSuccessStreak++;
         else if (!leftSuccess && !histLeftSuccess) leftFailStreak++;
-        else leftSuccessStreak = 0; // 연속 단절 처리
+        else break;
     }
     for (let i = 0; i < userData.history.length; i++) {
         const hist = userData.history[i];
@@ -1239,10 +1363,10 @@ function finishSession(){
         const histRightSuccess = hist.mainResults.every(r => r.right >= 8);
         if (rightSuccess && histRightSuccess) rightSuccessStreak++;
         else if (!rightSuccess && !histRightSuccess) rightFailStreak++;
-        else rightSuccessStreak = 0;
+        else break;
     }
 
-    // 증량 기준 (2회 연속 성공) 및 감량 기준 (3회 연속 실패) 독립 대입
+    // 좌우 독립 증감 규칙 연산 적용
     if (leftSuccessStreak >= 2 && userData.mainIndexLeft < 6) userData.mainIndexLeft++;
     else if (leftFailStreak >= 3 && userData.mainIndexLeft > 1) userData.mainIndexLeft--;
 
@@ -1326,7 +1450,6 @@ function loadHistory(){
     });
 }
 
-// 설정화면 좌우 선택 버튼 인터랙션 함수 추가
 function updateSettingButtons() {
     document.getElementById('settingWeightLabel').textContent = currentSettingHand === 'LEFT' ? '왼손 무게 설정' : '오른손 무게 설정';
     const targetIdx = currentSettingHand === 'LEFT' ? userData.mainIndexLeft : userData.mainIndexRight;
@@ -1392,7 +1515,7 @@ document.getElementById('confirmResetBtn').onclick=()=>{
     openPage('home');
 };
 
-// 앱 로드 구동
+// 최초 구동 실행 트리거
 updateHomeUI();
 loadHistory();
 </script>
