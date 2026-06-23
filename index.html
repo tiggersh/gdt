@@ -654,18 +654,6 @@ SH Grip Pro
     <div id="homeRecentDetail">훈련 데이터가 없습니다.</div>
 </div>
 
-<div class="row">
-<div class="card">
-<div class="label" id="lblLeftHold">L HOLD (최고)</div>
-<div class="value small" id="bestLeftHold">0.0s</div>
-</div>
-
-<div class="card">
-<div class="label" id="lblRightHold">R HOLD (최고)</div>
-<div class="value small" id="bestRightHold">0.0s</div>
-</div>
-</div>
-
 <button class="main-btn" id="startBtn">훈련 시작</button>
 
 </div>
@@ -804,27 +792,6 @@ function saveData(){
     localStorage.setItem('gdiron_v501', JSON.stringify(userData));
 }
 
-function updateBestHold(){
-    if(userData.history.length) {
-        const recent = userData.history[0];
-        let hLeft = 0, hRight = 0;
-        if(recent.holdResults && recent.holdResults.length > 0) {
-            hLeft = Math.max(...recent.holdResults.map(h => parseFloat(h.left || 0)));
-            hRight = Math.max(...recent.holdResults.map(h => parseFloat(h.right || 0)));
-        } else {
-            hLeft = parseFloat(recent.holdLeft || 0);
-            hRight = parseFloat(recent.holdRight || 0);
-        }
-        document.getElementById('bestLeftHold').textContent = `${hLeft.toFixed(1)}s`;
-        document.getElementById('bestRightHold').textContent = `${hRight.toFixed(1)}s`;
-    } else {
-        document.getElementById('bestLeftHold').textContent = `0.0s`;
-        document.getElementById('bestRightHold').textContent = `0.0s`;
-    }
-    document.getElementById('lblLeftHold').textContent = "L HOLD 최고";
-    document.getElementById('lblRightHold').textContent = "R HOLD 최고";
-}
-
 // 홈 UI 갱신 시 연속 스트릭 데이터를 실시간으로 읽어와서 그리는 핵심 알고리즘 포함
 function updateHomeUI(){
     const leftKg = weights[userData.mainIndexLeft-1];
@@ -921,7 +888,6 @@ function updateHomeUI(){
         document.getElementById('homeRecentWeight').textContent = '0kg';
         document.getElementById('homeRecentDetail').textContent = '훈련 데이터가 없습니다.';
     }
-    updateBestHold();
 }
 
 let flow=[];
