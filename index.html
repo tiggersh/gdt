@@ -901,6 +901,14 @@ let mainResults=[];
 let negativeResults=[];
 let holdResults=[];
 
+    const UI = {
+    overlay: document.getElementById('overlay'),
+    overlayTitle: UI.overlayTitle,
+    overlayTime: UI.overlayTime,
+    overlayBtn: UI.overlayBtn,
+    actionBtn: document.getElementById('actionBtn')
+};
+    
 function buildFlow(){
     flow = [];
     flow.push({ type:'warmup', title:'웜업 1', target:15 });
@@ -951,16 +959,20 @@ function getPrevRecord(type,setNum){
         if(!item) return '없음';
         return `${last.mainWeight} | L${item.left} / R${item.right}`;
     }
+
     if(type==='negative'){
         const left = last.negativeResults.filter(n => n.hand === 'LEFT')[setNum - 1];
         const right = last.negativeResults.filter(n => n.hand === 'RIGHT')[setNum - 1];
         return `${last.negativeWeight} | L${left?.value || 0}s / R${right?.value || 0}s`;
     }
+
     if(type==='hold'){
-        const left = last.holdResults ? last.holdResults.filter(h => h.hand === 'LEFT')[setNum - 1]?.left : '0';
-        const right = last.holdResults ? last.holdResults.filter(h => h.hand === 'RIGHT')[setNum - 1]?.right : '0';
-        return `${last.holdWeight} | L${left || 0}s / R${right || 0}s`;
+        const item = last.holdResults?.find(h => h.set === setNum);
+        const left = item?.left || '0';
+        const right = item?.right || '0';
+        return `${last.holdWeight} | L${left}s / R${right}s`;
     }
+
     return '없음';
 }
 
@@ -1079,9 +1091,10 @@ function triggerNegativeEndNotification() {
 }
 
 function startRest(){
-    overlay.classList.remove('hidden');
-    document.getElementById('overlayTitle').textContent='REST';
-    document.getElementById('overlayBtn').textContent='건너뛰기';
+    UI.overlay.classList.remove('hidden');
+    UI.overlayTitle.textContent='REST';
+    UI.overlayBtn.textContent='건너뛰기';
+
     let sec = CONFIG.REST_SEC;
     updateRest(sec);
     clearInterval(timer);
@@ -1089,19 +1102,23 @@ function startRest(){
     timer=setInterval(()=>{
         sec--;
         updateRest(sec);
-        if(sec === 3 || sec === 2 || sec === 1) { playBeep(880, 80); }
+
+        if(sec === 3 || sec === 2 || sec === 1){
+            playBeep(880, 80);
+        }
+
         if(sec<=0){
             clearInterval(timer);
-            overlay.classList.add('hidden');
+            UI.overlay.classList.add('hidden');
             triggerRestEndNotification();
             nextStep();
         }
     },1000);
 
-    document.getElementById('overlayBtn').onclick=(e)=>{
+    UI.overlayBtn.onclick=(e)=>{
         e.stopPropagation();
         clearInterval(timer);
-        overlay.classList.add('hidden');
+        UI.overlay.classList.add('hidden');
         nextStep();
     };
 }
@@ -1109,17 +1126,17 @@ function startRest(){
 function updateRest(sec){
     const m= String(Math.floor(sec/60)).padStart(2,'0');
     const s= String(sec%60).padStart(2,'0');
-    document.getElementById('overlayTime').textContent=`${m}:${s}`;
+    UI.overlayTime.textContent=`${m}:${s}`;
 }
 
 // 수정사항 반영: 준비 시간 카운트는 소수점을 없애고 확실하게 3 -> 2 -> 1 정수로 노출
 function startNegative(){
-    overlay.classList.remove('hidden');
-    document.getElementById('overlayTitle').textContent='READY';
-    document.getElementById('overlayBtn').textContent='건너뛰기';
+    UI.overlay.classList.remove('hidden');
+    UI.overlayTitle.textContent='READY';
+    UI.overlayBtn.textContent='건너뛰기';
     
     let readySec = 3;
-    document.getElementById('overlayTime').textContent = readySec;
+    UI.overlayTime.textContent = readySec;
     playBeep(600, 100);
 
     clearInterval(timer);
@@ -1129,12 +1146,12 @@ function startNegative(){
             clearInterval(timer);
             runActualNegative();
         } else {
-            document.getElementById('overlayTime').textContent = readySec;
+            UI.overlayTime.textContent = readySec;
             playBeep(600, 100);
         }
     }, 1000);
 
-    document.getElementById('overlayBtn').onclick=(e)=>{
+    UI.overlayBtn.onclick=(e)=>{
         e.stopPropagation();
         clearInterval(timer);
         runActualNegative();
@@ -1142,14 +1159,14 @@ function startNegative(){
 }
 
 function runActualNegative() {
-    document.getElementById('overlayTitle').textContent='NEGATIVE';
-    document.getElementById('overlayBtn').textContent='종료';
+    UI.overlayTitle.textContent='NEGATIVE';
+    UI.overlayBtn.textContent='종료';
     const start=Date.now();
 
     clearInterval(timer);
     timer=setInterval(()=>{
     const sec = CONFIG.NEGATIVE_SEC - ((Date.now()-start)/1000);
-        document.getElementById('overlayTime').textContent= Math.max(0,sec).toFixed(1);
+        UI.overlayTime.textContent= Math.max(0,sec).toFixed(1);
         if(sec<=0){
             clearInterval(timer);
             triggerNegativeEndNotification();
@@ -1157,7 +1174,7 @@ function runActualNegative() {
         }
     },100);
 
-    document.getElementById('overlayBtn').onclick=(e)=>{
+    UI.overlayBtn.onclick=(e)=>{
         e.stopPropagation();
         clearInterval(timer);
         const sec= ((Date.now()-start)/1000);
@@ -1167,7 +1184,7 @@ function runActualNegative() {
 
 function finishNegative(sec){
     negativeResults.push({ hand:currentHand, value:sec.toFixed(1) });
-    overlay.classList.add('hidden');
+    UI.overlay.classList.add('hidden');
     if(currentHand==='LEFT'){
         currentHand='RIGHT';
         renderStep();
@@ -1178,12 +1195,12 @@ function finishNegative(sec){
 
 // 수정사항 반영: 홀딩 타이머 진입 전 준비시간도 확실히 3 -> 2 -> 1 정수 노출
 function startHold(){
-    overlay.classList.remove('hidden');
-    document.getElementById('overlayTitle').textContent='READY';
-    document.getElementById('overlayBtn').textContent='건너뛰기';
+    UI.overlay.classList.remove('hidden');
+    UI.overlayTitle.textContent='READY';
+    UI.overlayBtn.textContent='건너뛰기';
     
     let readySec = 3;
-    document.getElementById('overlayTime').textContent = readySec;
+    UI.overlayTime.textContent = readySec;
     playBeep(600, 100);
 
     clearInterval(timer);
@@ -1193,12 +1210,12 @@ function startHold(){
             clearInterval(timer);
             runActualHold();
         } else {
-            document.getElementById('overlayTime').textContent = readySec;
+            UI.overlayTime.textContent = readySec;
             playBeep(600, 100);
         }
     }, 1000);
 
-    document.getElementById('overlayBtn').onclick=(e)=>{
+    UI.overlayBtn.onclick=(e)=>{
         e.stopPropagation();
         clearInterval(timer);
         runActualHold();
@@ -1206,15 +1223,15 @@ function startHold(){
 }
 
 function runActualHold() {
-    document.getElementById('overlayTitle').textContent='HOLD';
-    document.getElementById('overlayBtn').textContent='종료';
+    UI.overlayTitle.textContent='HOLD';
+    UI.overlayBtn.textContent='종료';
     const start=Date.now();
     const targetDuration = CONFIG.HOLD_SEC;
 
     clearInterval(timer);
     timer=setInterval(()=>{
         const sec = targetDuration - ((Date.now()-start)/1000);
-        document.getElementById('overlayTime').textContent = Math.max(0, sec).toFixed(1);
+        UI.overlayTime.textContent = Math.max(0, sec).toFixed(1);
         if(sec <= 0){
             clearInterval(timer);
             triggerNegativeEndNotification(); 
@@ -1222,7 +1239,7 @@ function runActualHold() {
         }
     }, 100);
 
-    document.getElementById('overlayBtn').onclick=(e)=>{
+    UI.overlayBtn.onclick=(e)=>{
         e.stopPropagation();
         clearInterval(timer);
         const rawSec = ((Date.now()-start)/1000);
@@ -1232,7 +1249,7 @@ function runActualHold() {
 }
 
 function finishHold(sec){
-    overlay.classList.add('hidden');
+    UI.overlay.classList.add('hidden');
 
     if(currentHand==='LEFT'){
         holdResults.push({
@@ -1318,7 +1335,7 @@ document.getElementById('prevStepBtn').onclick = () => {
 };
 
 document.getElementById('overlay').onclick = function() {
-    const btnElement = document.getElementById('overlayBtn');
+    const btnElement = UI.overlayBtn;
     if (btnElement) { btnElement.click(); }
 };
 document.querySelector('.overlay-wrap').onclick = function(e) { e.stopPropagation(); };
@@ -1328,49 +1345,48 @@ function finishSession(){
     const leftSuccess = mainResults.every(r => r.left >= CONFIG.SUCCESS_REP);
     const rightSuccess = mainResults.every(r => r.right >= CONFIG.SUCCESS_REP);
 
+    const sessionLeftWeight = weights[userData.mainIndexLeft - 1];
+    const sessionRightWeight = weights[userData.mainIndexRight - 1];
+
     let leftSuccessStreak = leftSuccess ? 1 : 0;
     let leftFailStreak = !leftSuccess ? 1 : 0;
     let rightSuccessStreak = rightSuccess ? 1 : 0;
     let rightFailStreak = !rightSuccess ? 1 : 0;
 
-    // 과거 데이터를 추적하여 독립 연산
     for (let i = 0; i < userData.history.length; i++) {
         const hist = userData.history[i];
         if (!hist.mainResults || hist.mainResults.length === 0) break;
-        
+
         const histLeftSuccess = hist.mainResults.every(r => r.left >= CONFIG.SUCCESS_REP);
         if (leftSuccess && histLeftSuccess) leftSuccessStreak++;
         else if (!leftSuccess && !histLeftSuccess) leftFailStreak++;
         else break;
     }
+
     for (let i = 0; i < userData.history.length; i++) {
         const hist = userData.history[i];
         if (!hist.mainResults || hist.mainResults.length === 0) break;
-        
+
         const histRightSuccess = hist.mainResults.every(r => r.right >= CONFIG.SUCCESS_REP);
         if (rightSuccess && histRightSuccess) rightSuccessStreak++;
         else if (!rightSuccess && !histRightSuccess) rightFailStreak++;
         else break;
     }
 
-    // 좌우 독립 증감 규칙 연산 적용
     if (leftSuccessStreak >= 2 && userData.mainIndexLeft < 6) userData.mainIndexLeft++;
     else if (leftFailStreak >= 3 && userData.mainIndexLeft > 1) userData.mainIndexLeft--;
 
     if (rightSuccessStreak >= 2 && userData.mainIndexRight < 6) userData.mainIndexRight++;
     else if (rightFailStreak >= 3 && userData.mainIndexRight > 1) userData.mainIndexRight--;
 
-    const currentLeftWeight = weights[userData.mainIndexLeft - 1];
-    const currentRightWeight = weights[userData.mainIndexRight - 1];
-
     userData.history.unshift({
         date: new Date().toLocaleDateString(),
-        mainWeight: `L:${currentLeftWeight}k / R:${currentRightWeight}k`,
+        mainWeight: `L:${sessionLeftWeight}k / R:${sessionRightWeight}k`,
         negativeWeight: `L:${weights[Math.min(5, userData.mainIndexLeft)]}k / R:${weights[Math.min(5, userData.mainIndexRight)]}k`,
-        holdWeight: `L:${currentLeftWeight}k / R:${currentRightWeight}k`,
+        holdWeight: `L:${sessionLeftWeight}k / R:${sessionRightWeight}k`,
         mainResults,
         negativeResults,
-        holdResults: holdResults
+        holdResults
     });
 
     saveData();
