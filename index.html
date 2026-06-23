@@ -1386,30 +1386,27 @@ document.getElementById(
 
 }
 
-// 네거티브 훈련 프로세스 (3초 준비 카운트다운 추가)
+// 네거티브 훈련 프로세스 (시각적으로 명확한 3, 2, 1 카운트다운)
 function startNegative(){
     overlay.classList.remove('hidden');
     document.getElementById('overlayTitle').textContent='READY';
     document.getElementById('overlayBtn').textContent='건너뛰기';
     
     let readySec = 3;
-    document.getElementById('overlayTime').textContent = readySec.toFixed(1);
+    document.getElementById('overlayTime').textContent = readySec; // 정수로 표시
     playBeep(600, 100);
 
     clearInterval(timer);
     timer = setInterval(() => {
-        readySec -= 0.1;
+        readySec--;
         if (readySec <= 0) {
             clearInterval(timer);
             runActualNegative(); // 준비 시간 종료 후 실제 타이머 구동
         } else {
-            document.getElementById('overlayTime').textContent = Math.max(0, readySec).toFixed(1);
-            // 정수 초 단위 하강 시 비프음 발생
-            if (Math.abs(readySec - Math.round(readySec)) < 0.01 && readySec >= 1) {
-                playBeep(600, 100);
-            }
+            document.getElementById('overlayTime').textContent = readySec; // 3 -> 2 -> 1 직관적 표시
+            playBeep(600, 100);
         }
-    }, 100);
+    }, 1000); // 1초 단위로 확실하게 툭툭 떨어지도록 변경
 
     document.getElementById('overlayBtn').onclick=(e)=>{
         e.stopPropagation();
@@ -1469,29 +1466,27 @@ startRest();
 
 }
 
-// 홀딩 훈련 프로세스 (3초 준비 카운트다운 추가)
+// 홀딩 훈련 프로세스 (시각적으로 명확한 3, 2, 1 카운트다운)
 function startHold(){
     overlay.classList.remove('hidden');
     document.getElementById('overlayTitle').textContent='READY';
     document.getElementById('overlayBtn').textContent='건너뛰기';
     
     let readySec = 3;
-    document.getElementById('overlayTime').textContent = readySec.toFixed(1);
+    document.getElementById('overlayTime').textContent = readySec; // 정수로 표시
     playBeep(600, 100);
 
     clearInterval(timer);
     timer = setInterval(() => {
-        readySec -= 0.1;
+        readySec--;
         if (readySec <= 0) {
             clearInterval(timer);
             runActualHold(); // 준비 시간 종료 후 실제 홀딩 타이머 구동
         } else {
-            document.getElementById('overlayTime').textContent = Math.max(0, readySec).toFixed(1);
-            if (Math.abs(readySec - Math.round(readySec)) < 0.01 && readySec >= 1) {
-                playBeep(600, 100);
-            }
+            document.getElementById('overlayTime').textContent = readySec; // 3 -> 2 -> 1 직관적 표시
+            playBeep(600, 100);
         }
-    }, 100);
+    }, 1000); // 1초 단위로 확실하게 툭툭 떨어지도록 변경
 
     document.getElementById('overlayBtn').onclick=(e)=>{
         e.stopPropagation();
