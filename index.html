@@ -4,18 +4,11 @@
 <link rel="icon" href="icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icon-192.png">  
 <meta charset="UTF-8">
-<meta
-name="viewport"
-content="
-width=device-width,
-initial-scale=1,
-viewport-fit=cover
-">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 <title>SH Grip Pro</title>
 
 <style>
-
 :root {
     --bg: #050505;
     --card: #111;
@@ -38,8 +31,7 @@ font-family:Arial,sans-serif;
 -webkit-tap-highlight-color:transparent;
 }
 
-html,
-body{
+html, body{
 width:100%;
 height:100%;
 overflow:hidden;
@@ -66,10 +58,7 @@ display:none!important;
 height:100dvh;
 display:flex;
 flex-direction:column;
-padding:
-8px
-12px
-calc(12px + env(safe-area-inset-bottom));
+padding: 8px 12px calc(12px + env(safe-area-inset-bottom));
 overflow:hidden;
 }
 
@@ -113,7 +102,7 @@ font-weight:900;
 }
 
 .small{
-font-size:20px;
+font-size:18px;
 }
 
 .row{
@@ -317,6 +306,29 @@ background:var(--main);
 color:black;
 }
 
+.setting-toggle-tabs {
+display: flex;
+gap: 8px;
+margin-bottom: 12px;
+}
+
+.toggle-btn {
+flex: 1;
+height: 44px;
+border-radius: 14px;
+background: #1a1a1a;
+color: var(--sub);
+font-size: 14px;
+font-weight: 900;
+border: 1px solid #222;
+}
+
+.toggle-btn.active {
+background: #222;
+color: #fff;
+border-color: #444;
+}
+
 .setting-grid{
 display:grid;
 grid-template-columns:repeat(3,1fr);
@@ -391,7 +403,6 @@ font-weight:900;
 line-height:1;
 }
 
-/* 종료/건너뛰기 버튼 크기 및 가시성 대폭 확대 */
 .overlay-btn{
 width:100%;
 height:80px;
@@ -530,7 +541,6 @@ border: 1px solid #333;
 width: 65%;
 }
 
-/* 최근 메인 세트 디테일 라벨 색상 흰색 통일 */
 #homeRecentDetail {
     font-size: 14px;
     font-weight: 700;
@@ -553,7 +563,6 @@ width: 65%;
 .home-rep-value {
     color: var(--text);
 }
-
 </style>
 </head>
 
@@ -568,81 +577,40 @@ SH Grip Pro
 <div class="page" id="homePage">
 
 <div class="card">
-
-<div class="label">
-오늘 도전 무게
-</div>
-
-<div class="value" id="homeWeight">
-58kg
-</div>
-
+<div class="label">오늘 도전 무게</div>
+<div class="value" id="homeWeight" style="font-size: 26px;">L: 25kg / R: 25kg</div>
 </div>
 
 <div class="row">
-
 <div class="card">
-
-<div class="label">
-다음 목표
-</div>
-
-<div class="value small" id="nextWeight">
-69kg
-</div>
-
+<div class="label">다음 목표</div>
+<div class="value small" id="nextWeight">L:25k / R:25k</div>
 </div>
 
 <div class="card">
-
-<div class="label">
-최근 훈련일
+<div class="label">최근 훈련일</div>
+<div class="value small" id="recentResult">없음</div>
+</div>
 </div>
 
-<div class="value small" id="recentResult">
-없음
-</div>
-
-</div>
-
-</div>
-
-<div class="card" style="grid-column: span 2;">
+<div class="card">
     <div class="label">최근 메인 세트 기록 (<span id="homeRecentWeight" style="color: var(--sub);">0kg</span>)</div>
     <div id="homeRecentDetail">훈련 데이터가 없습니다.</div>
 </div>
 
 <div class="row">
-
 <div class="card">
-
-<div class="label" id="lblLeftHold">
-L HOLD (최근 기록)
-</div>
-
-<div class="value small" id="bestLeftHold">
-0.0s
-</div>
-
+<div class="label" id="lblLeftHold">L HOLD (최근 기록)</div>
+<div class="value small" id="bestLeftHold">0.0s</div>
 </div>
 
 <div class="card">
-
-<div class="label" id="lblRightHold">
-R HOLD (최근 기록)
+<div class="label" id="lblRightHold">R HOLD (최근 기록)</div>
+<div class="value small" id="bestRightHold">0.0s</div>
+</div>
 </div>
 
-<div class="value small" id="bestRightHold">
-0.0s
-</div>
-
-</div>
-
-</div>
-
-<button class="main-btn" id="startBtn">
-훈련 시작
-</button>
+<button class="main-btn" id="startBtn">훈련 시작</button>
 
 </div>
 
@@ -650,82 +618,40 @@ R HOLD (최근 기록)
 
 <div class="session-top left-mode" id="sessionTop">
 
-<div class="phase-badge" id="phaseBadge">
-MAIN
-</div>
-
-<div class="hand" id="handText">
-LEFT
-</div>
-
-<div class="exercise" id="exerciseText">
-메인 1세트
-</div>
-
-<div class="desc" id="descText">
-치팅 없이 순수 클로징
-</div>
+<div class="phase-badge" id="phaseBadge">MAIN</div>
+<div class="hand" id="handText">LEFT</div>
+<div class="exercise" id="exerciseText">메인 1세트</div>
+<div class="desc" id="descText">치팅 없이 순수 클로징</div>
 
 <div class="progress-wrap">
-
 <div class="progress-info">
-
-<div id="progressText">
-1 / 7
+<div id="progressText">1 / 7</div>
+<div id="statusText">LEFT 진행</div>
 </div>
-
-<div id="statusText">
-LEFT 진행
-</div>
-
-</div>
-
 <div class="progress">
-
-<div class="progress-fill" id="progressFill">
+<div class="progress-fill" id="progressFill"></div>
 </div>
-
-</div>
-
 </div>
 
 <div class="main-card">
-
-<div class="weight" id="weightText">
-58kg
-</div>
-
-<div class="target" id="targetText">
-10회 수행
-</div>
-
+<div class="weight" id="weightText">25kg</div>
+<div class="target" id="targetText">10회 수행</div>
 </div>
 
 <div class="previous">
-
-<div class="previous-label">
-PREV
-</div>
-
-<div class="previous-value" id="prevRecord">
-없음
-</div>
-
+<div class="previous-label">PREV</div>
+<div class="previous-value" id="prevRecord">없음</div>
 </div>
 
 <div class="rep-wrap" id="repSection">
-
 <div class="rep-grid">
-
 <button class="rep-btn">3</button>
 <button class="rep-btn">4</button>
 <button class="rep-btn">5</button>
 <button class="rep-btn">6</button>
 <button class="rep-btn">7</button>
 <button class="rep-btn active">8</button>
-
 </div>
-
 </div>
 
 </div>
@@ -737,546 +663,289 @@ PREV
 
 </div>
 
-<div class="page hidden" id="historyPage">
-</div>
+<div class="page hidden" id="historyPage"></div>
 
 <div class="page hidden" id="settingPage">
 
 <div class="card">
-
-<div class="label">
-메인 무게 설정
+<div class="label">손 선택</div>
+<div class="setting-toggle-tabs">
+    <button class="toggle-btn active" id="toggleLeftBtn">왼손 (LEFT)</button>
+    <button class="toggle-btn" id="toggleRightBtn">오른손 (RIGHT)</button>
 </div>
 
+<div class="label" id="settingWeightLabel">왼손 무게 설정</div>
 <div class="setting-grid">
-
 <button class="setting-btn" style="font-size: 13px; line-height: 1.2;">25kg<br><span style="font-size:10px; opacity:0.6;">55lb</span></button>
 <button class="setting-btn" style="font-size: 13px; line-height: 1.2;">36kg<br><span style="font-size:10px; opacity:0.6;">79lb</span></button>
 <button class="setting-btn" style="font-size: 13px; line-height: 1.2;">47kg<br><span style="font-size:10px; opacity:0.6;">104lb</span></button>
 <button class="setting-btn" style="font-size: 13px; line-height: 1.2;">58kg<br><span style="font-size:10px; opacity:0.6;">128lb</span></button>
 <button class="setting-btn" style="font-size: 13px; line-height: 1.2;">69kg<br><span style="font-size:10px; opacity:0.6;">152lb</span></button>
 <button class="setting-btn" style="font-size: 13px; line-height: 1.2;">80kg<br><span style="font-size:10px; opacity:0.6;">176lb</span></button>
-
+</div>
 </div>
 
-</div>
-
-<button
-class="sub-btn"
-id="resetBtn"
->
-데이터 초기화
-</button>
+<button class="sub-btn" id="resetBtn">데이터 초기화</button>
 
 </div>
 
 <div class="tabs">
-
-<button class="tab active" data-page="home">
-홈
-</button>
-
-<button class="tab" data-page="session">
-훈련
-</button>
-
-<button class="tab" data-page="history">
-기록
-</button>
-
-<button class="tab" data-page="setting">
-설정
-</button>
-
+<button class="tab active" data-page="home">홈</button>
+<button class="tab" data-page="session">훈련</button>
+<button class="tab" data-page="history">기록</button>
+<button class="tab" data-page="setting">설정</button>
 </div>
 
 </div>
 
 <div class="result-page hidden" id="resultPage">
-
-<div class="result-title">
-훈련 완료
-</div>
-
-<div
-class="result-section result-main"
-id="resultMain">
-</div>
-
-<div
-class="result-section result-negative"
-id="resultNegative">
-</div>
-
-<div
-class="result-section result-hold"
-id="resultHold">
-</div>
-
-<button
-class="main-btn"
-id="resultCloseBtn"
->
-홈으로
-</button>
-
+<div class="result-title">훈련 완료</div>
+<div class="result-section result-main" id="resultMain"></div>
+<div class="result-section result-negative" id="resultNegative"></div>
+<div class="result-section result-hold" id="resultHold"></div>
+<button class="main-btn" id="resultCloseBtn">홈으로</button>
 </div>
 
 <div class="overlay hidden" id="overlay">
-
 <div class="overlay-wrap">
-
-<div class="overlay-title" id="overlayTitle">
-REST
+<div class="overlay-title" id="overlayTitle">REST</div>
+<div class="overlay-time" id="overlayTime">02:00</div>
+<button class="overlay-btn" id="overlayBtn">건너뛰기</button>
+</div>
 </div>
 
-<div class="overlay-time" id="overlayTime">
-02:00
-</div>
-
-<button class="overlay-btn" id="overlayBtn">
-건너뛰기
-</button>
-
-</div>
-
-</div>
-
-<div
-class="overlay hidden"
-id="resetOverlay"
-style="z-index:9999999;"
->
-
+<div class="overlay hidden" id="resetOverlay" style="z-index:9999999;">
 <div class="overlay-wrap">
-
-<div
-class="overlay-title"
-style="color:#ff6666;"
->
-RESET
+<div class="overlay-title" style="color:#ff6666;">RESET</div>
+<div style="font-size:20px; font-weight:900; text-align:center; line-height:1.5;">모든 기록을 초기화할까요?</div>
+<button class="main-btn" id="confirmResetBtn" style="background:#ff6666; color:white; height:60px;">초기화</button>
+<button class="overlay-btn" id="cancelResetBtn">취소</button>
 </div>
-
-<div
-style="
-font-size:20px;
-font-weight:900;
-text-align:center;
-line-height:1.5;
-"
->
-모든 기록을 초기화할까요?
-</div>
-
-<button
-class="main-btn"
-id="confirmResetBtn"
-style="
-background:#ff6666;
-color:white;
-height:60px;
-"
->
-초기화
-</button>
-
-<button
-class="overlay-btn"
-id="cancelResetBtn"
->
-취소
-</button>
-
-</div>
-
 </div>
 
 <script>
-
 const weights=[25,36,47,58,69,80];
 const lbs=[55,79,104,128,152,176];
 
-let userData=
-JSON.parse(
-localStorage.getItem('gdiron_v501')
-)
-||
-{
- mainIndex:1,
- bestHoldLeft:0,
- bestHoldRight:0,
- history:[]
+let userData = JSON.parse(localStorage.getItem('gdiron_v501')) || {
+ mainIndexLeft: 1,
+ mainIndexRight: 1,
+ bestHoldLeft: 0,
+ bestHoldRight: 0,
+ history: []
+};
+
+// 하위 호환 구조 지원 (구버전의 mainIndex가 존재할 경우 데이터 마이그레이션)
+if(userData.mainIndex && !userData.mainIndexLeft) {
+    userData.mainIndexLeft = userData.mainIndex;
+    userData.mainIndexRight = userData.mainIndex;
+    delete userData.mainIndex;
 }
 
+let currentSettingHand = 'LEFT'; // 무게 설정 화면용 상태값
+
 function saveData(){
-
-localStorage.setItem(
-'gdiron_v501',
-JSON.stringify(userData)
-);
-
+    localStorage.setItem('gdiron_v501', JSON.stringify(userData));
 }
 
 function updateBestHold(){
-
-if(userData.history.length) {
-    const recent = userData.history[0];
-    document.getElementById('bestLeftHold').textContent = `${parseFloat(recent.holdLeft || 0).toFixed(1)}s`;
-    document.getElementById('bestRightHold').textContent = `${parseFloat(recent.holdRight || 0).toFixed(1)}s`;
-    document.getElementById('lblLeftHold').textContent = "L HOLD (최근 기록)";
-    document.getElementById('lblRightHold').textContent = "R HOLD (최근 기록)";
-} else {
-    document.getElementById('bestLeftHold').textContent = `0.0s`;
-    document.getElementById('bestRightHold').textContent = `0.0s`;
-    document.getElementById('lblLeftHold').textContent = "L HOLD (최근 기록)";
-    document.getElementById('lblRightHold').textContent = "R HOLD (최근 기록)";
-}
-
+    if(userData.history.length) {
+        const recent = userData.history[0];
+        let hLeft = 0, hRight = 0;
+        if(recent.holdResults && recent.holdResults.length > 0) {
+            hLeft = Math.max(...recent.holdResults.map(h => parseFloat(h.left || 0)));
+            hRight = Math.max(...recent.holdResults.map(h => parseFloat(h.right || 0)));
+        } else {
+            hLeft = parseFloat(recent.holdLeft || 0);
+            hRight = parseFloat(recent.holdRight || 0);
+        }
+        document.getElementById('bestLeftHold').textContent = `${hLeft.toFixed(1)}s`;
+        document.getElementById('bestRightHold').textContent = `${hRight.toFixed(1)}s`;
+    } else {
+        document.getElementById('bestLeftHold').textContent = `0.0s`;
+        document.getElementById('bestRightHold').textContent = `0.0s`;
+    }
+    document.getElementById('lblLeftHold').textContent = "L HOLD (최근 최고)";
+    document.getElementById('lblRightHold').textContent = "R HOLD (최근 최고)";
 }
 
 function updateHomeUI(){
+    const leftKg = weights[userData.mainIndexLeft-1];
+    const rightKg = weights[userData.mainIndexRight-1];
+    document.getElementById('homeWeight').textContent = `L: ${leftKg}kg / R: ${rightKg}kg`;
 
-const currentKg = weights[userData.mainIndex-1];
-const currentLb = lbs[userData.mainIndex-1];
-document.getElementById('homeWeight').textContent = `${currentKg}kg (${currentLb}lb)`;
+    const nextLIdx = Math.min(5, userData.mainIndexLeft);
+    const nextRIdx = Math.min(5, userData.mainIndexRight);
+    document.getElementById('nextWeight').textContent = `L:${weights[nextLIdx]}k / R:${weights[nextRIdx]}k`;
 
-const nextIdx = Math.min(5, userData.mainIndex);
-document.getElementById('nextWeight').textContent = `${weights[nextIdx]}kg (${lbs[nextIdx]}lb)`;
-
-if(userData.history.length){
-
-    const recent = userData.history[0];
-    
-    document.getElementById('recentResult').textContent = recent.date;
-    
-    const recentWeightIdx = weights.indexOf(recent.mainWeight);
-    const recentLb = recentWeightIdx !== -1 ? lbs[recentWeightIdx] : '';
-    document.getElementById('homeRecentWeight').textContent = recentLb ? `${recent.mainWeight}kg (${recentLb}lb)` : `${recent.mainWeight}kg`;
-    
-    const detailHtml = recent.mainResults.map(r => {
-        const rightText = r.right !== null ? `R${r.right}` : 'R -';
-        return `<div class="home-rep-line">
-                    <span class="home-rep-label">${r.set}세트</span>
-                    <span class="home-rep-value">L${r.left} / ${rightText}</span>
-                </div>`;
-    }).join('');
-    
-    document.getElementById('homeRecentDetail').innerHTML = detailHtml;
-
-}else{
-
-    document.getElementById('recentResult').textContent = '없음';
-    document.getElementById('homeRecentWeight').textContent = '0kg';
-    document.getElementById('homeRecentDetail').textContent = '훈련 데이터가 없습니다.';
-
-}
-
-updateBestHold();
-
+    if(userData.history.length){
+        const recent = userData.history[0];
+        document.getElementById('recentResult').textContent = recent.date;
+        document.getElementById('homeRecentWeight').textContent = recent.mainWeight || `L:${leftKg}k/R:${rightKg}k`;
+        
+        const detailHtml = recent.mainResults.map(r => {
+            const rightText = r.right !== null ? `R${r.right}` : 'R -';
+            return `<div class="home-rep-line">
+                        <span class="home-rep-label">${r.set}세트</span>
+                        <span class="home-rep-value">L${r.left} / ${rightText}</span>
+                    </div>`;
+        }).join('');
+        document.getElementById('homeRecentDetail').innerHTML = detailHtml;
+    }else{
+        document.getElementById('recentResult').textContent = '없음';
+        document.getElementById('homeRecentWeight').textContent = '0kg';
+        document.getElementById('homeRecentDetail').textContent = '훈련 데이터가 없습니다.';
+    }
+    updateBestHold();
 }
 
 let flow=[];
 let flowIndex=0;
-
 let currentHand='LEFT';
-
-let selectedRep=10;
-
+let selectedRep=8;
 let mainResults=[];
 let negativeResults=[];
 
-let holdLeft=0;
-let holdRight=0;
-
 function buildFlow(){
+    flow = [];
+    // 웜업 1, 2 단계 설정 및 메인, 네거티브, 홀딩 단계 분할
+    flow.push({ type:'warmup', title:'웜업 1', target:15 });
+    flow.push({ type:'warmup', title:'웜업 2', target:8 });
 
-    const main=userData.mainIndex;
-
-    flow=[];
-
-    // 웜업 1: 메인 - 2단계
-    flow.push({
-        type:'warmup',
-        title:'웜업 1',
-        target:15,
-        weight:weights[Math.max(0, main - 3)]
-    });
-
-    // 웜업 2: 메인 - 1단계
-    flow.push({
-        type:'warmup',
-        title:'웜업 2',
-        target:8,
-        weight:weights[Math.max(0, main - 2)]
-    });
-
-    // 메인 3세트
     for(let i=1;i<=3;i++){
-        flow.push({
-            type:'main',
-            title:`메인 ${i}세트`,
-            set:i,
-            target:8,
-            weight:weights[main-1]
-        });
+        flow.push({ type:'main', title:`메인 ${i}세트`, set:i, target:8 });
     }
-
-    // 네거티브: 2세트 -> 1세트(1회차)로 변경
-    flow.push({
-        type:'negative',
-        title:`네거티브 1회차`,
-        set:1,
-        target:5,
-        weight:weights[Math.min(5, main)]
-    });
-
-    // 홀딩: 2세트 -> 1세트(1회차)로 변경
-    flow.push({
-        type:'hold',
-        title:`최대 홀딩 1회차`,
-        set:1,
-        target:20,
-        weight:weights[main-1]
-    });
-
+    for(let i=1;i<=2;i++){
+        flow.push({ type:'negative', title:`네거티브 ${i}회차`, set:i, target:5 });
+    }
+    for(let i=1;i<=2;i++){
+        flow.push({ type:'hold', title:`최대 홀딩 ${i}회차`, set:i, target:20 });
+    }
 }
 
 function openPage(page){
-
     document.querySelectorAll('.page,.session').forEach(p=>{
         p.classList.add('hidden');
     });
-
     const tabsMenu = document.querySelector('.tabs');
 
     if(page==='home'){
         homePage.classList.remove('hidden');
         if(tabsMenu) tabsMenu.classList.remove('hidden');
     }
-
     if(page==='session'){
         sessionPage.classList.remove('hidden');
         if(tabsMenu) tabsMenu.classList.remove('hidden');
     }
-
     if(page==='history'){
         historyPage.classList.remove('hidden');
         if(tabsMenu) tabsMenu.classList.remove('hidden');
     }
-
     if(page==='setting'){
         settingPage.classList.remove('hidden');
         if(tabsMenu) tabsMenu.classList.remove('hidden');
+        updateSettingButtons();
     }
 }
 
 function getPrevRecord(type,setNum){
+    if(!userData.history.length) return '없음';
+    const last = userData.history[0];
 
-if(!userData.history.length)
-return '없음';
-
-const last=
-userData.history[0];
-
-if(type==='main'){
-
-const item=
-last.mainResults.find(
-r=>r.set===setNum
-);
-
-if(!item)
-return '없음';
-
-return `${last.mainWeight}kg | L${item.left} / R${item.right}`;
-
-}
-
-if(type==='negative'){
-    const left = last.negativeResults.filter(n => n.hand === 'LEFT')[setNum - 1];
-    const right = last.negativeResults.filter(n => n.hand === 'RIGHT')[setNum - 1];
-    return `${last.negativeWeight}kg | L${left?.value || 0}s / R${right?.value || 0}s`;
-}
-
-if(type==='hold'){
-    const left = last.holdResults ? last.holdResults.filter(h => h.hand === 'LEFT')[setNum - 1]?.value : last.holdLeft;
-    const right = last.holdResults ? last.holdResults.filter(h => h.hand === 'RIGHT')[setNum - 1]?.value : last.holdRight;
-    return `${last.holdWeight}kg | L${left || 0}s / R${right || 0}s`;
-}
-
-return '없음';
-
+    if(type==='main'){
+        const item = last.mainResults.find(r=>r.set===setNum);
+        if(!item) return '없음';
+        return `${last.mainWeight} | L${item.left} / R${item.right}`;
+    }
+    if(type==='negative'){
+        const left = last.negativeResults.filter(n => n.hand === 'LEFT')[setNum - 1];
+        const right = last.negativeResults.filter(n => n.hand === 'RIGHT')[setNum - 1];
+        return `${last.negativeWeight} | L${left?.value || 0}s / R${right?.value || 0}s`;
+    }
+    if(type==='hold'){
+        const left = last.holdResults ? last.holdResults.filter(h => h.hand === 'LEFT')[setNum - 1]?.left : '0';
+        const right = last.holdResults ? last.holdResults.filter(h => h.hand === 'RIGHT')[setNum - 1]?.right : '0';
+        return `${last.holdWeight} | L${left || 0}s / R${right || 0}s`;
+    }
+    return '없음';
 }
 
 function renderStep(){
+    const item=flow[flowIndex];
+    const top= document.getElementById('sessionTop');
+    top.classList.remove('left-mode', 'right-mode');
+    top.classList.add(currentHand==='LEFT' ? 'left-mode' : 'right-mode');
 
-const item=flow[flowIndex];
+    const badge= document.getElementById('phaseBadge');
+    badge.className='phase-badge';
 
-const top=
-document.getElementById(
-'sessionTop'
-);
+    if(item.type==='warmup'){ badge.classList.add('phase-warm'); badge.textContent='WARMUP'; }
+    if(item.type==='main'){ badge.classList.add('phase-main'); badge.textContent='MAIN'; }
+    if(item.type==='negative'){ badge.classList.add('phase-negative'); badge.textContent='NEGATIVE'; }
+    if(item.type==='hold'){ badge.classList.add('phase-hold'); badge.textContent='HOLD'; }
 
-top.classList.remove(
-'left-mode',
-'right-mode'
-);
+    document.getElementById('handText').textContent=currentHand;
+    document.getElementById('exerciseText').textContent=item.title;
 
-top.classList.add(
-currentHand==='LEFT'
-?
-'left-mode'
-:
-'right-mode'
-);
+    // 현재 손의 인덱스 기준 무게 설정 계산
+    const currentIdx = currentHand === 'LEFT' ? userData.mainIndexLeft : userData.mainIndexRight;
+    let stepWeight = weights[currentIdx - 1];
+    if (item.type === 'warmup') {
+        const offset = item.title === '웜업 1' ? 3 : 2;
+        stepWeight = weights[Math.max(0, currentIdx - offset)];
+    } else if (item.type === 'negative') {
+        stepWeight = weights[Math.min(5, currentIdx)];
+    }
+    item.weight = stepWeight;
 
-const badge=
-document.getElementById(
-'phaseBadge'
-);
+    const weightIdx = weights.indexOf(stepWeight);
+    const displayLb = weightIdx !== -1 ? lbs[weightIdx] : '';
+    document.getElementById('weightText').textContent = displayLb ? `${stepWeight}kg (${displayLb}lb)` : `${stepWeight}kg`;
 
-badge.className='phase-badge';
+    document.getElementById('targetText').textContent = 
+        item.type==='negative' ? '5초 유지' : item.type==='hold' ? `${item.target || 20}초 유지` : `${item.target || 8}회 수행`;
 
-if(item.type==='warmup'){
-badge.classList.add('phase-warm');
-badge.textContent='WARMUP';
+    document.getElementById('progressText').textContent=`${flowIndex+1}/${flow.length}`;
+    document.getElementById('progressFill').style.width=`${((flowIndex+1)/flow.length)*100}%`;
+    document.getElementById('prevRecord').textContent=getPrevRecord(item.type, item.set);
+
+    document.getElementById('repSection').style.display = item.type==='main' ? 'block' : 'none';
+
+    const actionBtn = document.getElementById('actionBtn');
+    if (item.type === 'negative' || item.type === 'hold') {
+        actionBtn.textContent = '시작';
+    } else {
+        actionBtn.textContent = '완료';
+    }
+
+    const prevBtn = document.getElementById('prevStepBtn');
+    if (flowIndex === 0 && currentHand === 'LEFT') {
+        prevBtn.disabled = true;
+    } else {
+        prevBtn.disabled = false;
+    }
 }
 
-if(item.type==='main'){
-badge.classList.add('phase-main');
-badge.textContent='MAIN';
-}
-
-if(item.type==='negative'){
-badge.classList.add('phase-negative');
-badge.textContent='NEGATIVE';
-}
-
-if(item.type==='hold'){
-badge.classList.add('phase-hold');
-badge.textContent='HOLD';
-}
-
-document.getElementById(
-'handText'
-).textContent=currentHand;
-
-document.getElementById(
-'exerciseText'
-).textContent=item.title;
-
-const weightIdx = weights.indexOf(item.weight);
-const displayLb = weightIdx !== -1 ? lbs[weightIdx] : '';
-document.getElementById('weightText').textContent = displayLb ? `${item.weight}kg (${displayLb}lb)` : `${item.weight}kg`;
-
-document.getElementById(
-'targetText'
-).textContent=
-
-item.type==='negative'
-?
-'5초 유지'
-
-:
-item.type==='hold'
-?
-`${item.target || 20}초 유지`
-
-:
-`${item.target || 8}회 수행`;
-
-document.getElementById(
-'progressText'
-).textContent=
-`${flowIndex+1}/${flow.length}`;
-
-document.getElementById(
-'progressFill'
-).style.width=
-`${((flowIndex+1)/flow.length)*100}%`;
-
-document.getElementById(
-'prevRecord'
-).textContent=
-getPrevRecord(
-item.type,
-item.set
-);
-
-document.getElementById(
-'repSection'
-).style.display=
-item.type==='main'
-?
-'block'
-:
-'none';
-
-const actionBtn = document.getElementById('actionBtn');
-if (item.type === 'negative' || item.type === 'hold') {
-    actionBtn.textContent = '시작';
-} else {
-    actionBtn.textContent = '완료';
-}
-
-const prevBtn = document.getElementById('prevStepBtn');
-if (flowIndex === 0 && currentHand === 'LEFT') {
-    prevBtn.disabled = true;
-} else {
-    prevBtn.disabled = false;
-}
-
-}
-
-document
-.querySelectorAll('.rep-btn')
-.forEach(btn=>{
-
-btn.onclick=()=>{
-
-document
-.querySelectorAll('.rep-btn')
-.forEach(b=>{
-b.classList.remove('active');
+document.querySelectorAll('.rep-btn').forEach(btn=>{
+    btn.onclick=()=>{
+        document.querySelectorAll('.rep-btn').forEach(b=>{ b.classList.remove('active'); });
+        btn.classList.add('active');
+        selectedRep= Number(btn.textContent);
+    };
 });
 
-btn.classList.add('active');
-
-selectedRep=
-Number(btn.textContent);
-
+document.getElementById('startBtn').onclick=()=>{
+    buildFlow();
+    flowIndex=0;
+    currentHand='LEFT';
+    mainResults=[];
+    negativeResults=[];
+    window.holdResults = [];
+    openPage('session');
+    renderStep();
 };
 
-});
-
-document.getElementById(
-'startBtn'
-).onclick=()=>{
-
-buildFlow();
-
-flowIndex=0;
-
-currentHand='LEFT';
-
-mainResults=[];
-negativeResults=[];
-
-holdLeft=0;
-holdRight=0;
-window.holdResults = [];
-
-openPage('session');
-
-renderStep();
-
-};
-
-const overlay=
-document.getElementById(
-'overlay'
-);
-
+const overlay= document.getElementById('overlay');
 let timer;
 
 function playBeep(frequency, duration) {
@@ -1284,116 +953,68 @@ function playBeep(frequency, duration) {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
-        
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
-        
         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
         gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
-        
         oscillator.start();
-        setTimeout(() => {
-            oscillator.stop();
-            audioCtx.close();
-        }, duration);
-    } catch (e) {
-        console.log("AudioContext 차단 우회");
-    }
+        setTimeout(() => { oscillator.stop(); audioCtx.close(); }, duration);
+    } catch (e) { console.log("AudioContext 차단 우회"); }
 }
 
 function triggerRestEndNotification() {
-    if (navigator.vibrate) {
-        navigator.vibrate(500);
-    }
+    if (navigator.vibrate) { navigator.vibrate(500); }
     playBeep(440, 400);
 }
 
 function triggerNegativeEndNotification() {
-    if (navigator.vibrate) {
-        navigator.vibrate(600);
-    }
+    if (navigator.vibrate) { navigator.vibrate(600); }
     playBeep(587.33, 450);
 }
 
 function startRest(){
+    overlay.classList.remove('hidden');
+    document.getElementById('overlayTitle').textContent='REST';
+    document.getElementById('overlayBtn').textContent='건너뛰기';
+    let sec=120;
+    updateRest(sec);
+    clearInterval(timer);
 
-overlay.classList.remove('hidden');
+    timer=setInterval(()=>{
+        sec--;
+        updateRest(sec);
+        if(sec === 3 || sec === 2 || sec === 1) { playBeep(880, 80); }
+        if(sec<=0){
+            clearInterval(timer);
+            overlay.classList.add('hidden');
+            triggerRestEndNotification();
+            nextStep();
+        }
+    },1000);
 
-document.getElementById(
-'overlayTitle'
-).textContent='REST';
-
-document.getElementById(
-'overlayBtn'
-).textContent='건너뛰기';
-
-let sec=120;
-
-updateRest(sec);
-
-clearInterval(timer);
-
-timer=setInterval(()=>{
-
-sec--;
-
-updateRest(sec);
-
-if(sec === 3 || sec === 2 || sec === 1) {
-    playBeep(880, 80);
-}
-
-if(sec<=0){
-
-clearInterval(timer);
-
-overlay.classList.add('hidden');
-
-triggerRestEndNotification();
-
-nextStep();
-
-}
-
-},1000);
-
-document.getElementById(
-'overlayBtn'
-).onclick=(e)=>{
-e.stopPropagation();
-clearInterval(timer);
-overlay.classList.add('hidden');
-nextStep();
-};
-
+    document.getElementById('overlayBtn').onclick=(e)=>{
+        e.stopPropagation();
+        clearInterval(timer);
+        overlay.classList.add('hidden');
+        nextStep();
+    };
 }
 
 function updateRest(sec){
-
-const m=
-String(Math.floor(sec/60))
-.padStart(2,'0');
-
-const s=
-String(sec%60)
-.padStart(2,'0');
-
-document.getElementById(
-'overlayTime'
-).textContent=
-`${m}:${s}`;
-
+    const m= String(Math.floor(sec/60)).padStart(2,'0');
+    const s= String(sec%60).padStart(2,'0');
+    document.getElementById('overlayTime').textContent=`${m}:${s}`;
 }
 
-// 네거티브 훈련 프로세스 (시각적으로 명확한 3, 2, 1 카운트다운)
+// 준비 및 타이머 통합 컨트롤 (수정본 반영: 직관적인 3..2..1 카운트다운)
 function startNegative(){
     overlay.classList.remove('hidden');
     document.getElementById('overlayTitle').textContent='READY';
     document.getElementById('overlayBtn').textContent='건너뛰기';
     
     let readySec = 3;
-    document.getElementById('overlayTime').textContent = readySec; // 정수로 표시
+    document.getElementById('overlayTime').textContent = readySec;
     playBeep(600, 100);
 
     clearInterval(timer);
@@ -1401,12 +1022,12 @@ function startNegative(){
         readySec--;
         if (readySec <= 0) {
             clearInterval(timer);
-            runActualNegative(); // 준비 시간 종료 후 실제 타이머 구동
+            runActualNegative();
         } else {
-            document.getElementById('overlayTime').textContent = readySec; // 3 -> 2 -> 1 직관적 표시
+            document.getElementById('overlayTime').textContent = readySec;
             playBeep(600, 100);
         }
-    }, 1000); // 1초 단위로 확실하게 툭툭 떨어지도록 변경
+    }, 1000);
 
     document.getElementById('overlayBtn').onclick=(e)=>{
         e.stopPropagation();
@@ -1415,19 +1036,15 @@ function startNegative(){
     };
 }
 
-// 실제 네거티브 측정 타이머
-function runActualNegative(){
+function runActualNegative() {
     document.getElementById('overlayTitle').textContent='NEGATIVE';
     document.getElementById('overlayBtn').textContent='종료';
-    playBeep(880, 300); // 훈련 시작음
-
     const start=Date.now();
-    clearInterval(timer);
 
+    clearInterval(timer);
     timer=setInterval(()=>{
         const sec= 5 - ((Date.now()-start)/1000);
         document.getElementById('overlayTime').textContent= Math.max(0,sec).toFixed(1);
-
         if(sec<=0){
             clearInterval(timer);
             triggerNegativeEndNotification();
@@ -1444,36 +1061,23 @@ function runActualNegative(){
 }
 
 function finishNegative(sec){
-
-negativeResults.push({
-hand:currentHand,
-value:sec.toFixed(1)
-});
-
-overlay.classList.add('hidden');
-
-if(currentHand==='LEFT'){
-
-currentHand='RIGHT';
-
-renderStep();
-
-return;
-
+    negativeResults.push({ hand:currentHand, value:sec.toFixed(1) });
+    overlay.classList.add('hidden');
+    if(currentHand==='LEFT'){
+        currentHand='RIGHT';
+        renderStep();
+        return;
+    }
+    startRest();
 }
 
-startRest();
-
-}
-
-// 홀딩 훈련 프로세스 (시각적으로 명확한 3, 2, 1 카운트다운)
 function startHold(){
     overlay.classList.remove('hidden');
     document.getElementById('overlayTitle').textContent='READY';
     document.getElementById('overlayBtn').textContent='건너뛰기';
     
     let readySec = 3;
-    document.getElementById('overlayTime').textContent = readySec; // 정수로 표시
+    document.getElementById('overlayTime').textContent = readySec;
     playBeep(600, 100);
 
     clearInterval(timer);
@@ -1481,12 +1085,12 @@ function startHold(){
         readySec--;
         if (readySec <= 0) {
             clearInterval(timer);
-            runActualHold(); // 준비 시간 종료 후 실제 홀딩 타이머 구동
+            runActualHold();
         } else {
-            document.getElementById('overlayTime').textContent = readySec; // 3 -> 2 -> 1 직관적 표시
+            document.getElementById('overlayTime').textContent = readySec;
             playBeep(600, 100);
         }
-    }, 1000); // 1초 단위로 확실하게 툭툭 떨어지도록 변경
+    }, 1000);
 
     document.getElementById('overlayBtn').onclick=(e)=>{
         e.stopPropagation();
@@ -1495,12 +1099,9 @@ function startHold(){
     };
 }
 
-// 실제 홀딩 측정 타이머
-function runActualHold(){
+function runActualHold() {
     document.getElementById('overlayTitle').textContent='HOLD';
     document.getElementById('overlayBtn').textContent='종료';
-    playBeep(880, 300); // 훈련 시작음
-
     const start=Date.now();
     const targetDuration = 20; 
 
@@ -1508,12 +1109,9 @@ function runActualHold(){
     timer=setInterval(()=>{
         const sec = targetDuration - ((Date.now()-start)/1000);
         document.getElementById('overlayTime').textContent = Math.max(0, sec).toFixed(1);
-
         if(sec <= 0){
             clearInterval(timer);
-            if (typeof triggerNegativeEndNotification === 'function') {
-                triggerNegativeEndNotification(); 
-            }
+            triggerNegativeEndNotification(); 
             finishHold(targetDuration);
         }
     }, 100);
@@ -1528,23 +1126,15 @@ function runActualHold(){
 }
 
 function finishHold(sec){
-
     overlay.classList.add('hidden');
-
     if (!window.holdResults) window.holdResults = [];
 
     if(currentHand==='LEFT'){
-        window.holdResults.push({
-            set: flow[flowIndex].set,
-            left: sec.toFixed(1),
-            right: null
-        });
-
+        window.holdResults.push({ set: flow[flowIndex].set, left: sec.toFixed(1), right: null });
         currentHand='RIGHT';
         renderStep();
         return;
     }
-
     window.holdResults[window.holdResults.length - 1].right = sec.toFixed(1);
 
     if (flowIndex < flow.length - 1) {
@@ -1555,537 +1145,256 @@ function finishHold(sec){
 }
 
 function nextStep(){
-
-flowIndex++;
-
-currentHand='LEFT';
-
-if(flowIndex>=flow.length){
-
-finishSession();
-return;
-
+    flowIndex++;
+    currentHand='LEFT';
+    if(flowIndex>=flow.length){
+        finishSession();
+        return;
+    }
+    renderStep();
 }
 
-renderStep();
+document.getElementById('actionBtn').onclick=()=>{
+    const item=flow[flowIndex];
+    if(item.type==='negative'){ startNegative(); return; }
+    if(item.type==='hold'){ startHold(); return; }
 
-}
+    if(item.type==='main'){
+        if(currentHand==='LEFT'){
+            mainResults.push({ set:item.set, left:selectedRep, right:null });
+            currentHand='RIGHT';
+            renderStep();
+            return;
+        }
+        mainResults[mainResults.length-1].right=selectedRep;
+        startRest();
+        return;
+    }
 
-document.getElementById(
-'actionBtn'
-).onclick=()=>{
-
-const item=flow[flowIndex];
-
-if(item.type==='negative'){
-startNegative();
-return;
-}
-
-if(item.type==='hold'){
-startHold();
-return;
-}
-
-if(item.type==='main'){
-
-if(currentHand==='LEFT'){
-
-mainResults.push({
-set:item.set,
-left:selectedRep,
-right:null
-});
-
-currentHand='RIGHT';
-
-renderStep();
-
-return;
-
-}
-
-mainResults[
-mainResults.length-1
-].right=selectedRep;
-
-startRest();
-
-return;
-
-}
-
-if(currentHand==='LEFT'){
-
-currentHand='RIGHT';
-
-renderStep();
-
-return;
-
-}
-
-startRest();
-
+    if(currentHand==='LEFT'){
+        currentHand='RIGHT';
+        renderStep();
+        return;
+    }
+    startRest();
 };
 
 document.getElementById('prevStepBtn').onclick = () => {
     if (flowIndex === 0 && currentHand === 'LEFT') return;
-
     const currentItem = flow[flowIndex];
 
     if (currentHand === 'RIGHT') {
         currentHand = 'LEFT';
-        if (currentItem.type === 'main') {
-            mainResults.pop();
-        } else if (currentItem.type === 'negative') {
-            negativeResults.pop();
-        } else if (currentItem.type === 'hold') {
-            holdLeft = 0;
-        }
+        if (currentItem.type === 'main') { mainResults.pop(); } 
+        else if (currentItem.type === 'negative') { negativeResults.pop(); }
     } else {
         flowIndex--;
         currentHand = 'RIGHT';
-        
         const prevItem = flow[flowIndex];
-        if (prevItem.type === 'main') {
-            if(mainResults.length > 0) {
-                const lastMain = mainResults[mainResults.length - 1];
-                selectedRep = lastMain.left; 
-                lastMain.right = null;
-                
-                document.querySelectorAll('.rep-btn').forEach(b => {
-                    b.classList.remove('active');
-                    if(Number(b.textContent) === selectedRep) b.classList.add('active');
-                });
-            }
+        if (prevItem.type === 'main' && mainResults.length > 0) {
+            const lastMain = mainResults[mainResults.length - 1];
+            selectedRep = lastMain.left; 
+            lastMain.right = null;
+            document.querySelectorAll('.rep-btn').forEach(b => {
+                b.classList.remove('active');
+                if(Number(b.textContent) === selectedRep) b.classList.add('active');
+            });
         } else if (prevItem.type === 'negative') {
             negativeResults.pop();
         }
     }
-    
     renderStep();
 };
 
 document.getElementById('overlay').onclick = function() {
     const btnElement = document.getElementById('overlayBtn');
-    if (btnElement && document.getElementById('overlayTitle').textContent !== 'READY') {
-        btnElement.click();
-    }
+    if (btnElement) { btnElement.click(); }
 };
+document.querySelector('.overlay-wrap').onclick = function(e) { e.stopPropagation(); };
 
-document.querySelector('.overlay-wrap').onclick = function(e) {
-    e.stopPropagation();
-};
-
+// 핵심 알고리즘: 완벽한 독립 증량/감량 로직 처리 함수
 function finishSession(){
+    const leftSuccess = mainResults.every(r => r.left >= 8);
+    const rightSuccess = mainResults.every(r => r.right >= 8);
 
-userData.bestHoldLeft=
-Math.max(
-userData.bestHoldLeft||0,
-holdLeft
-);
+    let leftSuccessStreak = leftSuccess ? 1 : 0;
+    let leftFailStreak = !leftSuccess ? 1 : 0;
+    let rightSuccessStreak = rightSuccess ? 1 : 0;
+    let rightFailStreak = !rightSuccess ? 1 : 0;
 
-userData.bestHoldRight=
-Math.max(
-userData.bestHoldRight||0,
-holdRight
-);
-// 현재 세션의 성공 여부 (모든 메인 세트 8회 이상 성공)
-const currentSuccess = mainResults.every(r => r.left >= 8 && r.right >= 8);
-
-// 이전 기록들을 확인하여 연속 횟수 계산
-let successStreak = currentSuccess ? 1 : 0;
-let failStreak = !currentSuccess ? 1 : 0;
-
-// 직전 기록들을 순회하며 연속 성적 확인
-for (let i = 0; i < userData.history.length; i++) {
-    const hist = userData.history[i];
-    if (!hist.mainResults || hist.mainResults.length === 0) break;
-    
-    const histSuccess = hist.mainResults.every(r => r.left >= 8 && r.right >= 8);
-    
-    if (currentSuccess && histSuccess) {
-        successStreak++;
-    } else if (!currentSuccess && !histSuccess) {
-        failStreak++;
-    } else {
-        break; // 연속이 깨지면 중단
+    // 히스토리 기반 스트릭 개별 연산
+    for (let i = 0; i < userData.history.length; i++) {
+        const hist = userData.history[i];
+        if (!hist.mainResults || hist.mainResults.length === 0) break;
+        
+        const histLeftSuccess = hist.mainResults.every(r => r.left >= 8);
+        if (leftSuccess && histLeftSuccess) leftSuccessStreak++;
+        else if (!leftSuccess && !histLeftSuccess) leftFailStreak++;
+        else leftSuccessStreak = 0; // 연속 단절 처리
     }
-}
+    for (let i = 0; i < userData.history.length; i++) {
+        const hist = userData.history[i];
+        if (!hist.mainResults || hist.mainResults.length === 0) break;
+        
+        const histRightSuccess = hist.mainResults.every(r => r.right >= 8);
+        if (rightSuccess && histRightSuccess) rightSuccessStreak++;
+        else if (!rightSuccess && !histRightSuccess) rightFailStreak++;
+        else rightSuccessStreak = 0;
+    }
 
-// 증량 및 감량 기준 적용
-if (successStreak >= 2 && userData.mainIndex < 6) {
-    userData.mainIndex++; // 2회 연속 성공 시 증량
-} else if (failStreak >= 3 && userData.mainIndex > 1) {
-    userData.mainIndex--; // 3회 연속 실패 시 감량
-}
+    // 증량 기준 (2회 연속 성공) 및 감량 기준 (3회 연속 실패) 독립 대입
+    if (leftSuccessStreak >= 2 && userData.mainIndexLeft < 6) userData.mainIndexLeft++;
+    else if (leftFailStreak >= 3 && userData.mainIndexLeft > 1) userData.mainIndexLeft--;
 
-const currentMainWeight = weights[userData.mainIndex-1];
-const currentNegativeWeight = weights[Math.min(5, userData.mainIndex)];
+    if (rightSuccessStreak >= 2 && userData.mainIndexRight < 6) userData.mainIndexRight++;
+    else if (rightFailStreak >= 3 && userData.mainIndexRight > 1) userData.mainIndexRight--;
+
+    const currentLeftWeight = weights[userData.mainIndexLeft - 1];
+    const currentRightWeight = weights[userData.mainIndexRight - 1];
 
     userData.history.unshift({
-
-    date:
-    new Date()
-    .toLocaleDateString(),
-
-    mainWeight:
-    currentMainWeight,
-
-    negativeWeight:
-    currentNegativeWeight,
-
-    holdWeight:
-    currentMainWeight,
-
-    mainResults,
-
-    negativeResults,
-
-    holdResults: window.holdResults || []
-
+        date: new Date().toLocaleDateString(),
+        mainWeight: `L:${currentLeftWeight}k / R:${currentRightWeight}k`,
+        negativeWeight: `L:${weights[Math.min(5, userData.mainIndexLeft)]}k / R:${weights[Math.min(5, userData.mainIndexRight)]}k`,
+        holdWeight: `L:${currentLeftWeight}k / R:${currentRightWeight}k`,
+        mainResults,
+        negativeResults,
+        holdResults: window.holdResults || []
     });
 
-saveData();
-
-updateHomeUI();
-
-renderResult();
-
+    saveData();
+    updateHomeUI();
+    renderResult();
 }
 
 function renderResult(){
+    document.getElementById('resultPage').classList.remove('hidden');
+    const history= userData.history[0];
 
-document.getElementById(
-'resultPage'
-).classList.remove('hidden');
+    document.getElementById('resultMain').innerHTML= `
+        <div class="result-label" style="color:var(--main);">메인 운동</div>
+        <div class="result-weight">${history.mainWeight}</div>
+        ${history.mainResults.map(r=>`<div class="result-line" style="color:var(--main);">${r.set}세트 L${r.left} / R${r.right}</div>`).join('')}
+    `;
 
-const history=
-userData.history[0];
+    document.getElementById('resultNegative').innerHTML= `
+        <div class="result-label" style="color:var(--negative);">네거티브</div>
+        <div class="result-weight">${history.negativeWeight}</div>
+        ${history.negativeResults.map(n=>`<div class="result-line" style="color:var(--negative);">${n.hand} ${n.value}초</div>`).join('')}
+    `;
 
-document.getElementById(
-'resultMain'
-).innerHTML=
-
-`
-<div
-class="result-label"
-style="color:var(--main);"
->
-메인 운동
-</div>
-
-<div class="result-weight">
-${history.mainWeight}kg
-</div>
-
-${history.mainResults.map(r=>`
-
-<div
-class="result-line"
-style="color:var(--main);"
->
-${r.set}세트
-L${r.left}
-/
-R${r.right}
-</div>
-
-`).join('')}
-`;
-
-document.getElementById(
-'resultNegative'
-).innerHTML=
-
-`
-<div
-class="result-label"
-style="color:var(--negative);"
->
-네거티브
-</div>
-
-<div class="result-weight">
-${history.negativeWeight}kg
-</div>
-
-${history.negativeResults.map(n=>`
-
-<div
-class="result-line"
-style="color:var(--negative);"
->
-${n.hand}
-${n.value}초
-</div>
-
-`).join('')}
-`;
-
-document.getElementById(
-'resultHold'
-).innerHTML=
-
-`
-<div
-class="result-label"
-style="color:var(--hold);"
->
-홀딩
-</div>
-
-<div class="result-weight">
-${history.holdWeight}kg
-</div>
-
-    ${(history.holdResults || []).map(h => `
-    <div class="result-line" style="color:var(--hold);">
-    ${h.set}회차 L${h.left}초 / R${h.right}초
-    </div>
-    `).join('')}
-
-`;
-
-loadHistory();
-
+    document.getElementById('resultHold').innerHTML= `
+        <div class="result-label" style="color:var(--hold);">홀딩</div>
+        <div class="result-weight">${history.holdWeight}</div>
+        ${(history.holdResults || []).map(h => `<div class="result-line" style="color:var(--hold);">${h.set}회차 L${h.left}초 / R${h.right}초</div>`).join('')}
+    `;
+    loadHistory();
 }
 
 document.getElementById('resultCloseBtn').onclick=()=>{
-
     document.getElementById('resultPage').classList.add('hidden');
-    
     document.querySelectorAll('.tab').forEach(t => {
         t.classList.remove('active');
         if(t.dataset.page === 'home') t.classList.add('active');
     });
-
     openPage('home');
 };
 
 function loadHistory(){
+    const page= document.getElementById('historyPage');
+    page.innerHTML='';
 
-const page=
-document.getElementById(
-'historyPage'
-);
-
-page.innerHTML='';
-
-userData.history.forEach(item=>{
-
-const div=
-document.createElement('div');
-
-div.className='history-card';
-
-div.innerHTML=`
-
-<div class="history-title">
-${item.date}
-</div>
-
-<div
-class="
-history-block
-history-main
-"
->
-
-<div
-class="history-label"
-style="color:var(--main);"
->
-MAIN
-${item.mainWeight}kg
-</div>
-
-${item.mainResults.map(r=>`
-
-<div
-class="
-history-line
-${(
-r.left<8
-||
-r.right<8
-)
-?
-'fail'
-:
-''
+    userData.history.forEach(item=>{
+        const div= document.createElement('div');
+        div.className='history-card';
+        div.innerHTML=`
+            <div class="history-title">${item.date}</div>
+            <div class="history-block history-main">
+                <div class="history-label" style="color:var(--main);">MAIN ${item.mainWeight}</div>
+                ${item.mainResults.map(r=>`<div class="history-line ${ (r.left<8 || r.right<8) ? 'fail' : ''}">${r.set}세트 L${r.left} / R${r.right}</div>`).join('')}
+            </div>
+            <div class="history-block history-negative">
+                <div class="history-label" style="color:var(--negative);">NEGATIVE ${item.negativeWeight}</div>
+                ${item.negativeResults.map(n=>`<div class="history-line">${n.hand} ${n.value}초</div>`).join('')}
+            </div>
+            <div class="history-block history-hold">
+                <div class="history-label" style="color:var(--hold);">HOLD ${item.holdWeight}</div>
+                ${(item.holdResults || []).map(h=>`<div class="history-line">${h.set}회차 L${h.left}s / R${h.right}s</div>`).join('')}
+            </div>
+        `;
+        page.appendChild(div);
+    });
 }
-"
->
 
-${r.set}세트
-L${r.left}
-/
-R${r.right}
+// 설정화면 좌우 선택 버튼 인터랙션 함수 추가
+function updateSettingButtons() {
+    document.getElementById('settingWeightLabel').textContent = currentSettingHand === 'LEFT' ? '왼손 무게 설정' : '오른손 무게 설정';
+    const targetIdx = currentSettingHand === 'LEFT' ? userData.mainIndexLeft : userData.mainIndexRight;
+    
+    document.querySelectorAll('.setting-btn').forEach((btn, index) => {
+        btn.classList.remove('active');
+        if(targetIdx === index + 1) {
+            btn.classList.add('active');
+        }
+    });
+}
 
-</div>
+document.getElementById('toggleLeftBtn').onclick = () => {
+    currentSettingHand = 'LEFT';
+    document.getElementById('toggleRightBtn').classList.remove('active');
+    document.getElementById('toggleLeftBtn').classList.add('active');
+    updateSettingButtons();
+};
 
-`).join('')}
+document.getElementById('toggleRightBtn').onclick = () => {
+    currentSettingHand = 'RIGHT';
+    document.getElementById('toggleLeftBtn').classList.remove('active');
+    document.getElementById('toggleRightBtn').classList.add('active');
+    updateSettingButtons();
+};
 
-</div>
-
-<div
-class="
-history-block
-history-negative
-"
->
-
-<div
-class="history-label"
-style="color:var(--negative);"
->
-NEGATIVE
-${item.negativeWeight}kg
-</div>
-
-${item.negativeResults.map(n=>`
-
-<div class="history-line">
-${n.hand}
-${n.value}초
-</div>
-
-`).join('')}
-
-</div>
-
-<div
-class="
-history-block
-history-hold
-"
->
-
-<div
-class="history-label"
-style="color:var(--hold);"
->
-HOLD
-${item.holdWeight}kg
-</div>
-
-${(item.holdResults || []).map(h=>`
-<div class="history-line">
-L${h.left}초 / R${h.right}초
-</div>
-`).join('')}
-
-</div>
-
-`;
-
-page.appendChild(div);
-
+document.querySelectorAll('.setting-btn').forEach((btn,index)=>{
+    btn.onclick=()=>{
+        if(currentSettingHand === 'LEFT') {
+            userData.mainIndexLeft = index + 1;
+        } else {
+            userData.mainIndexRight = index + 1;
+        }
+        saveData();
+        updateSettingButtons();
+        updateHomeUI();
+    };
 });
 
-}
-
-document
-.querySelectorAll('.setting-btn')
-.forEach((btn,index)=>{
-
-if(userData.mainIndex===index+1){
-btn.classList.add('active');
-}
-
-btn.onclick=()=>{
-
-document
-.querySelectorAll('.setting-btn')
-.forEach(b=>{
-b.classList.remove('active');
+document.querySelectorAll('.tab').forEach(tab=>{
+    tab.onclick=()=>{
+        document.querySelectorAll('.tab').forEach(t=>{ t.classList.remove('active'); });
+        tab.classList.add('active');
+        openPage(tab.dataset.page);
+    };
 });
 
-btn.classList.add('active');
+document.getElementById('resetBtn').onclick=()=>{
+    document.getElementById('resetOverlay').classList.remove('hidden');
+};
 
-userData.mainIndex=index+1;
+document.getElementById('cancelResetBtn').onclick=()=>{
+    document.getElementById('resetOverlay').classList.add('hidden');
+};
 
-saveData();
+document.getElementById('confirmResetBtn').onclick=()=>{
+    localStorage.removeItem('gdiron_v501');
+    userData={ mainIndexLeft:1, mainIndexRight:1, bestHoldLeft:0, bestHoldRight:0, history:[] };
+    saveData();
+    updateHomeUI();
+    loadHistory();
+    document.getElementById('resetOverlay').classList.add('hidden');
+    openPage('home');
+};
 
+// 앱 로드 구동
 updateHomeUI();
-
-};
-
-});
-
-document
-.querySelectorAll('.tab')
-.forEach(tab=>{
-
-tab.onclick=()=>{
-
-document
-.querySelectorAll('.tab')
-.forEach(t=>{
-t.classList.remove('active');
-});
-
-tab.classList.add('active');
-
-openPage(tab.dataset.page);
-
-};
-
-});
-
-document.getElementById(
-'resetBtn'
-).onclick=()=>{
-
-document.getElementById(
-'resetOverlay'
-).classList.remove('hidden');
-
-};
-
-document.getElementById(
-'cancelResetBtn'
-).onclick=()=>{
-
-document.getElementById(
-'resetOverlay'
-).classList.add('hidden');
-
-};
-
-document.getElementById(
-'confirmResetBtn'
-).onclick=()=>{
-
-localStorage.removeItem(
-'gdiron_v501'
-);
-
-userData={
-mainIndex:1,
-history:[]
-};
-
-saveData();
-
-updateHomeUI();
-
 loadHistory();
-
-document.getElementById(
-'resetOverlay'
-).classList.add('hidden');
-
-openPage('home');
-
-};
-
-updateHomeUI();
-
-loadHistory();
-
 </script>
 
 </body>
