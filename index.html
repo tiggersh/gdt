@@ -770,7 +770,10 @@ SH Grip Pro
 <script>
 const weights=[25,36,47,58,69,80];
 const lbs=[55,79,104,128,152,176];
-
+const CONFIG = {SUCCESS_REP: 8,REST_SEC: 120,NEGATIVE_SEC: 5,HOLD_SEC: 20};
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+    
 let userData = JSON.parse(localStorage.getItem('gdiron_v501')) || {
  mainIndexLeft: 1,
  mainIndexRight: 1,
@@ -804,15 +807,15 @@ function updateHomeUI(){
 
     // 왼손 연속 판단
     if(userData.history.length > 0) {
-        const firstLeftSuccess = userData.history[0].mainResults.every(r => r.left >= 8);
+        const firstLeftSuccess = userData.history[0].mainResults.every(r => r.left >= CONFIG.SUCCESS_REP);
         if(firstLeftSuccess) {
             for(let i=0; i<userData.history.length; i++){
-                if(userData.history[i].mainResults.every(r => r.left >= 8)) leftCountSuccess++;
+                if(userData.history[i].mainResults.every(r => r.left >= CONFIG.SUCCESS_REP)) leftCountSuccess++;
                 else break;
             }
         } else {
             for(let i=0; i<userData.history.length; i++){
-                if(!userData.history[i].mainResults.every(r => r.left >= 8)) leftCountFail++;
+                if(!userData.history[i].mainResults.every(r => r.left >= CONFIG.SUCCESS_REP)) leftCountFail++;
                 else break;
             }
         }
@@ -820,15 +823,15 @@ function updateHomeUI(){
 
     // 오른손 연속 판단
     if(userData.history.length > 0) {
-        const firstRightSuccess = userData.history[0].mainResults.every(r => r.right >= 8);
+        const firstRightSuccess = userData.history[0].mainResults.every(r => r.right >= CONFIG.SUCCESS_REP);
         if(firstRightSuccess) {
             for(let i=0; i<userData.history.length; i++){
-                if(userData.history[i].mainResults.every(r => r.right >= 8)) rightCountSuccess++;
+                if(userData.history[i].mainResults.every(r => r.right >= CONFIG.SUCCESS_REP)) rightCountSuccess++;
                 else break;
             }
         } else {
             for(let i=0; i<userData.history.length; i++){
-                if(!userData.history[i].mainResults.every(r => r.right >= 8)) rightCountFail++;
+                if(!userData.history[i].mainResults.every(r => r.right >= CONFIG.SUCCESS_REP)) rightCountFail++;
                 else break;
             }
         }
@@ -896,6 +899,7 @@ let currentHand='LEFT';
 let selectedRep=8;
 let mainResults=[];
 let negativeResults=[];
+let holdResults=[];
 
 function buildFlow(){
     flow = [];
@@ -1029,27 +1033,39 @@ document.getElementById('startBtn').onclick=()=>{
     currentHand='LEFT';
     mainResults=[];
     negativeResults=[];
-    window.holdResults = [];
+    holdResults = [];
     openPage('session');
     renderStep();
 };
 
-const overlay= document.getElementById('overlay');
 let timer;
 
 function playBeep(frequency, duration) {
     try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (!audioCtx) {
+            audioCtx = new AudioCtx();
+        }
+
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
+
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
+
         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
         gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
+
         oscillator.start();
-        setTimeout(() => { oscillator.stop(); audioCtx.close(); }, duration);
-    } catch (e) { console.log("AudioContext 차단 우회"); }
+        oscillator.stop(audioCtx.currentTime + duration / 1000);
+
+    } catch (e) {
+        console.log("AudioContext error");
+    }
 }
 
 function triggerRestEndNotification() {
@@ -1066,7 +1082,7 @@ function startRest(){
     overlay.classList.remove('hidden');
     document.getElementById('overlayTitle').textContent='REST';
     document.getElementById('overlayBtn').textContent='건너뛰기';
-    let sec=120;
+    let sec = CONFIG.REST_SEC;
     updateRest(sec);
     clearInterval(timer);
 
@@ -1132,12 +1148,12 @@ function runActualNegative() {
 
     clearInterval(timer);
     timer=setInterval(()=>{
-        const sec= 5 - ((Date.now()-start)/1000);
+    const sec = CONFIG.NEGATIVE_SEC - ((Date.now()-start)/1000);
         document.getElementById('overlayTime').textContent= Math.max(0,sec).toFixed(1);
         if(sec<=0){
             clearInterval(timer);
             triggerNegativeEndNotification();
-            finishNegative(5);
+            finishNegative(CONFIG.NEGATIVE_SEC);
         }
     },100);
 
@@ -1193,7 +1209,7 @@ function runActualHold() {
     document.getElementById('overlayTitle').textContent='HOLD';
     document.getElementById('overlayBtn').textContent='종료';
     const start=Date.now();
-    const targetDuration = 20; 
+    const targetDuration = CONFIG.HOLD_SEC;
 
     clearInterval(timer);
     timer=setInterval(()=>{
@@ -1217,15 +1233,20 @@ function runActualHold() {
 
 function finishHold(sec){
     overlay.classList.add('hidden');
-    if (!window.holdResults) window.holdResults = [];
 
     if(currentHand==='LEFT'){
-        window.holdResults.push({ set: flow[flowIndex].set, left: sec.toFixed(1), right: null });
+        holdResults.push({
+            set: flow[flowIndex].set,
+            left: sec.toFixed(1),
+            right: null
+        });
+
         currentHand='RIGHT';
         renderStep();
         return;
     }
-    window.holdResults[window.holdResults.length - 1].right = sec.toFixed(1);
+
+    holdResults[holdResults.length - 1].right = sec.toFixed(1);
 
     if (flowIndex < flow.length - 1) {
         startRest();
@@ -1304,8 +1325,8 @@ document.querySelector('.overlay-wrap').onclick = function(e) { e.stopPropagatio
 
 // 핵심 비즈니스 로직: 2회 연속 성공 시 증량 / 3회 연속 실패 시 감량 완전 분리 정산
 function finishSession(){
-    const leftSuccess = mainResults.every(r => r.left >= 8);
-    const rightSuccess = mainResults.every(r => r.right >= 8);
+    const leftSuccess = mainResults.every(r => r.left >= CONFIG.SUCCESS_REP);
+    const rightSuccess = mainResults.every(r => r.right >= CONFIG.SUCCESS_REP);
 
     let leftSuccessStreak = leftSuccess ? 1 : 0;
     let leftFailStreak = !leftSuccess ? 1 : 0;
@@ -1317,7 +1338,7 @@ function finishSession(){
         const hist = userData.history[i];
         if (!hist.mainResults || hist.mainResults.length === 0) break;
         
-        const histLeftSuccess = hist.mainResults.every(r => r.left >= 8);
+        const histLeftSuccess = hist.mainResults.every(r => r.left >= CONFIG.SUCCESS_REP);
         if (leftSuccess && histLeftSuccess) leftSuccessStreak++;
         else if (!leftSuccess && !histLeftSuccess) leftFailStreak++;
         else break;
@@ -1326,7 +1347,7 @@ function finishSession(){
         const hist = userData.history[i];
         if (!hist.mainResults || hist.mainResults.length === 0) break;
         
-        const histRightSuccess = hist.mainResults.every(r => r.right >= 8);
+        const histRightSuccess = hist.mainResults.every(r => r.right >= CONFIG.SUCCESS_REP);
         if (rightSuccess && histRightSuccess) rightSuccessStreak++;
         else if (!rightSuccess && !histRightSuccess) rightFailStreak++;
         else break;
@@ -1349,7 +1370,7 @@ function finishSession(){
         holdWeight: `L:${currentLeftWeight}k / R:${currentRightWeight}k`,
         mainResults,
         negativeResults,
-        holdResults: window.holdResults || []
+        holdResults: holdResults
     });
 
     saveData();
