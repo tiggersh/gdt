@@ -604,7 +604,6 @@ width: 65%;
     margin-top: 6px;
 }
 
-/* 신규 UX 확장 대시보드 구조 스펙 */
 .dashboard-meta-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -629,7 +628,6 @@ width: 65%;
     color: var(--main);
 }
 
-/* 완료 피드백 애니메이션 이펙트 */
 .success-toast {
     position: fixed;
     top: 50%;
@@ -726,18 +724,6 @@ SH Grip Pro
 <div class="card">
     <div class="label">📋 최근 메인 세트 기록 요약 (<span id="homeRecentWeight" style="color: var(--sub);">0kg</span>)</div>
     <div id="homeRecentDetail">훈련 데이터가 없습니다.</div>
-</div>
-
-<div class="row">
-<div class="card">
-<div class="label" id="lblLeftHold">L HOLD 최고</div>
-<div class="value small" id="bestLeftHold">0.0s</div>
-</div>
-
-<div class="card">
-<div class="label" id="lblRightHold">R HOLD 최고</div>
-<div class="value small" id="bestRightHold">0.0s</div>
-</div>
 </div>
 
 <button class="main-btn" id="startBtn">훈련 시작</button>
@@ -857,13 +843,12 @@ SH Grip Pro
 </div>
 </div>
 
-<div class="success-toast" id="successToast">
+<div class="overlay hidden" id="successToast">
     <div class="success-icon">✔ DONE</div>
     <div class="success-text">수행 완료</div>
 </div>
 
 <script>
-// 🔴 3) 설정값 상수화 (CONFIG 객체 정의)
 const CONFIG = {
     SUCCESS_REP: 8,
     REST_SEC: 120,
@@ -875,10 +860,8 @@ const CONFIG = {
 const weights = [25, 36, 47, 58, 69, 80];
 const lbs = [55, 79, 104, 128, 152, 176];
 
-// 🔴 1) AudioContext 단일 인스턴스 전역 초기화 (메모리 누수 방지 및 호환성 확장)
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-// 🔴 4) DOM 요소 캐싱 인프라 구축 (UI 성능 향상)
 const UI = {
     homePage: document.getElementById('homePage'),
     sessionPage: document.getElementById('sessionPage'),
@@ -891,8 +874,6 @@ const UI = {
     rightStreakMsg: document.getElementById('rightStreakMsg'),
     homeRecentWeight: document.getElementById('homeRecentWeight'),
     homeRecentDetail: document.getElementById('homeRecentDetail'),
-    bestLeftHold: document.getElementById('bestLeftHold'),
-    bestRightHold: document.getElementById('bestRightHold'),
     sessionTop: document.getElementById('sessionTop'),
     phaseBadge: document.getElementById('phaseBadge'),
     handText: document.getElementById('handText'),
@@ -944,31 +925,11 @@ let currentHand = 'LEFT';
 let selectedRep = CONFIG.SUCCESS_REP;
 let mainResults = [];
 let negativeResults = [];
-// 🔴 2) 전역 오염을 유발하던 window.holdResults 제거 후 로컬 차원 대응 변수 선언
 let localHoldResults = [];
 let timer = null;
 
 function saveData(){
     localStorage.setItem('gdiron_v501', JSON.stringify(userData));
-}
-
-function updateBestHold(){
-    if(userData.history.length) {
-        const recent = userData.history[0];
-        let hLeft = 0, hRight = 0;
-        if(recent.holdResults && recent.holdResults.length > 0) {
-            hLeft = Math.max(...recent.holdResults.map(h => parseFloat(h.left || 0)));
-            hRight = Math.max(...recent.holdResults.map(h => parseFloat(h.right || 0)));
-        } else {
-            hLeft = parseFloat(recent.holdLeft || 0);
-            hRight = parseFloat(recent.holdRight || 0);
-        }
-        UI.bestLeftHold.textContent = `${hLeft.toFixed(1)}s`;
-        UI.bestRightHold.textContent = `${hRight.toFixed(1)}s`;
-    } else {
-        UI.bestLeftHold.textContent = `0.0s`;
-        UI.bestRightHold.textContent = `0.0s`;
-    }
 }
 
 function updateHomeUI(){
@@ -1009,11 +970,12 @@ function updateHomeUI(){
         }
     }
 
+    // 2. 홈화면 연속 성공/실패 인디케이터 도트 매핑 보정 (왼손 2개 고정)
     const leftDots = UI.leftDots.querySelectorAll('.dot');
     leftDots.forEach(d => d.className = 'dot'); 
     if(leftCountSuccess > 0) {
         for(let i=0; i<Math.min(2, leftCountSuccess); i++) { leftDots[i].classList.add('success-active'); }
-        UI.leftStreakMsg.textContent = `🔥 연속 ${leftCountSuccess}회 성공 중! (1회 더 성공 시 무게 증량)`;
+        UI.leftStreakMsg.textContent = `🔥 연속 ${leftCountSuccess}회 성공 중! (2회 달성 시 무게 증량)`;
         UI.leftStreakMsg.style.color = 'var(--green)';
     } else if(leftCountFail > 0) {
         for(let i=0; i<Math.min(2, leftCountFail); i++) { leftDots[i].classList.add('fail-active'); }
@@ -1024,11 +986,12 @@ function updateHomeUI(){
         UI.leftStreakMsg.style.color = 'var(--sub)';
     }
 
+    // 2. 홈화면 연속 성공/실패 인디케이터 도트 매핑 보정 (오른손 3개 고정)
     const rightDots = UI.rightDots.querySelectorAll('.dot');
     rightDots.forEach(d => d.className = 'dot');
     if(rightCountSuccess > 0) {
-        for(let i=0; i<Math.min(2, rightCountSuccess); i++) { rightDots[i].classList.add('success-active'); }
-        UI.rightStreakMsg.textContent = `🔥 연속 ${rightCountSuccess}회 성공 중! (1회 더 성공 시 무게 증량)`;
+        for(let i=0; i<Math.min(3, rightCountSuccess); i++) { rightDots[i].classList.add('success-active'); }
+        UI.rightStreakMsg.textContent = `🔥 연속 ${rightCountSuccess}회 성공 중! (2회 달성 시 무게 증량)`;
         UI.rightStreakMsg.style.color = 'var(--green)';
     } else if(rightCountFail > 0) {
         for(let i=0; i<Math.min(3, rightCountFail); i++) { rightDots[i].classList.add('fail-active'); }
@@ -1054,7 +1017,6 @@ function updateHomeUI(){
         UI.homeRecentWeight.textContent = '0kg';
         UI.homeRecentDetail.textContent = '훈련 데이터가 없습니다.';
     }
-    updateBestHold();
 }
 
 function buildFlow(){
@@ -1104,7 +1066,6 @@ function getPrevRecord(type,setNum){
     return '없음';
 }
 
-// 🟠 6) 진행 화면 개선 및 고도화 스펙 렌더링 파트
 function renderStep(){
     const item = flow[flowIndex];
     UI.sessionTop.classList.remove('left-mode', 'right-mode');
@@ -1134,7 +1095,6 @@ function renderStep(){
     UI.weightText.textContent = displayLb ? `${stepWeight}kg (${displayLb}lb)` : `${stepWeight}kg`;
     UI.targetText.textContent = item.type==='negative' ? `${CONFIG.NEGATIVE_SEC}초 유지` : item.type==='hold' ? `${item.target || CONFIG.HOLD_SEC}초 유지` : `${item.target || CONFIG.SUCCESS_REP}회 수행`;
 
-    // 🟠 실시간 다이나믹 메타 인포메이션 계산
     UI.progressText.textContent = `${flowIndex + 1} / ${flow.length}`;
     UI.innerPhaseProgress.textContent = `${labelPrefix} ${item.setNum} / ${item.totalInPhase}`;
     
@@ -1142,13 +1102,12 @@ function renderStep(){
     UI.progressFill.style.width = `${pct}%`;
     UI.progressPercent.textContent = `${pct}%`;
 
-    // 남은 예상 시간 계산 (분 단위 올림)
     let remSeconds = 0;
     for(let f = flowIndex; f < flow.length; f++) {
         remSeconds += flow[f].timeEst;
-        if(f > flowIndex) remSeconds += CONFIG.REST_SEC; // 휴식 시간 가산
+        if(f > flowIndex) remSeconds += CONFIG.REST_SEC; 
     }
-    if(currentHand === 'LEFT') remSeconds += 30; // 오른손 잔여분 대략 가산
+    if(currentHand === 'LEFT') remSeconds += 30; 
     UI.estimatedLeftTime.textContent = `${Math.ceil(remSeconds / 60)}분`;
 
     UI.prevRecord.textContent = getPrevRecord(item.type, item.setNum);
@@ -1157,10 +1116,9 @@ function renderStep(){
     UI.prevStepBtn.disabled = (flowIndex === 0 && currentHand === 'LEFT');
 }
 
-// 🟠 7) 완료 피드백 강화 (진동 + 효과음 + 초록색 팝업 애니메이션 통합 구현)
 function triggerActionFeedback() {
     if (navigator.vibrate) { navigator.vibrate(60); }
-    playBeep(659.25, 120); // 가볍고 경쾌한 미(E) 음 재생
+    playBeep(659.25, 120); 
     
     UI.successToast.classList.add('active');
     setTimeout(() => {
@@ -1177,7 +1135,6 @@ document.querySelectorAll('.rep-btn').forEach(btn=>{
 });
 
 document.getElementById('startBtn').onclick=()=>{
-    // 브라우저 정책 우회를 위해 오디오 컨텍스트 재개 처리 호출
     if (audioCtx.state === 'suspended') { audioCtx.resume(); }
     buildFlow();
     flowIndex=0;
@@ -1189,7 +1146,6 @@ document.getElementById('startBtn').onclick=()=>{
     renderStep();
 };
 
-// 🔴 1) 단일 전역화된 AudioContext 기반 재생 제어 함수로 튜닝
 function playBeep(frequency, duration) {
     try {
         if (audioCtx.state === 'suspended') { audioCtx.resume(); }
@@ -1209,7 +1165,7 @@ function playBeep(frequency, duration) {
             oscillator.disconnect();
             gainNode.disconnect();
         }, duration);
-    } catch (e) { console.log("AudioContext 제어 예외 위행"); }
+    } catch (e) { console.log("AudioContext 제어 예외"); }
 }
 
 function triggerRestEndNotification() {
@@ -1405,7 +1361,7 @@ UI.actionBtn.onclick=()=>{
     if(item.type==='negative'){ startNegative(); return; }
     if(item.type==='hold'){ startHold(); return; }
 
-    triggerActionFeedback(); // 🟠 완료 액션 피드백 구동
+    triggerActionFeedback(); 
 
     setTimeout(() => {
         if(item.type==='main'){
@@ -1426,7 +1382,7 @@ UI.actionBtn.onclick=()=>{
             return;
         }
         startRest();
-    }, 400); // 팝업 애니메이션 감상용 딜레이 부여 후 전개
+    }, 400); 
 };
 
 UI.prevStepBtn.onclick = () => {
@@ -1505,7 +1461,6 @@ function finishSession(){
         holdWeight: `L:${currentLeftWeight}k / R:${currentRightWeight}k`,
         mainResults,
         negativeResults,
-        // 🔴 2) 전역 오염을 완벽히 배제한 로컬 저장 바인딩
         holdResults: localHoldResults
     });
 
@@ -1637,7 +1592,6 @@ document.getElementById('confirmResetBtn').onclick=()=>{
     openPage('home');
 };
 
-// 어플리케이션 초기화 구동 트리거
 updateHomeUI();
 loadHistory();
 </script>
