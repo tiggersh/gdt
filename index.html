@@ -1,10 +1,11 @@
 <html lang="ko">
 <head>
-<link rel="manifest" href="manifest.json">  
-<link rel="icon" href="icon-192.png" type="image/png">
-<link rel="apple-touch-icon" href="icon-192.png">  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SH Grip Pro</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>SH Grip Pro</title>
 
 <style>
@@ -643,7 +644,11 @@ let userData = JSON.parse(localStorage.getItem('gdiron_v506')) || {
 };
 
 function saveData(){
-    localStorage.setItem('gdiron_v506', JSON.stringify(userData));
+    try {
+        localStorage.setItem('gdiron_v506', JSON.stringify(userData));
+    } catch (e) {
+        alert('저장 공간 부족. 설정 탭에서 데이터를 초기화해주세요.');
+    }
 }
 
 function updateHomeUI(){
@@ -705,10 +710,10 @@ function buildFlow(){
 
 function openPage(page){
     document.querySelectorAll('.page, .session').forEach(p => p.classList.add('hidden'));
-    if(page === 'home') homePage.classList.remove('hidden');
-    if(page === 'session') { sessionPage.classList.remove('hidden'); renderStep(); }
-    if(page === 'history') { historyPage.classList.remove('hidden'); loadHistory(); }
-    if(page === 'setting') { settingPage.classList.remove('hidden'); initSettingsGrid(); }
+    if(page === 'home') document.getElementById('homePage').classList.remove('hidden');
+    if(page === 'session') { document.getElementById('sessionPage').classList.remove('hidden'); renderStep(); }
+    if(page === 'history') { document.getElementById('historyPage').classList.remove('hidden'); loadHistory(); }
+    if(page === 'setting') { document.getElementById('settingPage').classList.remove('hidden'); initSettingsGrid(); }
 }
 
 function renderStep(){
@@ -737,6 +742,13 @@ function renderStep(){
     document.getElementById('statusText').textContent = `${currentHand} 진행 중`;
 
     document.getElementById('repSection').style.display = item.type === 'main' ? 'block' : 'none';
+    if (item.type === 'main' && currentHand === 'LEFT') {
+    selectedRep = 8;
+    document.querySelectorAll('.rep-btn').forEach(b => {
+        b.classList.toggle('active', Number(b.textContent) === 8);
+    });
+}
+document.getElementById('actionBtn').textContent = ...
     document.getElementById('actionBtn').textContent = (item.type === 'negative' || item.type === 'hold') ? '시작' : '완료';
     document.getElementById('prevStepBtn').disabled = (flowIndex === 0 && currentHand === 'LEFT');
 }
@@ -761,16 +773,23 @@ document.getElementById('startBtn').onclick = () => {
 };
 
 let timer;
+let _audioCtx;
+function getAudioCtx() {
+    if (!_audioCtx || _audioCtx.state === 'closed') {
+        _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return _audioCtx;
+}
 function playBeep(freq, dur) {
     try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const audioCtx = getAudioCtx();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain); gain.connect(audioCtx.destination);
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
         gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
         osc.start();
-        setTimeout(() => { osc.stop(); audioCtx.close(); }, dur);
+        setTimeout(() => osc.stop(), dur);
     } catch (e) {}
 }
 
@@ -778,24 +797,24 @@ function startRest(){
     const overlay = document.getElementById('overlay');
     overlay.classList.remove('hidden');
     document.getElementById('overlayTitle').textContent = 'REST';
-    let sec = 120;
-    
-    clearInterval(timer);
-    timer = setInterval(() => {
-        sec--;
-        const m = String(Math.floor(sec/60)).padStart(2,'0');
-        const s = String(sec%60).padStart(2,'0');
-        document.getElementById('overlayTime').textContent = `${m}:${s}`;
-        
-        if(sec === 3 || sec === 2 || sec === 1) playBeep(880, 80);
-        if(sec <= 0){
-            clearInterval(timer);
-            overlay.classList.add('hidden');
-            if (navigator.vibrate) navigator.vibrate(500);
-            playBeep(440, 400);
-            nextStep();
-        }
-    }, 1000);
+const end = Date.now() + 120_000;
+
+clearInterval(timer);
+timer = setInterval(() => {
+    const sec = Math.max(0, Math.round((end - Date.now()) / 1000));
+    const m = String(Math.floor(sec / 60)).padStart(2, '0');
+    const s = String(sec % 60).padStart(2, '0');
+    document.getElementById('overlayTime').textContent = `${m}:${s}`;
+
+    if (sec === 3 || sec === 2 || sec === 1) playBeep(880, 80);
+    if (sec <= 0) {
+        clearInterval(timer);
+        overlay.classList.add('hidden');
+        if (navigator.vibrate) navigator.vibrate(500);
+        playBeep(440, 400);
+        nextStep();
+    }
+}, 500);
 
     document.getElementById('overlayBtn').onclick = (e) => {
         e.stopPropagation();
@@ -913,12 +932,14 @@ document.getElementById('prevStepBtn').onclick = () => {
         flowIndex--;
         currentHand = 'RIGHT';
         const prevItem = flow[flowIndex];
-        if (prevItem.type === 'main' && mainResults.length > 0) {
-            selectedRep = mainResults[mainResults.length - 1].left;
-            mainResults[mainResults.length - 1].right = null;
-        } else if (prevItem.type === 'negative') {
-            negativeResults.pop();
-        }
+if (prevItem.type === 'main' && mainResults.length > 0) {
+    selectedRep = mainResults[mainResults.length - 1].left;
+    mainResults[mainResults.length - 1].right = null;
+} else if (prevItem.type === 'negative') {
+    negativeResults.pop();
+} else if (prevItem.type === 'hold') {
+    if (window.holdResults.length > 0) window.holdResults.pop();
+}
     }
     renderStep();
 };
@@ -942,6 +963,7 @@ function finishSession(){
         holdResults: window.holdResults || []
     });
 
+    if (userData.history.length > 60) userData.history = userData.history.slice(0, 60);
     saveData();
     updateHomeUI();
     renderResult();
