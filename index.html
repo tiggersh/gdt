@@ -873,13 +873,19 @@ function buildFlow(){
 function openPage(page){
     document.querySelectorAll('.page, .session').forEach(p => p.classList.add('hidden'));
     const startWrap = document.getElementById('homeStartWrap');
+    const tabs = document.querySelector('.tabs');
     if(page === 'home') {
         document.getElementById('homePage').classList.remove('hidden');
         startWrap.classList.remove('hidden');
+        tabs.classList.remove('hidden');         // ← 탭바 복원
     } else {
         startWrap.classList.add('hidden');
     }
-    if(page === 'session') { document.getElementById('sessionPage').classList.remove('hidden'); renderStep(); }
+    if(page === 'session') {
+        document.getElementById('sessionPage').classList.remove('hidden');
+        tabs.classList.add('hidden');            // ← 훈련 중 탭바 숨김
+        renderStep();
+    }
     if(page === 'history') { document.getElementById('historyPage').classList.remove('hidden'); loadHistory(); }
     if(page === 'setting') { document.getElementById('settingPage').classList.remove('hidden'); initSettingsGrid(); }
 }
