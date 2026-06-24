@@ -286,7 +286,9 @@ button:disabled {
     align-items:center;
     gap:6px;
 }
-.weight{ font-size:42px; font-weight:900; line-height:1; }
+.weight{ font-size:68px; font-weight:900; line-height:1; letter-spacing:-2px; }
+.weight-unit{ font-size:22px; font-weight:700; color:var(--sub); margin-left:2px; }
+.weight-sub{ font-size:13px; color:#555; font-weight:700; margin-top:2px; }
 .target{ font-size:15px; font-weight:800; }
 
 .previous{
@@ -307,14 +309,14 @@ button:disabled {
     width:100%;
     display:grid;
     grid-template-columns:repeat(4,1fr);
-    gap:6px;
+    gap:8px;
 }
 .rep-btn{
-    height:48px;
-    border-radius:14px;
+    height:58px;
+    border-radius:16px;
     background:#1a1a1a;
     color:white;
-    font-size:17px;
+    font-size:20px;
     font-weight:900;
 }
 .rep-btn.active{ background:var(--main); color:black; }
@@ -406,7 +408,7 @@ button:disabled {
 
 /* 훈련 제거 후 정밀 3버튼 하단 내비게이션 고정 */
 .tabs{
-    height:56px;
+    height:62px;
     display:grid;
     grid-template-columns:repeat(3,1fr);
     gap:6px;
@@ -418,10 +420,20 @@ button:disabled {
     border-radius:16px;
     background:#111;
     color:#666;
-    font-size:13px;
+    font-size:11px;
     font-weight:900;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:3px;
 }
 .tab.active{ background:var(--main); color:black; }
+.tab-icon{
+    width:18px;
+    height:18px;
+    flex-shrink:0;
+}
 
 .overlay{
     position:fixed;
@@ -489,14 +501,99 @@ button:disabled {
 .history-line{ font-size:13px; font-weight:800; margin-bottom:2px; }
 .fail{ color:var(--red); }
 
-.action-wrap { display:flex; gap:10px; width:100%; flex-shrink:0; }
+.action-wrap { width: 100%; flex-shrink: 0; }
 .prev-step-btn {
     width: 35%; height: 64px; border-radius: 22px; background: #222;
     color: #fff; font-size: 16px; font-weight: 900; border: 1px solid #333;
 }
-.action-wrap .main-btn { width: 65%; margin-top:0; }
+.action-wrap .main-btn { width: 100%; margin-top: 0; }  /* 전폭 */
 
-.home-rep-line { display: flex; justify-content: space-between; padding: 2px 0; font-size: 14px; font-weight: 700; }
+.recent-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 12px 16px;
+}
+.recent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.recent-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #555;
+    letter-spacing: 1px;
+}
+.recent-weight {
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--sub);
+}
+.recent-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 80px;        /* 핵심 — 높이 고정으로 카드 축소 */
+    overflow: hidden;        /* 스크롤 제거, 최근 3세트만 노출 */
+}
+.home-rep-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+    font-size: 13px;
+    font-weight: 700;
+}
+    
+.home-start-wrap {
+    flex-shrink: 0;
+    padding: 8px 0 0;
+    background: linear-gradient(transparent, var(--bg) 35%);
+}
+
+/* homePage는 버튼 없으므로 margin-top auto 제거 */
+#homePage .main-btn {
+    margin-top: 0;
+}
+
+.home-weight-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 6px;
+}
+.home-weight-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+.home-weight-hand {
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+.home-weight-val {
+    font-size: 48px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -2px;
+    color: var(--text);
+}
+.home-weight-unit {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--sub);
+    margin-left: 2px;
+}
+.home-weight-divider {
+    width: 1px;
+    height: 48px;
+    background: #2a2a2a;
+}
+    
 </style>
 </head>
 
@@ -508,9 +605,19 @@ button:disabled {
 
     <div class="page" id="homePage">
         <div class="main-dashboard-card">
-            <div class="main-dashboard-sub">🔥 오늘 도전 무게 (CURRENT WEIGHT)</div>
-            <div class="main-dashboard-value" id="homeWeightDisplay">L: 25kg / R: 25kg</div>
+    <div class="main-dashboard-sub">🔥 오늘 도전 무게</div>
+    <div class="home-weight-row">
+        <div class="home-weight-block">
+            <div class="home-weight-hand" style="color:var(--main);">L</div>
+            <div class="home-weight-val" id="homeWeightLeft">25<span class="home-weight-unit">kg</span></div>
         </div>
+        <div class="home-weight-divider"></div>
+        <div class="home-weight-block">
+            <div class="home-weight-hand" style="color:var(--warm);">R</div>
+            <div class="home-weight-val" id="homeWeightRight">25<span class="home-weight-unit">kg</span></div>
+        </div>
+    </div>
+</div>
 
         <div class="info-grid">
             <div class="info-mini-card">
@@ -553,10 +660,15 @@ button:disabled {
             </div>
         </div>
 
-        <div class="card" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
-            <div class="label" style="color:var(--sub); font-size:11px; font-weight:700; margin-bottom:4px;">최근 메인 세트 기록 (<span id="homeRecentWeight">0kg</span>)</div>
-            <div id="homeRecentDetail" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; justify-content:center;">훈련 데이터가 없습니다.</div>
-        </div>
+        <div class="recent-card">
+    <div class="recent-header">
+        <span class="recent-title">최근 기록</span>
+        <span class="recent-weight" id="homeRecentWeight">—</span>
+    </div>
+    <div id="homeRecentDetail" class="recent-detail">
+        훈련 데이터가 없습니다.
+    </div>
+</div>
 
         <button class="main-btn" id="startBtn">훈련 시작</button>
     </div>
@@ -575,7 +687,8 @@ button:disabled {
             </div>
 
             <div class="main-card">
-                <div class="weight" id="weightText">25kg</div>
+                <div class="weight" id="weightText">25<span class="weight-unit">kg</span></div>
+                <div class="weight-sub" id="weightSub">55 lb</div>
                 <div class="target" id="targetText">8회 수행</div>
             </div>
 
@@ -597,10 +710,12 @@ button:disabled {
     </div>
 </div>
         </div>
-
+        
+        <div class="session-top left-mode" id="sessionTop">
+        <button class="prev-step-text" id="prevStepBtn">← 이전</button>  <!-- ← 여기 추가 (session-top 맨 첫 줄) -->
+        <div class="phase-badge phase-main" id="phaseBadge">MAIN</div>
         <div class="action-wrap">
-            <button class="prev-step-btn" id="prevStepBtn">이전 단계</button>
-            <button class="main-btn" id="actionBtn">완료</button>
+        <button class="main-btn" id="actionBtn">완료</button>
         </div>
     </div>
 
@@ -618,11 +733,26 @@ button:disabled {
         <button class="sub-btn" id="resetBtn">데이터 전체 초기화</button>
     </div>
 
-    <div class="tabs">
-        <button class="tab active" data-page="home">홈</button>
-        <button class="tab" data-page="history">기록</button>
-        <button class="tab" data-page="setting">설정</button>
-    </div>
+ <div class="tabs">
+    <button class="tab active" data-page="home">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>홈</span>
+    </button>
+    <button class="tab" data-page="history">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        <span>기록</span>
+    </button>
+    <button class="tab" data-page="setting">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <span>설정</span>
+    </button>
+</div>
 
 </div>
 
@@ -675,7 +805,8 @@ function saveData(){
 function updateHomeUI(){
     const lKg = weights[userData.leftIndex - 1];
     const rKg = weights[userData.rightIndex - 1];
-    document.getElementById('homeWeightDisplay').textContent = `L: ${lKg}kg / R: ${rKg}kg`;
+    document.getElementById('homeWeightLeft').innerHTML = `${lKg}<span class="home-weight-unit">kg</span>`;
+    document.getElementById('homeWeightRight').innerHTML = `${rKg}<span class="home-weight-unit">kg</span>`;
 
     const maxIdx = Math.max(userData.leftIndex, userData.rightIndex) - 1;
     document.getElementById('homeLevelBadge').innerHTML = levelNames[maxIdx].replace('\n', '<br>');
@@ -753,7 +884,9 @@ function renderStep(){
 
     const curWeight = currentHand === 'LEFT' ? item.lWeight : item.rWeight;
     const wIdx = weights.indexOf(curWeight);
-    document.getElementById('weightText').textContent = `${curWeight}kg (${lbs[wIdx]}lb)`;
+    document.getElementById('weightText').innerHTML =
+    `${curWeight}<span class="weight-unit">kg</span>`;
+    document.getElementById('weightSub').textContent = `${lbs[wIdx]} lb`;
 
     document.getElementById('targetText').textContent = 
         item.type === 'negative' ? '5초 버티기' : item.type === 'hold' ? `${item.target}초 버티기` : `${item.target}회 수행`;
