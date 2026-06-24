@@ -943,13 +943,13 @@ function openPage(page){
     if(page === 'home') {
         document.getElementById('homePage').classList.remove('hidden');
         startWrap.classList.remove('hidden');
-        tabs.classList.remove('hidden');         // ← 탭바 복원
+        tabs.classList.remove('hidden');
     } else {
         startWrap.classList.add('hidden');
     }
     if(page === 'session') {
         document.getElementById('sessionPage').classList.remove('hidden');
-        tabs.classList.add('hidden');            // ← 훈련 중 탭바 숨김
+        tabs.classList.add('hidden');
         renderStep();
     }
     if(page === 'history') { document.getElementById('historyPage').classList.remove('hidden'); loadHistory(); }
@@ -1284,13 +1284,17 @@ function finishSession(){
     if(leftSuccess) userData.leftStreak++; else userData.leftStreak = 0;
     if(rightSuccess) userData.rightStreak++; else userData.rightStreak = 0;
 
+    // 실제 운동한 무게 먼저 스냅샷
+    const doneLeftWeight  = weights[userData.leftIndex  - 1];
+    const doneRightWeight = weights[userData.rightIndex - 1];
+
     if(userData.leftStreak >= 2) { if(userData.leftIndex < 6) userData.leftIndex++; userData.leftStreak = 0; }
     if(userData.rightStreak >= 2) { if(userData.rightIndex < 6) userData.rightIndex++; userData.rightStreak = 0; }
 
     userData.history.unshift({
         date: new Date().toLocaleDateString('ko-KR', {month:'2-digit', day:'2-digit'}),
-        mainLeftWeight: weights[userData.leftIndex - 1], 
-        mainRightWeight: weights[userData.rightIndex - 1],
+        mainLeftWeight:  doneLeftWeight,
+        mainRightWeight: doneRightWeight,
         mainResults,
         negativeResults,
         holdResults: window.holdResults || []
