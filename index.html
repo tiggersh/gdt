@@ -748,7 +748,6 @@ function renderStep(){
         b.classList.toggle('active', Number(b.textContent) === 8);
     });
 }
-document.getElementById('actionBtn').textContent = ...
     document.getElementById('actionBtn').textContent = (item.type === 'negative' || item.type === 'hold') ? '시작' : '완료';
     document.getElementById('prevStepBtn').disabled = (flowIndex === 0 && currentHand === 'LEFT');
 }
