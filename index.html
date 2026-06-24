@@ -601,7 +601,64 @@ button:disabled {
     height: 48px;
     background: #2a2a2a;
 }
-    
+
+/* ── 원형 타이머 ── */
+.ring-wrap {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.ring-svg {
+    position: absolute;
+    inset: 0;
+    transform: rotate(-90deg);
+}
+.ring-track {
+    fill: none;
+    stroke: #1a1a1a;
+    stroke-width: 10;
+}
+.ring-progress {
+    fill: none;
+    stroke: var(--main);
+    stroke-width: 10;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s linear;
+}
+.ring-progress.warning { stroke: var(--negative); }
+.ring-progress.danger  { stroke: var(--red); }
+.ring-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    z-index: 1;
+}
+.ring-label {
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: var(--main);
+}
+.ring-label.warning { color: var(--negative); }
+.ring-label.danger  { color: var(--red); }
+.ring-time {
+    font-size: 56px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -2px;
+}
+.ring-sub {
+    font-size: 12px;
+    font-weight: 700;
+    color: #555;
+    letter-spacing: 1px;
+}
+
 </style>
 </head>
 
@@ -776,8 +833,17 @@ button:disabled {
 
 <div class="overlay hidden" id="overlay">
     <div class="overlay-wrap">
-        <div class="overlay-title" id="overlayTitle">REST</div>
-        <div class="overlay-time" id="overlayTime">02:00</div>
+        <div class="ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+                <circle class="ring-track" cx="120" cy="120" r="108"/>
+                <circle class="ring-progress" id="ringProgress" cx="120" cy="120" r="108"/>
+            </svg>
+            <div class="ring-inner">
+                <div class="ring-label" id="overlayTitle">REST</div>
+                <div class="ring-time" id="overlayTime">02:00</div>
+                <div class="ring-sub" id="ringSub">휴식 중</div>
+            </div>
+        </div>
         <button class="overlay-btn" id="overlayBtn">건너뛰기</button>
     </div>
 </div>
@@ -969,27 +1035,55 @@ function playBeep(freq, dur) {
 }
 
 function startRest(){
+    const TOTAL = 120;
+    const R = 108;
+    const CIRC = 2 * Math.PI * R;
     const overlay = document.getElementById('overlay');
+    const ring = document.getElementById('ringProgress');
+    const ringSub = document.getElementById('ringSub');
+    const titleEl = document.getElementById('overlayTitle');
+
+    ring.style.strokeDasharray = CIRC;
+    ring.style.strokeDashoffset = 0;
+    ring.className = 'ring-progress';
+    titleEl.className = 'ring-label';
+    titleEl.textContent = 'REST';
+    ringSub.textContent = '휴식 중';
     overlay.classList.remove('hidden');
-    document.getElementById('overlayTitle').textContent = 'REST';
-const end = Date.now() + 120_000;
 
-clearInterval(timer);
-timer = setInterval(() => {
-    const sec = Math.max(0, Math.round((end - Date.now()) / 1000));
-    const m = String(Math.floor(sec / 60)).padStart(2, '0');
-    const s = String(sec % 60).padStart(2, '0');
-    document.getElementById('overlayTime').textContent = `${m}:${s}`;
+    const end = Date.now() + TOTAL * 1000;
 
-    if (sec === 3 || sec === 2 || sec === 1) playBeep(880, 80);
-    if (sec <= 0) {
-        clearInterval(timer);
-        overlay.classList.add('hidden');
-        if (navigator.vibrate) navigator.vibrate(500);
-        playBeep(440, 400);
-        nextStep();
-    }
-}, 500);
+    clearInterval(timer);
+    timer = setInterval(() => {
+        const sec = Math.max(0, Math.round((end - Date.now()) / 1000));
+        const m = String(Math.floor(sec / 60)).padStart(2, '0');
+        const s = String(sec % 60).padStart(2, '0');
+        document.getElementById('overlayTime').textContent = `${m}:${s}`;
+
+        // 링 진행 (남은 비율만큼 채움)
+        const ratio = sec / TOTAL;
+        ring.style.strokeDashoffset = CIRC * (1 - ratio);
+
+        // 색상 경고 단계
+        if (sec <= 10) {
+            ring.className = 'ring-progress danger';
+            titleEl.className = 'ring-label danger';
+            ringSub.textContent = '곧 시작!';
+        } else if (sec <= 30) {
+            ring.className = 'ring-progress warning';
+            titleEl.className = 'ring-label warning';
+            ringSub.textContent = '준비하세요';
+        }
+
+        if (sec === 3 || sec === 2 || sec === 1) playBeep(880, 80);
+        if (sec <= 0) {
+            clearInterval(timer);
+            overlay.classList.add('hidden');
+            if (navigator.vibrate) navigator.vibrate(500);
+            playBeep(440, 400);
+            nextStep();
+        }
+    }, 500);
 
     document.getElementById('overlayBtn').onclick = (e) => {
         e.stopPropagation();
@@ -1000,18 +1094,29 @@ timer = setInterval(() => {
 }
 
 function startCountdown(label, onComplete) {
+    const R = 108;
+    const CIRC = 2 * Math.PI * R;
     const overlay = document.getElementById('overlay');
     const timeEl = document.getElementById('overlayTime');
+    const ring = document.getElementById('ringProgress');
+    const ringSub = document.getElementById('ringSub');
     const btn = document.getElementById('overlayBtn');
-    overlay.classList.remove('hidden');
-    document.getElementById('overlayTitle').textContent = label;
+    const titleEl = document.getElementById('overlayTitle');
+
+    ring.style.strokeDasharray = CIRC;
+    ring.style.strokeDashoffset = 0;
+    ring.className = 'ring-progress';
+    titleEl.className = 'ring-label';
+    titleEl.textContent = label;
+    ringSub.textContent = '준비';
     btn.textContent = '건너뛰기';
     btn.onclick = null;
+    overlay.classList.remove('hidden');
 
     let count = 3;
-    timeEl.style.color = 'var(--main)';
-    timeEl.style.fontSize = '88px';
+    timeEl.style.fontSize = '72px';
     timeEl.textContent = count;
+    ring.style.strokeDashoffset = CIRC * (1 - count / 3);
     playBeep(660, 120);
 
     clearInterval(timer);
@@ -1019,14 +1124,18 @@ function startCountdown(label, onComplete) {
         count--;
         if (count > 0) {
             timeEl.textContent = count;
+            ring.style.strokeDashoffset = CIRC * (1 - count / 3);
             playBeep(660, 120);
         } else {
             clearInterval(timer);
             timeEl.textContent = 'START';
+            timeEl.style.fontSize = '48px';
+            ring.style.strokeDashoffset = CIRC;
+            ringSub.textContent = '';
             if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
             playBeep(880, 200);
             setTimeout(() => {
-                timeEl.style.color = 'var(--text)';
+                timeEl.style.fontSize = '56px';
                 onComplete();
             }, 600);
         }
@@ -1035,7 +1144,7 @@ function startCountdown(label, onComplete) {
     btn.onclick = (e) => {
         e.stopPropagation();
         clearInterval(timer);
-        timeEl.style.color = 'var(--text)';
+        timeEl.style.fontSize = '56px';
         onComplete();
     };
 }
