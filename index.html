@@ -306,7 +306,7 @@ button:disabled {
 .rep-grid{
     width:100%;
     display:grid;
-    grid-template-columns:repeat(6,1fr);
+    grid-template-columns:repeat(4,1fr);
     gap:6px;
 }
 .rep-btn{
@@ -344,45 +344,64 @@ button:disabled {
 }
 .setting-btn.active{ background:var(--main); color:black; }
 
-/* 복원된 복합 차트(그래프) 스타일 시스템 */
-.chart-container {
-    display: flex;
-    justify-content: space-around;
-    align-items: flex-end;
-    height: 64px;
-    padding: 8px 4px 0;
-    background: #090909;
-    border: 1px solid #1c1c1c;
-    border-radius: 14px;
-    margin-top: 6px;
-}
-.chart-bar-wrapper {
+/* 기록탭 레이아웃 */
+.history-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    flex: 1;
-    gap: 4px;
+    height: 100%;
+    gap: 10px;
 }
-.chart-bar-track {
-    width: 12px;
-    height: 40px;
-    background: #1a1a1a;
-    border-radius: 3px;
-    position: relative;
+.history-chart-card {
+    flex-shrink: 0;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 14px 16px 10px;
+}
+.history-chart-header {
     display: flex;
-    align-items: flex-end;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
-.chart-bar-fill {
-    width: 100%;
-    border-radius: 3px;
-    transition: height 0.3s ease;
-}
-.chart-bar-fill.left { background: var(--main); }
-.chart-bar-fill.right { background: var(--warm); }
-.chart-label {
-    font-size: 9px;
-    color: #666;
+.history-chart-title {
+    font-size: 11px;
     font-weight: 800;
+    color: #666;
+    letter-spacing: 1px;
+}
+.history-chart-legend {
+    display: flex;
+    gap: 10px;
+}
+.legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+.legend-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: #666;
+    vertical-align: middle;
+}
+.history-svg-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.history-svg-wrap svg {
+    display: block;
+}
+.history-scroll {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 /* 훈련 제거 후 정밀 3버튼 하단 내비게이션 고정 */
@@ -565,16 +584,18 @@ button:disabled {
                 <div class="previous-value" id="prevRecord">없음</div>
             </div>
 
-            <div class="rep-wrap" id="repSection">
-                <div class="rep-grid">
-                    <button class="rep-btn">5</button>
-                    <button class="rep-btn">6</button>
-                    <button class="rep-btn">7</button>
-                    <button class="rep-btn active">8</button>
-                    <button class="rep-btn">9</button>
-                    <button class="rep-btn">10</button>
-                </div>
-            </div>
+<div class="rep-wrap" id="repSection">
+    <div class="rep-grid">
+        <button class="rep-btn">1</button>
+        <button class="rep-btn">2</button>
+        <button class="rep-btn">3</button>
+        <button class="rep-btn">4</button>
+        <button class="rep-btn">5</button>
+        <button class="rep-btn">6</button>
+        <button class="rep-btn">7</button>
+        <button class="rep-btn active">8</button>
+    </div>
+</div>
         </div>
 
         <div class="action-wrap">
@@ -823,29 +844,74 @@ timer = setInterval(() => {
     };
 }
 
-function startNegative(){
+function startCountdown(label, onComplete) {
     const overlay = document.getElementById('overlay');
+    const timeEl = document.getElementById('overlayTime');
+    const btn = document.getElementById('overlayBtn');
     overlay.classList.remove('hidden');
-    document.getElementById('overlayTitle').textContent = 'NEGATIVE';
-    const start = Date.now();
+    document.getElementById('overlayTitle').textContent = label;
+    btn.textContent = '건너뛰기';
+    btn.onclick = null;
+
+    let count = 3;
+    timeEl.style.color = 'var(--main)';
+    timeEl.style.fontSize = '88px';
+    timeEl.textContent = count;
+    playBeep(660, 120);
 
     clearInterval(timer);
     timer = setInterval(() => {
-        const sec = 5 - ((Date.now() - start) / 1000);
-        document.getElementById('overlayTime').textContent = Math.max(0, sec).toFixed(1);
-        if(sec <= 0){
+        count--;
+        if (count > 0) {
+            timeEl.textContent = count;
+            playBeep(660, 120);
+        } else {
             clearInterval(timer);
-            if (navigator.vibrate) navigator.vibrate(600);
-            playBeep(587.33, 450);
-            finishNegative(5);
+            timeEl.textContent = 'START';
+            if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+            playBeep(880, 200);
+            setTimeout(() => {
+                timeEl.style.color = 'var(--text)';
+                onComplete();
+            }, 600);
         }
-    }, 100);
+    }, 1000);
 
-    document.getElementById('overlayBtn').onclick = (e) => {
+    btn.onclick = (e) => {
         e.stopPropagation();
         clearInterval(timer);
-        finishNegative(((Date.now() - start) / 1000));
+        timeEl.style.color = 'var(--text)';
+        onComplete();
     };
+}
+
+function startNegative(){
+    startCountdown('NEGATIVE', () => {
+        const overlay = document.getElementById('overlay');
+        const timeEl = document.getElementById('overlayTime');
+        document.getElementById('overlayTitle').textContent = 'NEGATIVE';
+        const btn = document.getElementById('overlayBtn');
+        btn.textContent = '완료';
+        const start = Date.now();
+
+        clearInterval(timer);
+        timer = setInterval(() => {
+            const sec = 5 - ((Date.now() - start) / 1000);
+            timeEl.textContent = Math.max(0, sec).toFixed(1);
+            if (sec <= 0) {
+                clearInterval(timer);
+                if (navigator.vibrate) navigator.vibrate(600);
+                playBeep(587.33, 450);
+                finishNegative(5);
+            }
+        }, 100);
+
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            clearInterval(timer);
+            finishNegative(((Date.now() - start) / 1000));
+        };
+    });
 }
 
 function finishNegative(sec){
@@ -856,28 +922,32 @@ function finishNegative(sec){
 }
 
 function startHold(){
-    const overlay = document.getElementById('overlay');
-    overlay.classList.remove('hidden');
-    document.getElementById('overlayTitle').textContent = 'HOLD';
-    const start = Date.now();
+    startCountdown('HOLD', () => {
+        const overlay = document.getElementById('overlay');
+        const timeEl = document.getElementById('overlayTime');
+        document.getElementById('overlayTitle').textContent = 'HOLD';
+        const btn = document.getElementById('overlayBtn');
+        btn.textContent = '완료';
+        const start = Date.now();
 
-    clearInterval(timer);
-    timer = setInterval(() => {
-        const sec = 20 - ((Date.now() - start) / 1000);
-        document.getElementById('overlayTime').textContent = Math.max(0, sec).toFixed(1);
-        if(sec <= 0){
-            clearInterval(timer);
-            if (navigator.vibrate) navigator.vibrate(600);
-            playBeep(587.33, 450);
-            finishHold(20);
-        }
-    }, 100);
-
-    document.getElementById('overlayBtn').onclick = (e) => {
-        e.stopPropagation();
         clearInterval(timer);
-        finishHold(Math.min(20, ((Date.now() - start) / 1000)));
-    };
+        timer = setInterval(() => {
+            const sec = 20 - ((Date.now() - start) / 1000);
+            timeEl.textContent = Math.max(0, sec).toFixed(1);
+            if (sec <= 0) {
+                clearInterval(timer);
+                if (navigator.vibrate) navigator.vibrate(600);
+                playBeep(587.33, 450);
+                finishHold(20);
+            }
+        }, 100);
+
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            clearInterval(timer);
+            finishHold(Math.min(20, ((Date.now() - start) / 1000)));
+        };
+    });
 }
 
 function finishHold(sec){
@@ -999,7 +1069,7 @@ document.getElementById('resultCloseBtn').onclick = () => {
     openPage('home');
 };
 
-/* 📊 복합 차트(그래프) 빌더 결합 로드 */
+/* 📊 차트(그래프) 로드 */
 function loadHistory(){
     const page = document.getElementById('historyPage');
     page.innerHTML = '';
@@ -1009,34 +1079,93 @@ function loadHistory(){
         return;
     }
 
-    userData.history.forEach(item => {
+    // 최신순 → 그래프는 오래된 순(좌→우)으로 표시
+    const data = [...userData.history].reverse();
+
+    // ── 상단 꺾은선 그래프 ──
+    const W = Math.max(data.length * 48, 280);
+    const H = 90;
+    const PAD = { t: 10, r: 16, b: 24, l: 32 };
+    const gW = W - PAD.l - PAD.r;
+    const gH = H - PAD.t - PAD.b;
+
+    const allWeights = data.flatMap(d => [d.mainLeftWeight, d.mainRightWeight]);
+    const minW = Math.min(...allWeights);
+    const maxW = Math.max(...allWeights);
+    const range = maxW - minW || 1;
+
+    const xOf = i => PAD.l + (i / Math.max(data.length - 1, 1)) * gW;
+    const yOf = v => PAD.t + gH - ((v - minW) / range) * gH;
+
+    const mkLine = key =>
+        data.map((d, i) => `${i === 0 ? 'M' : 'L'}${xOf(i).toFixed(1)},${yOf(d[key]).toFixed(1)}`).join(' ');
+
+    const mkDots = (key, color, cardIds) =>
+        data.map((d, i) => `<circle cx="${xOf(i).toFixed(1)}" cy="${yOf(d[key]).toFixed(1)}" r="5"
+            fill="${color}" stroke="#111" stroke-width="2" style="cursor:pointer"
+            onclick="document.getElementById('hcard-${i}').scrollIntoView({behavior:'smooth',block:'nearest'})"
+        />`).join('');
+
+    const xLabels = data.map((d, i) =>
+        `<text x="${xOf(i).toFixed(1)}" y="${H - 4}" text-anchor="middle"
+            font-size="9" fill="#555" font-weight="800">${d.date}</text>`
+    ).join('');
+
+    // y축 레이블 (min / max)
+    const yLabels = `
+        <text x="${PAD.l - 4}" y="${(PAD.t + gH).toFixed(1)}" text-anchor="end" font-size="9" fill="#555" font-weight="800">${minW}kg</text>
+        <text x="${PAD.l - 4}" y="${PAD.t.toFixed(1)}" text-anchor="end" font-size="9" fill="#555" font-weight="800">${maxW}kg</text>
+    `;
+
+    const chartCard = document.createElement('div');
+    chartCard.className = 'history-chart-card';
+    chartCard.innerHTML = `
+        <div class="history-chart-header">
+            <span class="history-chart-title">📈 무게 추이</span>
+            <div class="history-chart-legend">
+                <span><span class="legend-dot" style="background:var(--main)"></span><span class="legend-label">LEFT</span></span>
+                <span><span class="legend-dot" style="background:var(--warm)"></span><span class="legend-label">RIGHT</span></span>
+            </div>
+        </div>
+        <div class="history-svg-wrap">
+            <svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+                <line x1="${PAD.l}" y1="${PAD.t}" x2="${PAD.l}" y2="${PAD.t + gH}" stroke="#222" stroke-width="1"/>
+                <line x1="${PAD.l}" y1="${PAD.t + gH}" x2="${W - PAD.r}" y2="${PAD.t + gH}" stroke="#222" stroke-width="1"/>
+                ${yLabels}
+                <path d="${mkLine('mainLeftWeight')}" fill="none" stroke="var(--main)" stroke-width="2" stroke-linejoin="round"/>
+                <path d="${mkLine('mainRightWeight')}" fill="none" stroke="var(--warm)" stroke-width="2" stroke-linejoin="round" stroke-dasharray="4,3"/>
+                ${mkDots('mainLeftWeight', 'var(--main)')}
+                ${mkDots('mainRightWeight', 'var(--warm)')}
+                ${xLabels}
+            </svg>
+        </div>
+    `;
+
+    // ── 하단 세션 카드 스크롤 ──
+    const scrollWrap = document.createElement('div');
+    scrollWrap.className = 'history-scroll';
+
+    userData.history.forEach((item, idx) => {
         const div = document.createElement('div');
         div.className = 'history-card';
-        
-        // 메인 3세트 기반 미니 차트 생성 로직
-        let chartHtml = '<div class="chart-container">';
-        item.mainResults.forEach(r => {
-            const lPct = (r.left / 10) * 100;
-            const rPct = (r.right / 10) * 100;
-            chartHtml += `
-                <div class="chart-bar-wrapper">
-                    <div class="chart-bar-track"><div class="chart-bar-fill left" style="height:${lPct}%"></div></div>
-                    <div class="chart-label">S${r.set}L</div>
-                </div>
-                <div class="chart-bar-wrapper">
-                    <div class="chart-bar-track"><div class="chart-bar-fill right" style="height:${rPct}%"></div></div>
-                    <div class="chart-label">S${r.set}R</div>
-                </div>
-            `;
-        });
-        chartHtml += '</div>';
+        // 그래프 도트 클릭 시 스크롤 대상 (최신순이므로 역인덱스)
+        div.id = `hcard-${data.length - 1 - idx}`;
 
+        const allPass = item.mainResults.every(r => r.left >= 8 && r.right >= 8);
         div.innerHTML = `
-            <div class="history-title">${item.date}</div>
+            <div class="history-title">
+                ${item.date}
+                <span style="float:right; font-size:11px; color:${allPass ? 'var(--green)' : 'var(--red)'}; font-weight:900;">
+                    ${allPass ? '✓ ALL PASS' : '✗ FAIL'}
+                </span>
+            </div>
             <div class="history-block history-main">
-                <div class="history-label" style="color:var(--main);">MAIN (L:${item.mainLeftWeight}kg / R:${item.mainRightWeight}kg)</div>
-                ${item.mainResults.map(r=>`<div class="history-line ${(r.left<8||r.right<8)?'fail':''}"> ${r.set}세트 L${r.left} / R${r.right}</div>`).join('')}
-                ${chartHtml}
+                <div class="history-label" style="color:var(--main);">MAIN — L:${item.mainLeftWeight}kg / R:${item.mainRightWeight}kg</div>
+                ${item.mainResults.map(r=>`
+                    <div class="history-line ${(r.left<8||r.right<8)?'fail':''}">
+                        ${r.set}세트&nbsp; L${r.left} / R${r.right}
+                        ${(r.left<8||r.right<8) ? '<span style="font-size:10px; color:var(--red);"> ✗</span>' : '<span style="font-size:10px; color:var(--green);"> ✓</span>'}
+                    </div>`).join('')}
             </div>
             <div class="history-block history-negative">
                 <div class="history-label" style="color:var(--negative);">NEGATIVE</div>
@@ -1047,8 +1176,14 @@ function loadHistory(){
                 ${(item.holdResults || []).map(h=>`<div class="history-line">${h.set}회차 L${h.left}초 / R${h.right}초</div>`).join('')}
             </div>
         `;
-        page.appendChild(div);
+        scrollWrap.appendChild(div);
     });
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'history-wrapper';
+    wrapper.appendChild(chartCard);
+    wrapper.appendChild(scrollWrap);
+    page.appendChild(wrapper);
 }
 
 function initSettingsGrid() {
