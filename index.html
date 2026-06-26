@@ -602,7 +602,103 @@ button:disabled {
     background: #2a2a2a;
 }
 
-/* ── 원형 타이머 ── */
+/* ── 무게 안내 모달 ── */
+.weight-guide {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 99998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+.weight-guide.hidden { display: none; }
+.weight-guide-box {
+    width: 100%;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 28px;
+    padding: 28px 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+.wg-label {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: #555;
+}
+.wg-title {
+    font-size: 15px;
+    font-weight: 900;
+    color: var(--main);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+.wg-hands {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 8px;
+}
+.wg-hand-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    background: #1a1a1a;
+    border-radius: 18px;
+    padding: 16px 10px;
+}
+.wg-hand-label {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+.wg-hand-label.left  { color: var(--main); }
+.wg-hand-label.right { color: var(--warm); }
+.wg-hand-weight {
+    font-size: 44px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -2px;
+    color: var(--text);
+}
+.wg-hand-unit {
+    font-size: 16px;
+    font-weight: 700;
+    color: #555;
+}
+.wg-change-badge {
+    font-size: 10px;
+    font-weight: 900;
+    background: rgba(255,138,61,0.15);
+    color: var(--negative);
+    border-radius: 20px;
+    padding: 3px 10px;
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
+.wg-change-badge.hidden { display: none; }
+.wg-confirm-btn {
+    width: 100%;
+    height: 60px;
+    border-radius: 18px;
+    background: var(--main);
+    color: #000;
+    font-size: 17px;
+    font-weight: 900;
+    border: none;
+    margin-top: 8px;
+    cursor: pointer;
+}
+
 .ring-wrap {
     position: relative;
     width: 240px;
@@ -831,6 +927,31 @@ button:disabled {
     <button class="main-btn" id="resultCloseBtn">홈으로 이동</button>
 </div>
 
+<!-- 무게 안내 모달 -->
+<div class="weight-guide hidden" id="weightGuide">
+    <div class="weight-guide-box">
+        <div class="wg-label">NEXT SET</div>
+        <div class="wg-title" id="wgTitle">무게 세팅</div>
+        <div class="wg-hands">
+            <div class="wg-hand-block">
+                <div class="wg-hand-label left">LEFT</div>
+                <div>
+                    <span class="wg-hand-weight" id="wgLeftWeight">25</span><span class="wg-hand-unit">kg</span>
+                </div>
+                <div class="wg-change-badge hidden" id="wgLeftBadge">변경 ▲</div>
+            </div>
+            <div class="wg-hand-block">
+                <div class="wg-hand-label right">RIGHT</div>
+                <div>
+                    <span class="wg-hand-weight" id="wgRightWeight">25</span><span class="wg-hand-unit">kg</span>
+                </div>
+                <div class="wg-change-badge hidden" id="wgRightBadge">변경 ▲</div>
+            </div>
+        </div>
+        <button class="wg-confirm-btn" id="wgConfirmBtn">준비 완료 →</button>
+    </div>
+</div>
+
 <div class="overlay hidden" id="overlay">
     <div class="overlay-wrap">
         <div class="ring-wrap">
@@ -1002,6 +1123,42 @@ document.querySelectorAll('.rep-btn').forEach(btn => {
     };
 });
 
+// 무게 안내 모달
+let _prevStepWeights = { l: null, r: null };
+
+function showWeightGuide(isFirst, onConfirm) {
+    const item = flow[flowIndex];
+    const lKg = item.lWeight;
+    const rKg = item.rWeight;
+
+    document.getElementById('wgTitle').textContent = isFirst ? '첫 세트 무게 세팅' : '다음 세트 무게 확인';
+    document.getElementById('wgLeftWeight').textContent  = lKg;
+    document.getElementById('wgRightWeight').textContent = rKg;
+
+    const lBadge = document.getElementById('wgLeftBadge');
+    const rBadge = document.getElementById('wgRightBadge');
+
+    if (isFirst) {
+        lBadge.classList.add('hidden');
+        rBadge.classList.add('hidden');
+    } else {
+        const changed = lKg !== _prevStepWeights.l || rKg !== _prevStepWeights.r;
+        lBadge.classList.toggle('hidden', lKg === _prevStepWeights.l);
+        rBadge.classList.toggle('hidden', rKg === _prevStepWeights.r);
+        // 무게 변경 없으면 모달 스킵
+        if (!changed) { onConfirm(); return; }
+    }
+
+    _prevStepWeights = { l: lKg, r: rKg };
+    const guide = document.getElementById('weightGuide');
+    guide.classList.remove('hidden');
+
+    document.getElementById('wgConfirmBtn').onclick = () => {
+        guide.classList.add('hidden');
+        onConfirm();
+    };
+}
+
 document.getElementById('startBtn').onclick = () => {
     buildFlow();
     flowIndex = 0;
@@ -1009,8 +1166,11 @@ document.getElementById('startBtn').onclick = () => {
     mainResults = [];
     negativeResults = [];
     window.holdResults = [];
+    _prevStepWeights = { l: null, r: null };
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.page === 'home'));
     openPage('session');
+    // 첫 세트 무게 안내
+    showWeightGuide(true, () => {});
 };
 
 let timer;
@@ -1231,6 +1391,7 @@ function nextStep(){
     currentHand = 'LEFT';
     if(flowIndex >= flow.length) { finishSession(); return; }
     renderStep();
+    showWeightGuide(false, () => {});
 }
 
 document.getElementById('actionBtn').onclick = () => {
