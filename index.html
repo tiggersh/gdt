@@ -441,28 +441,35 @@ button:disabled {
     background:rgba(0,0,0,.95);
     z-index:99999;
     display:flex;
-    justify-content:center;
+    flex-direction:column;
+    justify-content:space-between;
     align-items:center;
-    padding:20px;
+    padding:0;
 }
 .overlay-wrap{
     width:100%;
+    flex:1;
     display:flex;
     flex-direction:column;
     align-items:center;
+    justify-content:center;
     gap:16px;
+    padding:40px 20px 20px;
 }
 .overlay-title{ font-size:18px; font-weight:900; letter-spacing:4px; color:var(--main); }
 .overlay-time{ font-size:88px; font-weight:900; line-height:1; }
 .overlay-btn{
     width:100%;
-    height:72px;
-    border-radius:20px;
-    background:#222;
+    flex-shrink:0;
+    height:160px;
+    border-radius:0;
+    background:#1a1a1a;
     color:white;
-    font-size:20px;
+    font-size:28px;
     font-weight:900;
-    border: 2px solid #444;
+    border:none;
+    border-top:1px solid #2a2a2a;
+    letter-spacing:2px;
 }
 
 .result-page{
@@ -927,6 +934,19 @@ button:disabled {
     <button class="main-btn" id="resultCloseBtn">홈으로 이동</button>
 </div>
 
+<!-- 훈련 복원 다이얼로그 -->
+<div class="overlay hidden" id="resumeOverlay" style="z-index:9999999;">
+    <div class="overlay-wrap">
+        <div class="overlay-title" style="color:var(--main);">훈련 복원</div>
+        <div style="font-size:15px; font-weight:900; text-align:center; line-height:1.6; color:#aaa;">
+            진행 중이던 훈련이 있습니다.<br>이어서 계속할까요?
+        </div>
+        <div id="resumeInfo" style="background:#1a1a1a; border-radius:16px; padding:14px 20px; width:100%; text-align:center; font-size:13px; font-weight:700; color:#666; line-height:1.8;"></div>
+        <button class="main-btn" id="resumeConfirmBtn" style="height:56px;">이어서 계속하기</button>
+        <button class="overlay-btn" id="resumeDiscardBtn">처음부터 시작</button>
+    </div>
+</div>
+
 <!-- 무게 안내 모달 -->
 <div class="weight-guide hidden" id="weightGuide">
     <div class="weight-guide-box">
@@ -965,8 +985,8 @@ button:disabled {
                 <div class="ring-sub" id="ringSub">휴식 중</div>
             </div>
         </div>
-        <button class="overlay-btn" id="overlayBtn">건너뛰기</button>
     </div>
+    <button class="overlay-btn" id="overlayBtn">건너뛰기</button>
 </div>
 
 <div class="overlay hidden" id="resetOverlay" style="z-index:9999999;">
@@ -1159,7 +1179,28 @@ function showWeightGuide(isFirst, onConfirm) {
     };
 }
 
-document.getElementById('startBtn').onclick = () => {
+const SESSION_KEY = 'gdiron_session_v1';
+
+function saveSession() {
+    try {
+        localStorage.setItem(SESSION_KEY, JSON.stringify({
+            flowIndex,
+            currentHand,
+            mainResults,
+            negativeResults,
+            holdResults: window.holdResults || [],
+            _prevStepWeights,
+            ts: Date.now()
+        }));
+    } catch(e) {}
+}
+
+function clearSession() {
+    localStorage.removeItem(SESSION_KEY);
+}
+
+function startFresh() {
+    clearSession();
     buildFlow();
     flowIndex = 0;
     currentHand = 'LEFT';
@@ -1169,8 +1210,49 @@ document.getElementById('startBtn').onclick = () => {
     _prevStepWeights = { l: null, r: null };
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.page === 'home'));
     openPage('session');
-    // 첫 세트 무게 안내
     showWeightGuide(true, () => {});
+}
+
+document.getElementById('startBtn').onclick = () => {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (raw) {
+        try {
+            const snap = JSON.parse(raw);
+            const age = (Date.now() - snap.ts) / 1000 / 60 / 60;
+            if (age < 3) {
+                // 복원 다이얼로그 표시
+                buildFlow();
+                const item = flow[snap.flowIndex] || flow[0];
+                document.getElementById('resumeInfo').innerHTML =
+                    `마지막 세트: <b style="color:var(--main)">${item.title}</b><br>` +
+                    `진행: <b style="color:#fff">${snap.flowIndex + 1} / ${flow.length}</b> 세트<br>` +
+                    `경과: <b style="color:#fff">${Math.round(age * 60)}분 전</b>`;
+                document.getElementById('resumeOverlay').classList.remove('hidden');
+                return;
+            }
+        } catch(e) {}
+    }
+    startFresh();
+};
+
+document.getElementById('resumeConfirmBtn').onclick = () => {
+    document.getElementById('resumeOverlay').classList.add('hidden');
+    try {
+        const snap = JSON.parse(localStorage.getItem(SESSION_KEY));
+        flowIndex        = snap.flowIndex;
+        currentHand      = snap.currentHand;
+        mainResults      = snap.mainResults;
+        negativeResults  = snap.negativeResults;
+        window.holdResults = snap.holdResults || [];
+        _prevStepWeights = snap._prevStepWeights || { l: null, r: null };
+    } catch(e) { startFresh(); return; }
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.page === 'home'));
+    openPage('session');
+};
+
+document.getElementById('resumeDiscardBtn').onclick = () => {
+    document.getElementById('resumeOverlay').classList.add('hidden');
+    startFresh();
 };
 
 let timer;
@@ -1398,19 +1480,22 @@ document.getElementById('actionBtn').onclick = () => {
     const item = flow[flowIndex];
     if(item.type === 'negative') { startNegative(); return; }
     if(item.type === 'hold') { startHold(); return; }
-    
+
     if(item.type === 'main'){
         if(currentHand === 'LEFT'){
             mainResults.push({ set: item.set, left: selectedRep, right: null });
             currentHand = 'RIGHT';
             renderStep();
+            saveSession();
             return;
         }
         mainResults[mainResults.length - 1].right = selectedRep;
+        saveSession();
         startRest();
         return;
     }
-    if(currentHand === 'LEFT') { currentHand = 'RIGHT'; renderStep(); return; }
+    if(currentHand === 'LEFT') { currentHand = 'RIGHT'; renderStep(); saveSession(); return; }
+    saveSession();
     startRest();
 };
 
@@ -1462,6 +1547,7 @@ function finishSession(){
     });
 
     if (userData.history.length > 60) userData.history = userData.history.slice(0, 60);
+    clearSession();
     saveData();
     updateHomeUI();
     renderResult();
