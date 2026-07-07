@@ -291,19 +291,6 @@ button:disabled {
 .weight-sub{ font-size:13px; color:#555; font-weight:700; margin-top:2px; }
 .target{ font-size:15px; font-weight:800; }
 
-.previous{
-    width:100%;
-    background:#0f0f0f;
-    border:1px solid #1d1d1d;
-    border-radius:16px;
-    padding:12px;
-    display:flex;
-    flex-direction:column;
-    gap:4px;
-}
-.previous-label{ font-size:11px; letter-spacing:1px; color:#777; font-weight:700; }
-.previous-value{ font-size:13px; font-weight:900; line-height:1.4; }
-
 .rep-wrap{ width:100%; }
 .rep-grid{
     width:100%;
@@ -864,11 +851,6 @@ button:disabled {
                 <div class="target" id="targetText">8회 수행</div>
             </div>
 
-            <div class="previous">
-                <div class="previous-label">PREV RECORD</div>
-                <div class="previous-value" id="prevRecord">없음</div>
-            </div>
-
             <div class="rep-wrap" id="repSection">
                 <div class="rep-grid">
                     <button class="rep-btn">1</button>
@@ -1355,10 +1337,10 @@ function startCountdown(label, onComplete) {
     btn.onclick = null;
     overlay.classList.remove('hidden');
 
-    let count = 3;
+    let count = 5;
     timeEl.style.fontSize = '72px';
     timeEl.textContent = count;
-    ring.style.strokeDashoffset = CIRC * (1 - count / 3);
+    ring.style.strokeDashoffset = CIRC * (1 - count / 5);
     playBeep(660, 120);
 
     clearInterval(timer);
@@ -1366,7 +1348,7 @@ function startCountdown(label, onComplete) {
         count--;
         if (count > 0) {
             timeEl.textContent = count;
-            ring.style.strokeDashoffset = CIRC * (1 - count / 3);
+            ring.style.strokeDashoffset = CIRC * (1 - count / 5);
             playBeep(660, 120);
         } else {
             clearInterval(timer);
