@@ -781,7 +781,7 @@ button:disabled {
             </div>
             <div class="info-mini-card">
                 <div class="info-mini-label">총 세트수</div>
-                <div class="info-mini-val" style="color:var(--main);">12세트</div>
+                <div class="info-mini-val" style="color:var(--main);">9세트</div>
             </div>
             <div class="info-mini-card">
                 <div class="info-mini-label">훈련 강도</div>
@@ -1046,17 +1046,15 @@ window.holdResults = [];
 function buildFlow(){
     flow = [];
     flow.push({ type:'warmup', title:'웜업 1', target:10, lWeight: weights[Math.max(0, userData.leftIndex - 3)], rWeight: weights[Math.max(0, userData.rightIndex - 3)] });
-    flow.push({ type:'warmup', title:'웜업 2', target:5, lWeight: weights[Math.max(0, userData.leftIndex - 2)], rWeight: weights[Math.max(0, userData.rightIndex - 2)] });
+    flow.push({ type:'warmup', title:'웜업 2', target:5,  lWeight: weights[Math.max(0, userData.leftIndex - 2)], rWeight: weights[Math.max(0, userData.rightIndex - 2)] });
 
     for(let i=1; i<=3; i++){
         flow.push({ type:'main', title:`메인 ${i}세트`, set:i, target:8, lWeight: weights[userData.leftIndex-1], rWeight: weights[userData.rightIndex-1] });
     }
     for(let i=1; i<=2; i++){
-        flow.push({ type:'negative', title:`네거티브 ${i}회차`, set:i, target:5, lWeight: weights[Math.min(5, userData.leftIndex-2)], rWeight: weights[Math.min(5, userData.rightIndex-2)] });
+        flow.push({ type:'negative', title:`네거티브 ${i}회차`, set:i, target:5, lWeight: weights[Math.max(0, userData.leftIndex - 2)], rWeight: weights[Math.max(0, userData.rightIndex - 2)] });
     }
-    for(let i=1; i<=2; i++){
-        flow.push({ type:'hold', title:`최대 홀딩 ${i}회차`, set:i, target:20, lWeight: weights[userData.leftIndex-2], rWeight: weights[userData.rightIndex-2] });
-    }
+    flow.push({ type:'hold', title:`최대 홀딩 1회차`, set:1, target:20, lWeight: weights[Math.max(0, userData.leftIndex - 2)], rWeight: weights[Math.max(0, userData.rightIndex - 2)] });
 }
 
 function openPage(page){
