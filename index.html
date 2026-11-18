@@ -669,6 +669,12 @@ button:disabled {
     font-weight: 700;
     color: #555;
 }
+.wg-hand-lb {
+    font-size: 26px;
+    font-weight: 900;
+    color: #d9d9d9;
+    line-height: 1;
+}    
 .wg-change-badge {
     font-size: 10px;
     font-weight: 900;
@@ -1136,6 +1142,8 @@ function showWeightGuide(isFirst, onConfirm) {
     document.getElementById('wgTitle').textContent = isFirst ? '첫 세트 무게 세팅' : '다음 세트 무게 확인';
     document.getElementById('wgLeftWeight').textContent  = lKg;
     document.getElementById('wgRightWeight').textContent = rKg;
+    document.getElementById('wgLeftLb').textContent  = `${lbs[weights.indexOf(lKg)]} lb`;
+    document.getElementById('wgRightLb').textContent = `${lbs[weights.indexOf(rKg)]} lb`;
 
     const lBadge = document.getElementById('wgLeftBadge');
     const rBadge = document.getElementById('wgRightBadge');
